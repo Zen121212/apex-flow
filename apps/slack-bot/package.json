@@ -1,0 +1,21 @@
+{
+  "name": "@apex-flow/slack-bot",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "ts-node src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "test": "echo \"No tests specified\""
+  },
+  "dependencies": {
+    "@slack/bolt": "^3.14.0",
+    "axios": "^1.5.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.1.6",
+    "ts-node": "^10.9.1",
+    "@types/node": "^20.5.1"
+  }
+}

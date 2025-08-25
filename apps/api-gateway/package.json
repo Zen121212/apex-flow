@@ -1,0 +1,32 @@
+{
+  "name": "@apex-flow/api-gateway",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start:dev": "ts-node src/main.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/main.js",
+    "test": "echo \"No tests specified\""
+  },
+  "dependencies": {
+    "@nestjs/common": "^10.2.5",
+    "@nestjs/core": "^10.2.5",
+    "@nestjs/platform-fastify": "^10.2.5",
+    "@nestjs/config": "^3.0.1",
+    "@nestjs/typeorm": "^10.0.0",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.8.1",
+    "typeorm": "^0.3.17",
+    "mongodb": "^5.7.0",
+    "bullmq": "^4.10.1",
+    "ioredis": "^5.3.2",
+    "pino": "^8.15.0",
+    "pino-pretty": "^10.2.0",
+    "fastify": "^4.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.5.1",
+    "typescript": "^5.1.6",
+    "ts-node": "^10.9.1"
+  }
+}
