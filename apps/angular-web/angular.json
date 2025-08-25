@@ -35,6 +35,7 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
+            "buildTarget": "angular-web:build",
             "port": 4200
           }
         }

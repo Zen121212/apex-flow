@@ -1,0 +1,1 @@
+{"ast":null,"code":"export const routes = [{\n  path: '',\n  loadComponent: () => import('./components/landing/landing.component').then(m => m.LandingComponent)\n}, {\n  path: '**',\n  redirectTo: ''\n}];","map":null,"metadata":{},"sourceType":"module","externalDependencies":[]}
