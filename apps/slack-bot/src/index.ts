@@ -167,7 +167,7 @@ app.shortcut('search_documents', async ({ ack, body, client }) => {
 });
 
 // Error handling
-app.error((error) => {
+app.error(async (error) => {
   console.error('Slack app error:', error);
 });
 
