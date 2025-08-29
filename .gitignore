@@ -1,6 +1,8 @@
 node_modules/
 dist/
 .env
+BRANCH_QUICK_REFERENCE.md
+BRANCHING_STRATEGY.md
 apps/**/.env
 coverage/
 .DS_Store
