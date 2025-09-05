@@ -3,6 +3,7 @@ import IORedis from 'ioredis';
 import { logger } from './logger';
 import { mongoDataSource } from './mongo';
 import { processDocument } from './processor';
+import { vectorStorage } from './vector-storage';
 
 const connection = new IORedis(process.env.REDIS_URL || 'redis://localhost:6379', {
   maxRetriesPerRequest: 3,
@@ -44,13 +45,16 @@ queueEvents.on('failed', ({ jobId, failedReason }) => {
   logger.error('Ingest job failed', { jobId, failedReason });
 });
 
-// Initialize MongoDB connection
-mongoDataSource.initialize()
+// Initialize MongoDB connection and Vector Storage
+Promise.all([
+  mongoDataSource.initialize(),
+  vectorStorage.initialize()
+])
   .then(() => {
-    logger.info('MongoDB connected successfully');
+    logger.info('MongoDB and Vector Storage connected successfully');
   })
   .catch((error) => {
-    logger.error('MongoDB connection failed', error);
+    logger.error('Database initialization failed', error);
   });
 
 // Graceful shutdown
