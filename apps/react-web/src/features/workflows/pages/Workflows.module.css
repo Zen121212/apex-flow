@@ -1,0 +1,300 @@
+.workflowsContainer {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 60vh; /* Prevent layout shift on load */
+}
+
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.headerContent h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.headerContent p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+.errorBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #991b1b;
+  font-size: 0.875rem;
+}
+
+.errorIcon {
+  flex-shrink: 0;
+}
+
+.connectionStatus {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  color: #166534;
+  font-size: 0.875rem;
+}
+
+.connectedIcon {
+  flex-shrink: 0;
+}
+
+/* Button styles removed - using Button component instead */
+
+/* Workflows Grid */
+.workflowsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.workflow-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.2s;
+}
+
+.workflow-card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.workflow-card.inactive {
+  opacity: 0.6;
+  background: #f9fafb;
+}
+
+.workflow-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.workflow-info h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.workflow-description {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.workflow-status {
+  flex-shrink: 0;
+  margin-left: 1rem;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+}
+
+.status-active {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-inactive {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.workflow-stats {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1rem;
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat-number {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.workflow-integrations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.integration-tag,
+.approval-tag {
+  padding: 0.25rem 0.5rem;
+  background: #f3f4f6;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  color: #374151;
+  font-weight: 500;
+}
+
+.approval-tag {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.workflow-meta {
+  margin-bottom: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f3f4f6;
+}
+
+.created-date,
+.last-used {
+  display: block;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-bottom: 0.25rem;
+}
+
+.workflow-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Dashboard Workflow List Styles - moved from Dashboard.css */
+.workflows-list {
+  display: grid;
+  gap: 1rem;
+}
+
+/* Override workflow-card for dashboard list view */
+.workflow-card.dashboard-style {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  position: relative;
+  background: white;
+  transition: all 0.2s;
+}
+
+.workflow-card.dashboard-style:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.workflow-card.dashboard-style .workflow-status {
+  width: 4px;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 2px;
+}
+
+.workflow-card.dashboard-style .workflow-status.active {
+  background: #10b981;
+}
+
+.workflow-card.dashboard-style .workflow-status.paused {
+  background: #f59e0b;
+}
+
+.workflow-card.dashboard-style .workflow-status.error {
+  background: #ef4444;
+}
+
+.workflow-card.dashboard-style .workflow-content {
+  flex: 1;
+  padding-left: 1rem;
+}
+
+.workflow-card.dashboard-style .workflow-content h4 {
+  margin: 0 0 0.25rem 0;
+  color: #111827;
+  font-weight: 500;
+}
+
+.workflow-card.dashboard-style .workflow-content p {
+  margin: 0 0 0.5rem 0;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.workflow-card.dashboard-style .workflow-stats {
+  display: flex;
+  gap: 1rem;
+}
+
+.workflow-card.dashboard-style .workflow-stats .stat {
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+.workflow-card.dashboard-style .workflow-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Empty State */
+.emptyState {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #6b7280;
+}
+
+.emptyIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.emptyState h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.emptyState p {
+  margin: 0 0 2rem 0;
+}
+
