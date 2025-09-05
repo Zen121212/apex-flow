@@ -274,7 +274,20 @@ export class DocumentProcessor {
         inputs: text
       });
 
-      return Array.isArray(result) ? result : [];
+      // Handle different possible return types from FeatureExtractionOutput
+      if (Array.isArray(result)) {
+        // If result is a number[][], take the first array
+        if (result.length > 0 && Array.isArray(result[0])) {
+          return result[0] as number[];
+        }
+        // If result is already number[]
+        return result as number[];
+      }
+      // If result is a single number, wrap it in an array
+      if (typeof result === 'number') {
+        return [result];
+      }
+      return [];
     } catch (error) {
       logger.error('Fallback embedding generation failed', { error: error.message });
       // Return zero vector as final fallback

@@ -13,10 +13,11 @@ interface WorkflowStep {
   config: Record<string, any>;
 }
 
-interface WorkflowDefinition {
+export interface WorkflowDefinition {
   id: string;
   name: string;
   steps: WorkflowStep[];
+  description?: string;
 }
 
 @Injectable()
