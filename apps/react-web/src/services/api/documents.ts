@@ -97,7 +97,7 @@ class DocumentAPI {
       size: doc.size,
       category: null, // Not in current response
       workflowId: null, // Not in current response
-      status: 'completed', // Assume uploaded docs are completed for now
+      status: 'completed' as const, // Assume uploaded docs are completed for now
       createdAt: doc.uploadedAt,
       updatedAt: doc.uploadedAt,
     }));

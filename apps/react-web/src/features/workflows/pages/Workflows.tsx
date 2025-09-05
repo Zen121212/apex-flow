@@ -86,7 +86,6 @@ const Workflows: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [backendWorkflows, setBackendWorkflows] = useState<WorkflowDefinition[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Convert backend workflow to frontend workflow format
@@ -131,7 +130,6 @@ const Workflows: React.FC = () => {
   useEffect(() => {
     const loadWorkflows = async () => {
       try {
-        setLoading(true);
         setError(null);
         
         const backendData = await workflowApi.getWorkflows();
@@ -189,8 +187,6 @@ const Workflows: React.FC = () => {
           },
         ];
         setWorkflows(fallbackWorkflows);
-      } finally {
-        setLoading(false);
       }
     };
 

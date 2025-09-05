@@ -6,6 +6,7 @@ export interface User {
   email: string;
   name: string;
   provider: 'email' | 'google';
+  role?: string;
 }
 
 interface AuthContextType {
