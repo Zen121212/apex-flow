@@ -34,38 +34,44 @@
 }
 
 .btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 8px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
   text-decoration: none;
   font-size: 0.875rem;
 }
 
 .btn-primary {
-  background: #667eea;
-  color: white;
+  background: var(--apex-accent);
+  color: var(--color-white);
+  border: 1px solid var(--apex-accent);
 }
 
 .btn-primary:hover {
-  background: #5a67d8;
-  transform: translateY(-1px);
+  background: var(--apex-accent-hover);
+  border-color: var(--apex-accent-hover);
 }
 
 .btn-secondary {
-  background: white;
-  color: #667eea;
-  border: 1px solid #e5e7eb;
+  background: transparent;
+  color: var(--apex-main);
+  border: 1px solid var(--apex-main);
 }
 
 .btn-secondary:hover {
-  background: #f9fafb;
-  border-color: #d1d5db;
+  background: var(--apex-main);
+  color: var(--color-white);
+  border-color: var(--apex-main);
 }
 
 .btn-sm {
@@ -275,7 +281,7 @@
 }
 
 .viewAll {
-  color: #667eea;
+  color: #04172f;
   text-decoration: none;
   font-size: 0.875rem;
   font-weight: 500;
@@ -307,7 +313,7 @@
 }
 
 .view-all {
-  color: #667eea;
+  color: #04172f;
   text-decoration: none;
   font-size: 0.875rem;
   font-weight: 500;
@@ -432,8 +438,8 @@
 }
 
 .actionCard:hover {
-  border-color: #667eea;
-  transform: translateY(-2px);
+  border-color: #04172f;
+  /* transform: translateY(-2px); */
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
   background: #f8fafc;
 }
@@ -498,8 +504,8 @@
 }
 
 .action-card:hover {
-  border-color: #667eea;
-  transform: translateY(-2px);
+  border-color: #04172f;
+  /* transform: translateY(-2px); */
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
   background: #f8fafc;
 }
@@ -543,11 +549,87 @@
   margin: 0 0 1.5rem 0;
 }
 
+/* Tablet and small desktop responsiveness */
+@media (max-width: 1024px) {
+  .dashboard {
+    padding: 1.5rem;
+  }
+
+  .dashboardHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.5rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .welcomeSection h1 {
+    font-size: 1.875rem;
+  }
+
+  .quickActions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .quickActions .btnHeader {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+/* Mobile responsiveness */
 @media (max-width: 768px) {
   .dashboard {
     padding: 1rem;
   }
 
+  .dashboardHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .welcomeSection h1 {
+    font-size: 1.75rem;
+    line-height: 1.2;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .quickActions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .value-banner {
+    flex-direction: column;
+  }
+
+  /* Legacy classes for backwards compatibility */
   .dashboard-header {
     flex-direction: column;
     align-items: stretch;
@@ -556,12 +638,47 @@
   .quick-actions {
     flex-direction: column;
   }
+}
+
+/* Small mobile phones */
+@media (max-width: 480px) {
+  .dashboard {
+    padding: 0.75rem;
+  }
+
+  .dashboardHeader {
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .welcomeSection h1 {
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.875rem;
+  }
+
+  .quickActions {
+    gap: 0.5rem;
+  }
 
   .stats-grid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
   }
 
-  .value-banner {
-    flex-direction: column;
+  .statsGrid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
   }
+}
+
+.btnHeader {
+  display: flex !important;
+  align-content: center;
+  display: flex;
+}
+.btnHeader.btn-primary {
+  color: #fff;
 }
