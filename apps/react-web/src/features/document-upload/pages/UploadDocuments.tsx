@@ -1,12 +1,11 @@
 import React, { useMemo, useState } from 'react';
-import { useDocumentsList, useWorkflowOptions } from '../hooks/useDocuments';
+import { useDocumentsList } from '../hooks/useDocuments';
 import type { DocumentListFilters, DocumentItem } from '../../../types/documents';
 import styles from './UploadDocuments.module.css';
 
 const defaultPageSize = 10;
 
 const UploadDocuments: React.FC = () => {
-  const { data: workflowOptions } = useWorkflowOptions();
 
   const [filters, setFilters] = useState<DocumentListFilters>({
     page: 1,

@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { 
   Integration, 
-  IntegrationType, 
-  SlackFormData, 
-  EmailFormData, 
-  DatabaseFormData, 
-  WebhookFormData 
+  IntegrationType
 } from '../types/index';
 import Button from '../../../components/atoms/Button/Button';
 import styles from './IntegrationModal.module.css';

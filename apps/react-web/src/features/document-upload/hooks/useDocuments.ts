@@ -25,7 +25,7 @@ export function useDocumentsList(filters: import('../../../types/documents').Doc
   return useQuery({
     queryKey: documentsKeys.list(filters),
     queryFn: () => documentAPI.getDocuments(filters),
-    keepPreviousData: true,
+    placeholderData: (previousData) => previousData,
   });
 }
 
