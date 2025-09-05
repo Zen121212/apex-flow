@@ -21,7 +21,7 @@
 
 .filters {
   display: grid;
-  grid-template-columns: 1fr repeat(3, minmax(160px, 220px)) 1fr 1fr;
+  grid-template-columns: 2fr 1fr;
   gap: 12px;
   align-items: end;
 }
@@ -42,6 +42,7 @@
 .datesRow {
   display: flex;
   gap: 8px;
+  grid-column: span 2;
 }
 
 .dateLabel {
@@ -60,6 +61,7 @@
 .sortRow {
   display: flex;
   gap: 8px;
+  grid-column: span 2;
 }
 
 .listContainer {
@@ -202,5 +204,199 @@
 
 .pageInfo {
   color: #57606a;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .page {
+    padding: 12px 16px;
+  }
+  
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .filters {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .search {
+    order: 1;
+  }
+  
+  .select {
+    order: 2;
+  }
+  
+  .datesRow {
+    order: 3;
+    grid-column: span 1;
+  }
+  
+  .sortRow {
+    order: 4;
+    grid-column: span 1;
+  }
+  
+  .tableContainer {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .table {
+    min-width: 600px;
+  }
+  
+  .th, .td {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  
+  .documentCell {
+    min-width: 180px;
+  }
+  
+  .fileName {
+    max-width: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 8px 12px;
+  }
+  
+  .header h1 {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .header p {
+    font-size: 0.875rem;
+    margin: 0;
+  }
+  
+  .refreshBtn {
+    padding: 6px 10px;
+    font-size: 0.875rem;
+  }
+  
+  .filters {
+    gap: 10px;
+  }
+  
+  .search, .select {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+  
+  .datesRow {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .sortRow {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .table {
+    min-width: 500px;
+    font-size: 13px;
+  }
+  
+  .th, .td {
+    padding: 6px 8px;
+  }
+  
+  .documentCell {
+    min-width: 150px;
+  }
+  
+  .fileName {
+    max-width: 150px;
+    font-size: 13px;
+  }
+  
+  .fileIcon {
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
+  }
+  
+  .pagination {
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .pageBtn {
+    padding: 6px 10px;
+    font-size: 0.875rem;
+  }
+  
+  .pageInfo {
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .page {
+    padding: 6px 8px;
+  }
+  
+  .header {
+    gap: 8px;
+  }
+  
+  .header h1 {
+    font-size: 1.25rem;
+  }
+  
+  .header p {
+    font-size: 0.8125rem;
+  }
+  
+  .listContainer {
+    padding: 12px;
+    margin: 0 -2px;
+  }
+  
+  .table {
+    min-width: 450px;
+    font-size: 12px;
+  }
+  
+  .th, .td {
+    padding: 4px 6px;
+  }
+  
+  .documentCell {
+    min-width: 120px;
+    gap: 6px;
+  }
+  
+  .fileName {
+    max-width: 120px;
+    font-size: 12px;
+  }
+  
+  .fileIcon {
+    width: 18px;
+    height: 18px;
+    font-size: 12px;
+  }
+  
+  .mimeType, .fileSize, .dateTime {
+    font-size: 11px;
+  }
+  
+  .status {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
 }
 
