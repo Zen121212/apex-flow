@@ -1,0 +1,127 @@
+/* ApexFlow Card Styles - Based on your existing design */
+.card {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  margin: 1rem 0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+/* ApexFlow specific card variants */
+.value-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.value-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.solution-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+}
+
+.solution-card:hover {
+  transform: translateY(-8px);
+}
+
+.use-case-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+}
+
+.use-case-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Padding variants */
+.card--padding-none {
+  padding: 0;
+}
+
+.card--padding-small {
+  padding: 0.75rem;
+}
+
+.card--padding-medium {
+  padding: 1rem;
+}
+
+.card--padding-large {
+  padding: 1.5rem;
+}
+
+/* Interactive states */
+.card--hoverable:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.card--clickable {
+  cursor: pointer;
+}
+
+.card--clickable:hover {
+  border-color: #d1d5db;
+}
+
+/* Card sections */
+.card__header {
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #f3f4f6;
+  margin-bottom: 0.75rem;
+}
+
+.card__header:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.card__body {
+  flex: 1;
+}
+
+.card__footer {
+  padding-top: 0.75rem;
+  border-top: 1px solid #f3f4f6;
+  margin-top: 0.75rem;
+}
+
+.card__footer:first-child {
+  padding-top: 0;
+  border-top: none;
+  margin-top: 0;
+}
+
+/* When card has no padding, sections need their own */
+.card--padding-none .card__header {
+  padding: 1rem 1rem 0.75rem 1rem;
+}
+
+.card--padding-none .card__body {
+  padding: 0 1rem;
+}
+
+.card--padding-none .card__footer {
+  padding: 0.75rem 1rem 1rem 1rem;
+}

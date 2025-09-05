@@ -1,0 +1,45 @@
+.valueBanner {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  background: linear-gradient(to right, #4f46e5, #7e69f8);
+  padding: 1.5rem;
+  border-radius: 12px;
+  color: white;
+}
+
+.valueCard {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.valueIcon {
+  font-size: 2rem;
+  background: rgba(255, 255, 255, 0.2);
+  width: 4rem;
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.valueContent h3 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.valueContent p {
+  font-size: 1rem;
+  margin: 0;
+  opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+  .valueBanner {
+    flex-direction: column;
+  }
+}
