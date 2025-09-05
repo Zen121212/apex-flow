@@ -8,7 +8,7 @@ interface WorkflowMapping {
   priority: number;
 }
 
-interface WorkflowSelectionResult {
+export interface WorkflowSelectionResult {
   workflowId: string | null;
   method: 'manual' | 'auto' | 'hybrid' | 'default';
   confidence: number;
