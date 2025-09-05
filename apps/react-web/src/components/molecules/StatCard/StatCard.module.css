@@ -16,22 +16,28 @@
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
+  background: var(--apex-main);
+  color: var(--color-white);
 }
 
 .statIcon.documents {
-  background: #dbeafe;
+  background: var(--apex-main);
+  color: var(--color-white);
 }
 
 .statIcon.processing {
-  background: #fef3c7;
+  background: var(--apex-main);
+  color: var(--color-white);
 }
 
 .statIcon.workflows {
-  background: #d1fae5;
+  background: var(--apex-main);
+  color: var(--color-white);
 }
 
 .statIcon.storage {
-  background: #e0e7ff;
+  background: var(--apex-main);
+  color: var(--color-white);
 }
 
 .statContent {
