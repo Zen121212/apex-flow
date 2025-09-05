@@ -1,0 +1,165 @@
+/* ApexFlow Brand Colors & Design System */
+:root {
+  /* Primary Brand Colors */
+  --apex-main: #04172F;
+  --apex-accent: #0097F6;
+  
+  /* Color Variations */
+  --apex-main-light: rgba(4, 23, 47, 0.1);
+  --apex-main-medium: rgba(4, 23, 47, 0.6);
+  --apex-main-hover: rgba(4, 23, 47, 0.8);
+  --apex-accent-light: rgba(0, 151, 246, 0.1);
+  --apex-accent-medium: rgba(0, 151, 246, 0.6);
+  --apex-accent-hover: rgba(0, 151, 246, 0.8);
+  
+  /* Semantic Colors */
+  --color-success: #10B981;
+  --color-warning: #F97316;
+  --color-danger: #EF4444;
+  --color-error: var(--color-danger);
+  --color-info: var(--apex-accent);
+  
+  /* Neutral Colors */
+  --color-white: #FFFFFF;
+  --color-black: #000000;
+  --color-gray-50: #F9FAFB;
+  --color-gray-100: #F3F4F6;
+  --color-gray-200: #E5E7EB;
+  --color-gray-300: #D1D5DB;
+  --color-gray-400: #9CA3AF;
+  --color-gray-500: #6B7280;
+  --color-gray-600: #4B5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1F2937;
+  --color-gray-900: #111827;
+  
+  /* Background Colors */
+  --bg-primary: var(--color-white);
+  --bg-secondary: var(--color-gray-50);
+  --bg-tertiary: var(--color-gray-100);
+  --bg-brand: var(--apex-main);
+  --bg-accent: var(--apex-accent);
+  
+  /* Text Colors */
+  --text-primary: var(--apex-main);
+  --text-secondary: var(--color-gray-600);
+  --text-tertiary: var(--color-gray-400);
+  --text-inverse: var(--color-white);
+  --text-accent: var(--apex-accent);
+  
+  /* Border Colors */
+  --border-primary: var(--color-gray-200);
+  --border-secondary: var(--color-gray-300);
+  --border-accent: var(--apex-accent);
+  --border-focus: var(--apex-accent);
+  
+  /* Shadow Values */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-base: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  
+  /* Spacing Scale */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  
+  /* Border Radius */
+  --radius-sm: 0.125rem;
+  --radius-base: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-full: 9999px;
+}
+
+/* Primary Button Styles */
+.btn-primary {
+  background-color: var(--apex-accent);
+  border-color: var(--apex-accent);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--apex-accent-hover);
+  border-color: var(--apex-accent-hover);
+}
+
+/* Secondary Button with main color */
+.btn-secondary {
+  background-color: transparent;
+  border-color: var(--apex-main);
+  color: var(--apex-main);
+}
+
+.btn-secondary:hover {
+  background-color: var(--apex-main);
+  color: white;
+}
+
+/* Main background elements */
+.bg-primary {
+  background-color: var(--apex-main);
+  color: white;
+}
+
+.bg-accent {
+  background-color: var(--apex-accent);
+  color: white;
+}
+
+/* Text colors */
+.text-primary {
+  color: var(--apex-main);
+}
+
+.text-accent {
+  color: var(--apex-accent);
+}
+
+/* Utility classes for interactive elements */
+.interactive-accent:hover {
+  color: var(--apex-accent);
+  transition: color 0.2s ease;
+}
+
+.interactive-main:hover {
+  color: var(--apex-main);
+  transition: color 0.2s ease;
+}
+
+/* Card and component accents */
+.card-primary {
+  border-left: 4px solid var(--apex-accent);
+}
+
+.card-accent {
+  background-color: var(--apex-accent-light);
+  border-color: var(--apex-accent);
+}
+
+/* Status colors that work with brand */
+.status-active {
+  background-color: var(--apex-accent);
+  color: white;
+}
+
+.status-primary {
+  background-color: var(--apex-main);
+  color: white;
+}
+
+/* Focus states using brand colors */
+.focus-accent:focus {
+  outline: 2px solid var(--apex-accent);
+  outline-offset: 2px;
+}
+
+.focus-main:focus {
+  outline: 2px solid var(--apex-main);
+  outline-offset: 2px;
+}
