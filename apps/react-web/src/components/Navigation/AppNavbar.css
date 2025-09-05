@@ -1,0 +1,471 @@
+.app-navbar {
+  position: fixed;
+  top: 0;
+  left: 250px; /* Account for sidebar width */
+  right: 0;
+  height: 64px;
+  background: var(--color-white);
+  border-bottom: 1px solid var(--border-primary);
+  z-index: 50;
+  box-shadow: var(--shadow-sm);
+  transition: left 0.3s ease;
+}
+
+.app-navbar.sidebar-collapsed {
+  left: 64px; /* Account for collapsed sidebar width */
+}
+
+.navbar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding: 0 2rem;
+}
+
+.navbar-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.burger-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  position: relative;
+  padding: 0;
+}
+
+.burger-button:hover {
+  background: var(--bg-secondary);
+}
+
+.burger-button:hover .burger-line {
+  background: var(--apex-accent);
+}
+
+.burger-lines {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 18px;
+  height: 14px;
+  position: relative;
+}
+
+.burger-line {
+  width: 100%;
+  height: 2px;
+  background: var(--apex-main);
+  border-radius: 2px;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transform-origin: center;
+}
+
+.burger-line:nth-child(1) {
+  width: 100%;
+}
+
+.burger-line:nth-child(2) {
+  width: 80%;
+  align-self: flex-start;
+}
+
+.burger-line:nth-child(3) {
+  width: 60%;
+  align-self: flex-start;
+}
+
+.burger-button:hover .burger-line:nth-child(1) {
+  width: 100%;
+  transform: translateX(0);
+}
+
+.burger-button:hover .burger-line:nth-child(2) {
+  width: 100%;
+  align-self: stretch;
+  transform: translateX(0);
+}
+
+.burger-button:hover .burger-line:nth-child(3) {
+  width: 100%;
+  align-self: stretch;
+  transform: translateX(0);
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.navbar-item {
+  position: relative;
+}
+
+/* Icon Button (Notifications) */
+.icon-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--apex-main);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.icon-button:hover {
+  background: var(--bg-secondary);
+  color: var(--apex-accent);
+}
+
+.notification-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 18px;
+  height: 18px;
+  background: var(--color-danger);
+  color: var(--color-white);
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+/* User Button */
+.user-button {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-button:hover {
+  background: var(--bg-secondary);
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  background: var(--apex-main);
+  color: var(--color-white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+}
+
+.user-avatar.large {
+  width: 48px;
+  height: 48px;
+  font-size: 1.25rem;
+}
+
+.user-name {
+  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.dropdown-arrow {
+  color: var(--text-secondary);
+  transition: transform 0.2s ease;
+}
+
+.user-button[aria-expanded="true"] .dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+/* Dropdowns */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 320px;
+  background: var(--color-white);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.dropdown-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-primary);
+  background: var(--bg-secondary);
+}
+
+.dropdown-header h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.notification-count {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* User Info */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-info h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.user-role {
+  font-size: 0.75rem;
+  color: var(--apex-accent);
+  font-weight: 500;
+  margin: 0.25rem 0 0 0;
+}
+
+.user-email {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin: 0.25rem 0 0 0;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+  padding: 0.5rem 0;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background: var(--bg-secondary);
+}
+
+.dropdown-item.sign-out {
+  color: var(--color-danger);
+}
+
+.dropdown-item.sign-out:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.dropdown-divider {
+  border: none;
+  border-top: 1px solid var(--border-primary);
+  margin: 0.5rem 0;
+}
+
+/* Notifications Dropdown */
+.notifications-dropdown {
+  min-width: 380px;
+}
+
+.notifications-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-primary);
+  transition: background-color 0.2s ease;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item:hover {
+  background: var(--bg-secondary);
+}
+
+.notification-item.unread {
+  background: rgba(0, 151, 246, 0.05);
+  border-left: 3px solid var(--apex-accent);
+}
+
+.notification-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.875rem;
+}
+
+.notification-item .notification-icon {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+.notification-item.unread .notification-icon {
+  background: var(--apex-accent);
+  color: var(--color-white);
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-content h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 0.25rem 0;
+}
+
+.notification-content p {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  margin: 0 0 0.5rem 0;
+  line-height: 1.4;
+}
+
+.notification-time {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+/* Dropdown Footer */
+.dropdown-footer {
+  padding: 0.75rem 1.5rem;
+  border-top: 1px solid var(--border-primary);
+  background: var(--bg-secondary);
+}
+
+.view-all-btn {
+  width: 100%;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--apex-accent);
+  color: var(--color-white);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.view-all-btn:hover {
+  background: var(--apex-accent-hover);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .app-navbar {
+    left: 0;
+    width: 100%;
+  }
+  
+  .app-navbar.sidebar-collapsed {
+    left: 0;
+  }
+  
+  .navbar-content {
+    padding: 0 1rem;
+  }
+  
+  .page-title {
+    font-size: 1.25rem;
+  }
+  
+  .user-name {
+    display: none;
+  }
+  
+  .dropdown {
+    min-width: 280px;
+  }
+  
+  .notifications-dropdown {
+    min-width: 300px;
+  }
+
+  /* Adjust burger button for mobile */
+  .burger-button {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Better mobile touch targets */
+  .icon-button {
+    width: 44px;
+    height: 44px;
+  }
+
+  .user-button {
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* Small mobile adjustments */
+@media (max-width: 480px) {
+  .navbar-content {
+    padding: 0 0.75rem;
+  }
+  
+  .page-title {
+    font-size: 1.125rem;
+  }
+  
+  .navbar-left {
+    gap: 0.75rem;
+  }
+  
+  .navbar-right {
+    gap: 0.5rem;
+  }
+}
