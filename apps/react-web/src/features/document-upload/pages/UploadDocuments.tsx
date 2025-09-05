@@ -34,8 +34,8 @@ const UploadDocuments: React.FC = () => {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1>Documents</h1>
-          <p>Browse and filter your uploaded documents</p>
+          <h1>Uploads</h1>
+          <p>Browse and manage your uploaded files</p>
         </div>
         <button className={styles.refreshBtn} onClick={() => refetch()} disabled={isFetching}>↻ Refresh</button>
       </div>
@@ -48,28 +48,6 @@ const UploadDocuments: React.FC = () => {
           value={filters.query || ''}
           onChange={(e) => onChange('query', e.target.value || undefined)}
         />
-
-        <select
-          className={styles.select}
-          value={filters.category || ''}
-          onChange={(e) => onChange('category', e.target.value || undefined)}
-        >
-          <option value="">All categories</option>
-          {workflowOptions?.categories.map(c => (
-            <option key={c.id} value={c.id}>{c.name}</option>
-          ))}
-        </select>
-
-        <select
-          className={styles.select}
-          value={filters.workflowId || ''}
-          onChange={(e) => onChange('workflowId', e.target.value || undefined)}
-        >
-          <option value="">All workflows</option>
-          {workflowOptions?.workflows.map(w => (
-            <option key={w.id} value={w.id}>{w.name}</option>
-          ))}
-        </select>
 
         <select
           className={styles.select}
@@ -142,8 +120,6 @@ const UploadDocuments: React.FC = () => {
                   <th className={styles.th}>Type</th>
                   <th className={styles.th}>Size</th>
                   <th className={styles.th}>Status</th>
-                  <th className={styles.th}>Category</th>
-                  <th className={styles.th}>Workflow</th>
                   <th className={styles.th}>Uploaded</th>
                   <th className={styles.th}>Updated</th>
                 </tr>
@@ -178,20 +154,6 @@ const UploadDocuments: React.FC = () => {
                         <span className={`${styles.status} ${styles['status-' + doc.status]}`}>
                           {doc.status}
                         </span>
-                      ) : (
-                        <span className={styles.empty}>-</span>
-                      )}
-                    </td>
-                    <td className={styles.td}>
-                      {doc.category ? (
-                        <span className={styles.category}>{doc.category}</span>
-                      ) : (
-                        <span className={styles.empty}>-</span>
-                      )}
-                    </td>
-                    <td className={styles.td}>
-                      {doc.workflowId ? (
-                        <span className={styles.workflow}>{doc.workflowId}</span>
                       ) : (
                         <span className={styles.empty}>-</span>
                       )}
