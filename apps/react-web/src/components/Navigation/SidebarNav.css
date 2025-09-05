@@ -10,11 +10,46 @@
   flex-direction: column;
   z-index: 100;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  transition: width 0.3s ease;
+}
+
+.sidebar.collapsed {
+  width: 64px;
 }
 
 .sidebar-header {
-  padding: 1.5rem 1rem;
+  height: 64px;
+  padding: 0 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar.collapsed .sidebar-header {
+  justify-content: center;
+  padding: 0 0.5rem;
+}
+
+/* Mobile close button */
+.mobile-close-btn {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.mobile-close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
 }
 
 .logo {
@@ -23,10 +58,14 @@
   gap: 0.5rem;
   font-size: 1.25rem;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .logo-icon {
-  font-size: 1.5rem;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
 }
 
 .sidebar-nav {
@@ -37,6 +76,10 @@
 
 .nav-section {
   margin-bottom: 2rem;
+}
+
+.sidebar.collapsed .nav-section {
+  margin-bottom: 1rem;
 }
 
 .nav-section-title {
@@ -55,22 +98,40 @@
   gap: 0.75rem;
   padding: 0.75rem 1rem;
   color: rgba(255, 255, 255, 0.8);
-  text-decoration: none;
+  text-decoration: none !important;
   transition: all 0.2s ease;
   font-weight: 500;
   border-left: 3px solid transparent;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sidebar.collapsed .nav-item {
+  justify-content: center;
+  padding: 0.75rem 0.5rem;
 }
 
 .nav-item:hover {
   background: rgba(255, 255, 255, 0.1);
   color: white;
   border-left-color: #0097f6;
+  text-decoration: none !important;
 }
 
 .nav-item.active {
   background: rgba(0, 151, 246, 0.2);
   color: white;
   border-left-color: #0097f6;
+  text-decoration: none !important;
+}
+
+/* Ensure no underlines on any link state */
+.nav-item:link,
+.nav-item:visited,
+.nav-item:hover,
+.nav-item:active,
+.nav-item:focus {
+  text-decoration: none !important;
 }
 
 .nav-icon {
@@ -102,6 +163,13 @@
   transition: all 0.2s ease;
   font-weight: 500;
   font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sidebar.collapsed .logout-btn {
+  justify-content: center;
+  padding: 0.75rem 0.5rem;
 }
 
 .logout-btn:hover {
@@ -110,13 +178,97 @@
   color: white;
 }
 
+/* Tablet responsiveness */
+@media (max-width: 1024px) {
+  .sidebar {
+    z-index: 150; /* Higher z-index for overlay on tablets */
+  }
+}
+
+/* Mobile responsiveness */
 @media (max-width: 768px) {
   .sidebar {
+    position: fixed;
     transform: translateX(-100%);
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, width 0.3s ease;
+    z-index: 200; /* Even higher for mobile */
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
   }
   
   .sidebar.mobile-open {
     transform: translateX(0);
+  }
+
+  /* When collapsed on mobile, still hide it */
+  .sidebar.collapsed {
+    transform: translateX(-100%);
+  }
+
+  .sidebar.collapsed.mobile-open {
+    transform: translateX(0);
+    width: 64px;
+  }
+
+  /* Adjust navigation items for better mobile touch */
+  .nav-item {
+    padding: 1rem;
+    font-size: 1rem;
+  }
+
+  .nav-icon {
+    font-size: 1.2rem;
+    width: 24px;
+  }
+
+  .nav-text {
+    font-size: 1rem;
+  }
+
+  /* Larger logout button for mobile */
+  .logout-btn {
+    padding: 1rem;
+    font-size: 1rem;
+  }
+
+  /* Section titles more prominent on mobile */
+  .nav-section-title {
+    padding: 0 1rem;
+    font-size: 0.8rem;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Show mobile close button */
+  .mobile-close-btn {
+    display: flex;
+  }
+}
+
+/* Small mobile phones */
+@media (max-width: 480px) {
+  .sidebar {
+    width: 280px; /* Slightly wider on small screens */
+  }
+
+  .sidebar.collapsed {
+    width: 70px; /* Slightly wider collapsed state */
+  }
+
+  /* Even larger touch targets */
+  .nav-item {
+    padding: 1.125rem 1rem;
+  }
+
+  .logout-btn {
+    padding: 1.125rem;
+  }
+
+  /* Bigger logo on mobile */
+  .logo-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .logo {
+    font-size: 1.375rem;
   }
 }
