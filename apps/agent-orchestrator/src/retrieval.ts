@@ -1,3 +1,6 @@
+import { huggingFaceService } from './huggingface-service';
+import { vectorClient } from './vector-client';
+
 export interface RAGResult {
   answer: string;
   citations: Citation[];
@@ -16,66 +19,102 @@ export async function performRAGQuery(
   query: string, 
   context: Record<string, any> = {}
 ): Promise<RAGResult> {
-  // TODO: Implement actual RAG pipeline
-  // 1. Generate query embedding using OpenAI or local model
-  // 2. Perform vector similarity search in MongoDB
-  // 3. Retrieve top-k most relevant document chunks
-  // 4. Use retrieved chunks as context for LLM generation
-  // 5. Generate response using OpenAI API or local LLM
-  // 6. Extract citations from the generated response
-
-  // Simulate processing delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-
-  // Return placeholder response
-  return {
-    answer: `I understand you're asking about "${query}". Based on the available documents, this is a work-in-progress implementation. The actual RAG pipeline will integrate with OpenAI embeddings and completion APIs to provide accurate, contextual responses with proper citations.`,
-    citations: [
-      {
-        documentId: 'doc_example_1',
-        title: 'Sample Document',
-        excerpt: `Relevant excerpt that relates to "${query}"...`,
-        score: 0.89,
-        pageNumber: 2,
-      },
-    ],
-    confidence: 0.75,
-  };
+  try {
+    console.log(`🔍 Processing RAG query: "${query}"`);
+    
+    // 1. Generate query embedding using Hugging Face
+    const queryEmbedding = await huggingFaceService.generateEmbedding(query);
+    console.log(`📊 Generated embedding with ${queryEmbedding.length} dimensions`);
+    
+    // 2. Perform vector similarity search in MongoDB
+    const relevantDocs = await performVectorSearch(queryEmbedding, 5);
+    console.log(`📚 Found ${relevantDocs.length} relevant documents`);
+    
+    // 3. Build context from retrieved documents
+    const documentContext = relevantDocs
+      .map(doc => `[${doc.title}] ${doc.excerpt}`)
+      .join('\n\n');
+    
+    // 4. Generate answer using Hugging Face Q&A model
+    let answer: string;
+    let confidence: number;
+    
+    if (documentContext.length > 0) {
+      const qaResult = await huggingFaceService.answerQuestion(query, documentContext);
+      answer = qaResult.answer;
+      confidence = qaResult.confidence;
+    } else {
+      // Fallback to conversational model if no context found
+      answer = await huggingFaceService.generateResponse(
+        `Question: ${query}\nAnswer:`
+      );
+      confidence = 0.5; // Lower confidence without specific context
+    }
+    
+    console.log(`✅ Generated answer with confidence: ${confidence}`);
+    
+    return {
+      answer,
+      citations: relevantDocs,
+      confidence,
+    };
+    
+  } catch (error) {
+    console.error('RAG query failed:', error);
+    
+    // Fallback response
+    return {
+      answer: `I apologize, but I encountered an error processing your question: "${query}". Please try rephrasing your question or contact support if the issue persists.`,
+      citations: [],
+      confidence: 0.1,
+    };
+  }
 }
 
 export async function performVectorSearch(
   queryEmbedding: number[], 
   topK: number = 5
 ): Promise<Citation[]> {
-  // TODO: Implement MongoDB vector search using $vectorSearch aggregation
-  // This requires MongoDB Atlas or local vector search index setup
-  
-  return [];
+  try {
+    // Use vector client to search for similar chunks
+    const vectorResults = await vectorClient.vectorSearch(queryEmbedding, topK);
+    
+    // Convert vector search results to citations
+    const citations: Citation[] = vectorResults.map(result => ({
+      documentId: result.chunk.documentId,
+      title: `Document ${result.chunk.documentId}`, // TODO: Get actual document title
+      excerpt: result.chunk.text,
+      score: result.score,
+      pageNumber: result.chunk.pageNumber
+    }));
+    
+    console.log(`🔍 Vector search completed: found ${citations.length} citations`);
+    return citations;
+    
+  } catch (error) {
+    console.error('Vector search failed:', error);
+    return [];
+  }
 }
 
 export async function generateEmbedding(text: string): Promise<number[]> {
-  // TODO: Generate embeddings using OpenAI API or local model
-  // return await openai.embeddings.create({
-  //   model: 'text-embedding-3-small',
-  //   input: text,
-  // });
-  
-  // Return placeholder embedding
-  return new Array(1536).fill(0).map(() => Math.random());
+  return await huggingFaceService.generateEmbedding(text);
 }
 
 export async function generateCompletion(
   prompt: string, 
   context: string[]
 ): Promise<string> {
-  // TODO: Generate completion using OpenAI API or local LLM
-  // const completion = await openai.chat.completions.create({
-  //   model: 'gpt-4',
-  //   messages: [
-  //     { role: 'system', content: 'You are a helpful assistant...' },
-  //     { role: 'user', content: buildPrompt(prompt, context) }
-  //   ]
-  // });
+  // Build a contextualized prompt
+  const contextText = context.join('\n\n');
+  const fullPrompt = `Context:\n${contextText}\n\nQuestion: ${prompt}\n\nAnswer:`;
   
-  return 'Generated response placeholder';
+  return await huggingFaceService.generateResponse(fullPrompt);
+}
+
+/**
+ * Summarize a document using Hugging Face
+ */
+export async function summarizeDocument(text: string, maxLength: number = 150): Promise<string> {
+  return await huggingFaceService.summarizeDocument(text, maxLength);
 }
