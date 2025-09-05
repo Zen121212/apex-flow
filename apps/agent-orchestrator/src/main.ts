@@ -1,6 +1,8 @@
 import Fastify from 'fastify';
 import pino from 'pino';
-import { performRAGQuery } from './retrieval';
+import { performRAGQuery, summarizeDocument, generateEmbedding } from './retrieval';
+import { huggingFaceService } from './huggingface-service';
+import { vectorClient } from './vector-client';
 
 const logger = pino({
   level: process.env.LOG_LEVEL || 'info',
@@ -47,6 +49,89 @@ server.post('/qa', async (request, reply) => {
   }
 });
 
+// Document summarization endpoint
+server.post('/summarize', async (request, reply) => {
+  const { text, maxLength = 150 } = request.body as {
+    text: string;
+    maxLength?: number;
+  };
+
+  if (!text) {
+    return reply.status(400).send({ error: 'Text is required' });
+  }
+
+  try {
+    const summary = await summarizeDocument(text, maxLength);
+    
+    return reply.send({
+      originalLength: text.length,
+      summaryLength: summary.length,
+      summary,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    logger.error('Summarization failed', { error: error.message });
+    
+    return reply.status(500).send({
+      error: 'Failed to summarize document',
+      message: error.message,
+    });
+  }
+});
+
+// Generate embeddings endpoint
+server.post('/embeddings', async (request, reply) => {
+  const { text } = request.body as { text: string };
+
+  if (!text) {
+    return reply.status(400).send({ error: 'Text is required' });
+  }
+
+  try {
+    const embedding = await generateEmbedding(text);
+    
+    return reply.send({
+      text,
+      embedding,
+      dimensions: embedding.length,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    logger.error('Embedding generation failed', { error: error.message });
+    
+    return reply.status(500).send({
+      error: 'Failed to generate embedding',
+      message: error.message,
+    });
+  }
+});
+
+// Hugging Face health check
+server.get('/hf-health', async (_request, reply) => {
+  try {
+    const health = await huggingFaceService.healthCheck();
+    return reply.send(health);
+  } catch (error) {
+    return reply.status(500).send({
+      status: 'error',
+      message: error.message,
+    });
+  }
+});
+
+// Vector storage health check
+server.get('/vector-health', async (_request, reply) => {
+  try {
+    const health = await vectorClient.healthCheck();
+    return reply.send(health);
+  } catch (error) {
+    return reply.status(500).send({
+      status: 'error',
+      message: error.message,
+    });
+  }
+});
+
 // Health check
 server.get('/health', async (_request, reply) => {
   return reply.send({ 
@@ -59,6 +144,10 @@ server.get('/health', async (_request, reply) => {
 // Start server
 const start = async () => {
   try {
+    // Initialize vector client connection
+    await vectorClient.initialize();
+    console.log('🔗 Vector client initialized');
+    
     const port = process.env.AGENT_ORCHESTRATOR_PORT ? 
       Number(process.env.AGENT_ORCHESTRATOR_PORT) : 3002;
     
