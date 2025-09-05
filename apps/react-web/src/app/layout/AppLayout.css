@@ -12,10 +12,41 @@
 
 .main-content.with-sidebar {
   margin-left: 250px;
+  transition: margin-left 0.3s ease;
 }
 
+.main-content.with-sidebar.sidebar-collapsed {
+  margin-left: 64px;
+}
+
+.main-content.with-navbar {
+  padding-top: 64px; /* Account for navbar height */
+}
+
+/* Mobile overlay for sidebar */
+.mobile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 150;
+  backdrop-filter: blur(4px);
+}
+
+/* Mobile responsive adjustments */
 @media (max-width: 768px) {
   .main-content.with-sidebar {
     margin-left: 0;
+  }
+
+  .main-content.with-sidebar.sidebar-collapsed {
+    margin-left: 0;
+  }
+
+  /* Ensure content doesn't get hidden behind navbar on mobile */
+  .main-content.with-navbar {
+    padding-top: 64px;
   }
 }
