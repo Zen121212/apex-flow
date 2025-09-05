@@ -2,6 +2,7 @@ import React from 'react';
 import { useAuth } from '../../../app/providers/AuthProvider';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../../components/atoms/Button/Button';
+import apexFlowIcon from '../../../assets/images/Zein-Kassem-ApexFlow(1)(1) 1.png';
 import './LandingNavbar.css';
 
 interface LandingNavbarProps {
@@ -16,7 +17,7 @@ const LandingNavbar: React.FC<LandingNavbarProps> = ({ onAuthClick }) => {
     <header className="landing-navbar">
       <div className="navbar-container">
         <div className="navbar-brand">
-          <span className="brand-icon">⚡</span>
+          <img src={apexFlowIcon} alt="ApexFlow" className="brand-icon" />
           <span className="brand-text">ApexFlow</span>
         </div>
         
