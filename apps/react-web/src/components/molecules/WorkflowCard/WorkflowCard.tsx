@@ -1,5 +1,6 @@
 import React from 'react';
 import Button from '../../atoms/Button/Button';
+import { Icon } from '../../atoms/Icon/Icon';
 import styles from './WorkflowCard.module.css';
 
 export interface WorkflowCardProps {
@@ -50,11 +51,11 @@ export const WorkflowCard: React.FC<WorkflowCardProps> = ({
 
   const getIntegrationIcon = (integration: string): string => {
     switch (integration.toLowerCase()) {
-      case 'slack': return '💬';
-      case 'email': return '📧';
-      case 'database': return '💾';
-      case 'webhook': return '🔗';
-      default: return '⚙️';
+      case 'slack': return 'slack';
+      case 'email': return 'email';
+      case 'database': return 'database';
+      case 'webhook': return 'link';
+      default: return 'settings';
     }
   };
 
@@ -150,11 +151,13 @@ export const WorkflowCard: React.FC<WorkflowCardProps> = ({
         <div className={styles.workflowIntegrations}>
           {integrations.map((integration) => (
             <span key={integration} className={styles.integrationTag}>
-              {getIntegrationIcon(integration)} {integration}
+              <Icon name={getIntegrationIcon(integration)} size="small" /> {integration}
             </span>
           ))}
           {requiresApproval && (
-            <span className={styles.approvalTag}>🔐 Approval Required</span>
+            <span className={styles.approvalTag}>
+              <Icon name="shield" size="small" /> Approval Required
+            </span>
           )}
         </div>
       )}

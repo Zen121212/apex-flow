@@ -2,7 +2,7 @@ import React from 'react';
 import styles from './ValueBanner.module.css';
 
 export interface ValueBannerItem {
-  icon: string;
+  icon: React.ReactNode;
   value: string | number;
   label: string;
 }

@@ -186,7 +186,7 @@
 
 /* Focus states for accessibility */
 .card:focus-within {
-  outline: 2px solid #667eea;
+  outline: 2px solid #04172f;
   outline-offset: 2px;
 }
 

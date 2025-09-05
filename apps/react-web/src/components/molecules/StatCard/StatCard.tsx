@@ -4,7 +4,7 @@ import styles from './StatCard.module.css';
 export interface StatCardProps {
   title: string;
   value: string | number;
-  icon: string;
+  icon: React.ReactNode;
   iconType?: 'documents' | 'processing' | 'workflows' | 'storage';
   className?: string;
 }

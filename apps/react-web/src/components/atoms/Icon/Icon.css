@@ -4,22 +4,67 @@
   justify-content: center;
   user-select: none;
   flex-shrink: 0;
+  stroke-width: 2;
+  stroke: currentColor;
+  fill: none;
+  transition: color 0.2s ease;
 }
 
+/* Size variants */
 .icon--small {
-  font-size: 0.875rem;
   width: 1rem;
   height: 1rem;
 }
 
 .icon--medium {
-  font-size: 1rem;
   width: 1.25rem;
   height: 1.25rem;
 }
 
 .icon--large {
-  font-size: 1.25rem;
   width: 1.5rem;
   height: 1.5rem;
+}
+
+/* Color variants */
+.icon--primary {
+  color: var(--apex-main);
+}
+
+.icon--accent {
+  color: var(--apex-accent);
+}
+
+.icon--interactive {
+  color: var(--apex-main);
+  cursor: pointer;
+}
+
+.icon--interactive:hover {
+  color: var(--apex-accent);
+}
+
+/* Context-specific styling - exclude sidebar icons */
+/* Sidebar icons maintain their existing styling */
+.sidebar .icon {
+  color: inherit;
+}
+
+/* Button context - inherit button colors for primary/accent buttons */
+.btn .icon {
+  color: inherit;
+}
+
+/* Default icon color for general use (not in sidebar) */
+/* .icon:not(.nav-icon):not(.logo-icon) {
+  color: var(--apex-main);
+} */
+
+/* Action button specific styling */
+.actionBtn .icon {
+  color: var(--apex-main);
+}
+
+.actionBtn:hover .icon {
+  color: var(--apex-accent);
 }
