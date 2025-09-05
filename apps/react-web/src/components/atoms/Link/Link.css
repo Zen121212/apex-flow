@@ -1,0 +1,90 @@
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.15s ease-in-out;
+  cursor: pointer;
+}
+
+/* Sizes */
+.link--small {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.link--medium {
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+.link--large {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+
+/* Variants */
+.link--default {
+  color: #3b82f6;
+}
+
+.link--default:hover {
+  color: #2563eb;
+}
+
+.link--primary {
+  color: #1e40af;
+}
+
+.link--primary:hover {
+  color: #1d4ed8;
+}
+
+.link--secondary {
+  color: #6b7280;
+}
+
+.link--secondary:hover {
+  color: #4b5563;
+}
+
+.link--danger {
+  color: #ef4444;
+}
+
+.link--danger:hover {
+  color: #dc2626;
+}
+
+.link--muted {
+  color: #9ca3af;
+}
+
+.link--muted:hover {
+  color: #6b7280;
+}
+
+/* Underline variants */
+.link--underline-none {
+  text-decoration: none;
+}
+
+.link--underline-hover:hover {
+  text-decoration: underline;
+}
+
+.link--underline-always {
+  text-decoration: underline;
+}
+
+/* Icons */
+.link__icon {
+  display: flex;
+  align-items: center;
+}
+
+.link__external-icon {
+  font-size: 0.75em;
+  margin-left: 0.125rem;
+}

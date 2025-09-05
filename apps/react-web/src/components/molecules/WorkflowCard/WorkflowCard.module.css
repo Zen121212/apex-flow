@@ -1,0 +1,216 @@
+/* Base workflow card styles */
+.workflowCard {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.2s;
+}
+
+.workflowCard:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.workflowCard.inactive {
+  opacity: 0.6;
+  background: #f9fafb;
+}
+
+/* Dashboard variant - horizontal layout */
+.workflowCard.dashboardStyle {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  position: relative;
+}
+
+.workflowCard.dashboardStyle:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transform: none;
+}
+
+/* Workflow status bar for dashboard */
+.workflowStatus {
+  width: 4px;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 2px;
+}
+
+.workflowStatus.active {
+  background: #10b981;
+}
+
+.workflowStatus.paused {
+  background: #f59e0b;
+}
+
+.workflowStatus.error {
+  background: #ef4444;
+}
+
+.workflowStatus.inactive {
+  background: #6b7280;
+}
+
+/* Full card layout - workflows page */
+.workflowHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.workflowInfo h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.workflowDescription {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.workflowStatusBadge {
+  flex-shrink: 0;
+  margin-left: 1rem;
+}
+
+.statusBadge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+}
+
+.statusBadge.status-active {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.statusBadge.status-inactive {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.statusBadge.status-paused {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.statusBadge.status-error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* Content for dashboard layout */
+.workflowContent {
+  flex: 1;
+  padding-left: 1rem;
+}
+
+.workflowContent h4 {
+  margin: 0 0 0.25rem 0;
+  color: #111827;
+  font-weight: 500;
+}
+
+.workflowContent p {
+  margin: 0 0 0.5rem 0;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* Stats */
+.workflowStats {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1rem;
+}
+
+/* Dashboard stats layout */
+.workflowCard.dashboardStyle .workflowStats {
+  gap: 1rem;
+  margin-bottom: 0;
+}
+
+.workflowCard.dashboardStyle .workflowStats .stat {
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+/* Full card stats layout */
+.stat {
+  text-align: center;
+}
+
+.statNumber {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Integrations */
+.workflowIntegrations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.integrationTag,
+.approvalTag {
+  padding: 0.25rem 0.5rem;
+  background: #f3f4f6;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  color: #374151;
+  font-weight: 500;
+}
+
+.approvalTag {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* Meta information */
+.workflowMeta {
+  margin-bottom: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f3f4f6;
+}
+
+.lastUsed {
+  display: block;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-bottom: 0.25rem;
+}
+
+/* Actions */
+.workflowActions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}

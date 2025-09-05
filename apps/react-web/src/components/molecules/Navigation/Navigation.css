@@ -1,0 +1,106 @@
+.navigation {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.navigation--horizontal {
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+}
+
+.navigation--vertical {
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+/* Navigation Items */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  color: #6b7280;
+  text-decoration: none;
+  border-radius: 0.375rem;
+  transition: all 0.15s ease-in-out;
+  font-weight: 500;
+  position: relative;
+}
+
+.nav-item:hover:not(.nav-item--disabled) {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.nav-item--active {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.nav-item--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.nav-item__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.25rem;
+}
+
+.nav-item__text {
+  flex: 1;
+  font-size: 0.875rem;
+}
+
+/* Horizontal navigation adjustments */
+.navigation--horizontal .nav-item {
+  padding: 0.5rem 0.75rem;
+}
+
+.navigation--horizontal .nav-item__icon {
+  font-size: 1rem;
+}
+
+/* Navigation Groups */
+.nav-group {
+  margin: 0.5rem 0;
+}
+
+.nav-group__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  color: #9ca3af;
+  border-bottom: 1px solid #f3f4f6;
+  margin-bottom: 0.5rem;
+}
+
+.nav-group__title {
+  flex: 1;
+}
+
+.nav-group__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.nav-group--collapsed .nav-group__content {
+  display: none;
+}
+
+/* Badge positioning in nav items */
+.nav-item .badge {
+  margin-left: auto;
+}
