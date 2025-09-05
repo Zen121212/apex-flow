@@ -13,26 +13,31 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .modal-content {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 1rem;
   max-width: 400px;
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
+  box-shadow: var(--shadow-lg);
   animation: slideIn 0.3s ease;
 }
 
 @keyframes slideIn {
-  from { 
+  from {
     opacity: 0;
     transform: translateY(-20px);
   }
-  to { 
+  to {
     opacity: 1;
     transform: translateY(0);
   }
@@ -49,7 +54,7 @@
   margin: 0;
   font-size: 1.5rem;
   font-weight: 600;
-  color: #334155;
+  color: var(--text-primary);
 }
 
 .close-btn {
@@ -57,15 +62,15 @@
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #64748b;
+  color: var(--text-secondary);
   padding: 0.25rem;
-  border-radius: 0.25rem;
+  border-radius: var(--radius-base);
   transition: all 0.2s;
 }
 
 .close-btn:hover {
-  background: #f1f5f9;
-  color: #334155;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 .modal-body {
@@ -73,13 +78,13 @@
 }
 
 .error-message {
-  background: #fee2e2;
-  color: #dc2626;
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-error);
   padding: 0.75rem;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-lg);
   margin-bottom: 1rem;
   font-size: 0.875rem;
-  border: 1px solid #fca5a5;
+  border: 1px solid var(--color-error);
 }
 
 .form-group {
@@ -105,8 +110,8 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px var(--apex-accent-light);
 }
 
 .form-group input:disabled {
@@ -138,26 +143,111 @@
 }
 
 .btn-primary {
-  background: #667eea;
-  color: white;
+  background: var(--apex-accent);
+  color: var(--color-white);
+  border: 1px solid var(--apex-accent);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #5a67d8;
+  background: var(--apex-main);
+  /* border-color: var(--apex-accent-hover); */
+  color: var(--color-white);
 }
 
-.btn-google {
-  background: white;
-  color: #374151;
-  border: 1px solid #d1d5db;
+/* Official Google Sign-In Button */
+.google-signin-btn {
+  width: 100%;
+  height: 44px;
+  background-color: #ffffff;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  color: #3c4043;
+  cursor: pointer;
+  font-family: "Google Sans", "Roboto", arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.25px;
+  line-height: 16px;
+  padding: 0 12px;
+  position: relative;
+  text-align: center;
+  transition:
+    background-color 0.218s,
+    border-color 0.218s,
+    box-shadow 0.218s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  outline: none;
 }
 
-.btn-google:hover:not(:disabled) {
-  background: #f9fafb;
+.google-signin-btn:hover:not(:disabled) {
+  background-color: #f8f9fa;
+  border-color: #dadce0;
+  box-shadow:
+    0 1px 3px 0 rgba(60, 64, 67, 0.3),
+    0 4px 8px 3px rgba(60, 64, 67, 0.15);
+}
+
+.google-signin-btn:active:not(:disabled) {
+  background-color: #f1f3f4;
+  border-color: #5f6368;
+  box-shadow:
+    0 1px 3px 0 rgba(60, 64, 67, 0.3),
+    0 4px 8px 3px rgba(60, 64, 67, 0.15);
+}
+
+.google-signin-btn:focus:not(:disabled) {
+  border-color: #4285f4;
+  box-shadow:
+    0 1px 3px 0 rgba(66, 133, 244, 0.3),
+    0 4px 8px 3px rgba(66, 133, 244, 0.15);
+}
+
+.google-signin-btn:disabled {
+  background-color: #f1f3f4;
+  border-color: #f1f3f4;
+  color: #9aa0a6;
+  cursor: not-allowed;
 }
 
 .google-icon {
-  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.google-text {
+  color: #3c4043;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.25px;
+  line-height: 16px;
+}
+
+.google-signin-btn:disabled .google-text {
+  color: #9aa0a6;
+}
+
+/* Loading spinner for Google button */
+.google-loading-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #4285f4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .divider {
@@ -169,7 +259,7 @@
 
 .divider::before,
 .divider::after {
-  content: '';
+  content: "";
   flex: 1;
   height: 1px;
   background: #e5e7eb;
@@ -195,7 +285,7 @@
 .link-btn {
   background: none;
   border: none;
-  color: #667eea;
+  color: var(--apex-accent);
   cursor: pointer;
   font-weight: 600;
   text-decoration: underline;
@@ -203,5 +293,5 @@
 }
 
 .link-btn:hover {
-  color: #5a67d8;
+  color: var(--apex-accent-hover);
 }

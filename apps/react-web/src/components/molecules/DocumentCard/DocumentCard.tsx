@@ -1,4 +1,5 @@
 import React from 'react';
+import { Icon } from '../../atoms/Icon/Icon';
 import styles from './DocumentCard.module.css';
 
 export interface DocumentCardProps {
@@ -28,10 +29,10 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
 }) => {
   const getDocumentIcon = (type: string): string => {
     switch (type) {
-      case 'pdf': return '📄';
-      case 'image': return '🖼️';
-      case 'text': return '📝';
-      default: return '📎';
+      case 'pdf': return 'file-pdf';
+      case 'image': return 'file-image';
+      case 'text': return 'file-text';
+      default: return 'file-default';
     }
   };
 
@@ -62,7 +63,7 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
   return (
     <div className={`${styles.documentCard} ${className}`}>
       <div className={styles.documentIcon}>
-        <span>{getDocumentIcon(type)}</span>
+        <Icon name={getDocumentIcon(type)} size="large" />
       </div>
       <div className={styles.documentInfo}>
         <h4>{name}</h4>
@@ -78,7 +79,7 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
             title="View"
             onClick={() => onView(id)}
           >
-            👁️
+            <Icon name="view" size="small" variant="interactive" />
           </button>
         )}
         {onDownload && (
@@ -87,7 +88,7 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
             title="Download"
             onClick={() => onDownload(id)}
           >
-            ⬇️
+            <Icon name="download" size="small" variant="interactive" />
           </button>
         )}
         {onShare && (
@@ -96,7 +97,7 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
             title="Share"
             onClick={() => onShare(id)}
           >
-            🔗
+            <Icon name="share" size="small" variant="interactive" />
           </button>
         )}
       </div>

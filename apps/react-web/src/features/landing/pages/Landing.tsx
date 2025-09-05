@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../app/providers/AuthProvider';
-import LandingNavbar from '../components/LandingNavbar';
+import { Card } from '../../../components/molecules/Card/Card';
+import { Button } from '../../../components/atoms/Button/Button';
+import { Icon } from '../../../components/atoms/Icon/Icon';
 import AuthModal from '../../auth/components/AuthModal';
-import Button from '../../../components/atoms/Button/Button';
-import Card from '../../../components/molecules/Card/Card';
+import LandingNavbar from '../components/LandingNavbar';
 import './Landing.css';
 
 const Landing: React.FC = () => {
@@ -97,7 +98,7 @@ const Landing: React.FC = () => {
           </p>
           <div className="solutions-grid">
             <Card variant="solution">
-              <div className="solution-icon">🤖</div>
+              <div className="solution-icon"><Icon name="robot" size="large" /></div>
               <h3>AI Data Extraction</h3>
               <p>Automatically extract structured data from any document type - invoices, contracts, forms, and more</p>
               <div className="solution-features">
@@ -107,7 +108,7 @@ const Landing: React.FC = () => {
               </div>
             </Card>
             <Card variant="solution">
-              <div className="solution-icon">✓</div>
+              <div className="solution-icon"><Icon name="check" size="large" /></div>
               <h3>Approval Workflows</h3>
               <p>Set up intelligent approval processes with Slack and email notifications for seamless collaboration</p>
               <div className="solution-features">
@@ -117,7 +118,7 @@ const Landing: React.FC = () => {
               </div>
             </Card>
             <Card variant="solution">
-              <div className="solution-icon">🔍</div>
+              <div className="solution-icon"><Icon name="search" size="large" /></div>
               <h3>Semantic Search</h3>
               <p>Find documents instantly using AI-powered vector search that understands context and meaning</p>
               <div className="solution-features">
@@ -127,7 +128,7 @@ const Landing: React.FC = () => {
               </div>
             </Card>
             <Card variant="solution">
-              <div className="solution-icon">📊</div>
+              <div className="solution-icon"><Icon name="dashboard" size="large" /></div>
               <h3>Document Intelligence</h3>
               <p>Extract insights and analyze document contents with advanced AI models and custom business rules</p>
               <div className="solution-features">
@@ -137,7 +138,7 @@ const Landing: React.FC = () => {
               </div>
             </Card>
             <Card variant="solution">
-              <div className="solution-icon">🔄</div>
+              <div className="solution-icon"><Icon name="workflow" size="large" /></div>
               <h3>Webhook Integrations</h3>
               <p>Connect seamlessly to your existing systems via APIs and real-time webhooks</p>
               <div className="solution-features">
@@ -147,7 +148,7 @@ const Landing: React.FC = () => {
               </div>
             </Card>
             <Card variant="solution">
-              <div className="solution-icon">💬</div>
+              <div className="solution-icon"><Icon name="chat" size="large" /></div>
               <h3>Document Chat</h3>
               <p>Ask questions about your documents using natural language and get instant AI-powered answers</p>
               <div className="solution-features">
@@ -166,25 +167,25 @@ const Landing: React.FC = () => {
           <h2>Built for Every Industry</h2>
           <div className="use-cases-grid">
             <Card variant="use-case">
-              <div className="use-case-icon">🏢</div>
+              <div className="use-case-icon"><Icon name="legal" size="large" /></div>
               <h3>Legal Firms</h3>
               <p>Contract analysis, compliance checking, and document review workflows</p>
               <div className="use-case-stat">Save 15+ hours per contract</div>
             </Card>
             <Card variant="use-case">
-              <div className="use-case-icon">🏥</div>
+              <div className="use-case-icon"><Icon name="healthcare" size="large" /></div>
               <h3>Healthcare</h3>
               <p>Medical claims processing, patient record management, and compliance documentation</p>
               <div className="use-case-stat">99.5% accuracy rate</div>
             </Card>
             <Card variant="use-case">
-              <div className="use-case-icon">💼</div>
+              <div className="use-case-icon"><Icon name="finance" size="large" /></div>
               <h3>Finance & Accounting</h3>
               <p>Invoice processing, expense management, and financial document automation</p>
               <div className="use-case-stat">Process 10x more invoices</div>
             </Card>
             <Card variant="use-case">
-              <div className="use-case-icon">🏡</div>
+              <div className="use-case-icon"><Icon name="realestate" size="large" /></div>
               <h3>Real Estate</h3>
               <p>Property document processing, lease management, and closing document automation</p>
               <div className="use-case-stat">Reduce processing time by 90%</div>

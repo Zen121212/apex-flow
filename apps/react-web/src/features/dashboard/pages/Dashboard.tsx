@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../../../app/providers/AuthProvider';
-import Button from '../../../components/atoms/Button/Button';
-import StatCard from '../../../components/molecules/StatCard/StatCard';
-import ValueBanner from '../../../components/molecules/ValueBanner/ValueBanner';
-import DocumentCard from '../../../components/molecules/DocumentCard/DocumentCard';
-import WorkflowCard from '../../../components/molecules/WorkflowCard/WorkflowCard';
-import UploadModal from '../../document-upload/components/UploadModal';
-import WorkflowModal from '../../workflows/components/WorkflowModal';
-import styles from './Dashboard.module.css';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../../app/providers/AuthProvider";
+import Button from "../../../components/atoms/Button/Button";
+import { Icon } from "../../../components/atoms/Icon/Icon";
+import StatCard from "../../../components/molecules/StatCard/StatCard";
+import ValueBanner from "../../../components/molecules/ValueBanner/ValueBanner";
+import DocumentCard from "../../../components/molecules/DocumentCard/DocumentCard";
+import WorkflowCard from "../../../components/molecules/WorkflowCard/WorkflowCard";
+import UploadModal from "../../document-upload/components/UploadModal";
+import WorkflowModal from "../../workflows/components/WorkflowModal";
+import styles from "./Dashboard.module.css";
 
 interface DashboardStats {
   totalDocuments: number;
@@ -24,7 +25,7 @@ interface RecentDocument {
   name: string;
   type: string;
   uploadDate: Date;
-  status: 'processing' | 'completed' | 'error';
+  status: "processing" | "completed" | "error";
   size: string;
 }
 
@@ -34,7 +35,7 @@ interface WorkflowItem {
   description: string;
   documentsProcessed: number;
   lastRun: Date;
-  status: 'active' | 'paused' | 'error';
+  status: "active" | "paused" | "error";
 }
 
 // Types matching those from WorkflowModal
@@ -47,10 +48,7 @@ interface ScheduleConfig {
   time?: string;
 }
 
-type TriggerConfig =
-  | FileUploadConfig
-  | ScheduleConfig
-  | Record<string, never>;
+type TriggerConfig = FileUploadConfig | ScheduleConfig | Record<string, never>;
 
 interface ActionConfig {
   [key: string]: string | number | boolean | string[] | undefined;
@@ -138,9 +136,9 @@ const Dashboard: React.FC = () => {
     totalDocuments: 0,
     processingJobs: 0,
     completedWorkflows: 0,
-    storageUsed: '0 GB',
-    timeSaved: '0 hours',
-    accuracyRate: '0%'
+    storageUsed: "0 GB",
+    timeSaved: "0 hours",
+    accuracyRate: "0%",
   });
 
   const [recentDocuments, setRecentDocuments] = useState<RecentDocument[]>([]);
@@ -159,87 +157,91 @@ const Dashboard: React.FC = () => {
         totalDocuments: 152,
         processingJobs: 8,
         completedWorkflows: 14,
-        storageUsed: '8.7 GB',
-        timeSaved: '78 hours',
-        accuracyRate: '99.2%'
+        storageUsed: "8.7 GB",
+        timeSaved: "78 hours",
+        accuracyRate: "99.2%",
       });
 
       setRecentDocuments([
         {
-          id: '1',
-          name: 'Q2_Invoice_Batch.pdf',
-          type: 'pdf',
+          id: "1",
+          name: "Q2_Invoice_Batch.pdf",
+          type: "pdf",
           uploadDate: new Date(Date.now() - 25 * 60 * 1000), // 25 minutes ago
-          status: 'completed',
-          size: '4.2 MB'
+          status: "completed",
+          size: "4.2 MB",
         },
         {
-          id: '2',
-          name: 'Vendor_Contract_2025.docx',
-          type: 'text',
+          id: "2",
+          name: "Vendor_Contract_2025.docx",
+          type: "text",
           uploadDate: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-          status: 'processing',
-          size: '1.8 MB'
+          status: "processing",
+          size: "1.8 MB",
         },
         {
-          id: '3',
-          name: 'Medical_Claims_March.pdf',
-          type: 'pdf',
+          id: "3",
+          name: "Medical_Claims_March.pdf",
+          type: "pdf",
           uploadDate: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
-          status: 'completed',
-          size: '8.7 MB'
+          status: "completed",
+          size: "8.7 MB",
         },
         {
-          id: '4',
-          name: 'Employee_Onboarding_Forms.pdf',
-          type: 'pdf',
+          id: "4",
+          name: "Employee_Onboarding_Forms.pdf",
+          type: "pdf",
           uploadDate: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
-          status: 'completed',
-          size: '3.2 MB'
+          status: "completed",
+          size: "3.2 MB",
         },
         {
-          id: '5',
-          name: 'Real_Estate_Closing_Docs.pdf',
-          type: 'pdf',
+          id: "5",
+          name: "Real_Estate_Closing_Docs.pdf",
+          type: "pdf",
           uploadDate: new Date(Date.now() - 40 * 60 * 1000), // 40 minutes ago
-          status: 'processing',
-          size: '12.4 MB'
-        }
+          status: "processing",
+          size: "12.4 MB",
+        },
       ]);
 
       setActiveWorkflows([
         {
-          id: '1',
-          name: 'Invoice Processing',
-          description: 'Extract invoice data, route for approval, update accounting system',
+          id: "1",
+          name: "Invoice Processing",
+          description:
+            "Extract invoice data, route for approval, update accounting system",
           documentsProcessed: 38,
           lastRun: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
-          status: 'active'
+          status: "active",
         },
         {
-          id: '2',
-          name: 'Contract Analysis',
-          description: 'Analyze contracts for key terms and compliance requirements',
+          id: "2",
+          name: "Contract Analysis",
+          description:
+            "Analyze contracts for key terms and compliance requirements",
           documentsProcessed: 12,
           lastRun: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-          status: 'active'
+          status: "active",
         },
         {
-          id: '3',
-          name: 'Document Classification',
-          description: 'Automatically categorize documents by type and route to right department',
+          id: "3",
+          name: "Document Classification",
+          description:
+            "Automatically categorize documents by type and route to right department",
           documentsProcessed: 85,
           lastRun: new Date(Date.now() - 20 * 60 * 1000), // 20 minutes ago
-          status: 'active'
+          status: "active",
         },
         {
-          id: '4',
-          name: 'Legal Document Review',
-          description: 'AI-powered legal document review with approval workflow',
+          id: "4",
+          name: "Legal Document Review",
+          description:
+            "AI-powered legal document review with approval workflow",
           documentsProcessed: 17,
           lastRun: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
-          status: 'active'
-        }
+          status: "active",
+        },
       ]);
     }, 500);
   };
@@ -263,13 +265,13 @@ const Dashboard: React.FC = () => {
   };
 
   const onFilesUploaded = (files: File[]): void => {
-    console.log('Files uploaded:', files);
+    console.log("Files uploaded:", files);
     // Refresh dashboard data after upload
     loadDashboardData();
   };
 
   const onWorkflowCreated = (workflow: CreatedWorkflow): void => {
-    console.log('Workflow created:', workflow);
+    console.log("Workflow created:", workflow);
     // Refresh dashboard data after workflow creation
     loadDashboardData();
   };
@@ -279,31 +281,43 @@ const Dashboard: React.FC = () => {
       <div className={styles.dashboardHeader}>
         <div className={styles.welcomeSection}>
           <h1>Welcome back, {user?.name}!</h1>
-          <p className={styles.subtitle}>Powerful document processing with AI-driven workflows</p>
+          <p className={styles.subtitle}>
+            Powerful document processing with AI-driven workflows
+          </p>
         </div>
         <div className={styles.quickActions}>
-          <Button variant="primary" onClick={openUploadModal} icon="📄">
-            Upload Document
+          <Button
+            className={styles.btnHeader}
+            variant="primary"
+            onClick={openUploadModal}
+            icon={<Icon name="upload" />}
+          >
+            <span> Upload Document</span>
           </Button>
-          <Button variant="secondary" onClick={openWorkflowModal} icon="⚡">
-            Create Workflow
+          <Button
+            className={styles.btnHeader}
+            variant="secondary"
+            onClick={openWorkflowModal}
+            icon={<Icon name="lightning" />}
+          >
+            <span>Create Workflow</span>
           </Button>
         </div>
       </div>
 
       {/* Business Value Metrics Banner */}
-      <ValueBanner 
+      <ValueBanner
         items={[
           {
-            icon: '⏱️',
+            icon: <Icon name="clock" size="large" variant="primary" />,
             value: stats.timeSaved,
-            label: 'Time Saved'
+            label: "Time Saved",
           },
           {
-            icon: '📈',
+            icon: <Icon name="trend-up" size="large" variant="primary" />,
             value: stats.accuracyRate,
-            label: 'Accuracy Rate'
-          }
+            label: "Accuracy Rate",
+          },
         ]}
       />
 
@@ -312,25 +326,25 @@ const Dashboard: React.FC = () => {
         <StatCard
           title="Documents Processed"
           value={stats.totalDocuments}
-          icon="📚"
+          icon={<Icon name="document" />}
           iconType="documents"
         />
         <StatCard
           title="Active Jobs"
           value={stats.processingJobs}
-          icon="⚙️"
+          icon={<Icon name="settings" />}
           iconType="processing"
         />
         <StatCard
           title="Automated Workflows"
           value={stats.completedWorkflows}
-          icon="✅"
+          icon={<Icon name="check" />}
           iconType="workflows"
         />
         <StatCard
           title="Storage Used"
           value={stats.storageUsed}
-          icon="💾"
+          icon={<Icon name="save" />}
           iconType="storage"
         />
       </div>
@@ -340,7 +354,9 @@ const Dashboard: React.FC = () => {
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
             <h2>Recent Documents</h2>
-            <Link to="/documents" className={styles.viewAll}>View All</Link>
+            <Link to="/documents" className={styles.viewAll}>
+              View All
+            </Link>
           </div>
           {recentDocuments.length > 0 ? (
             <div className={styles.contentGrid}>
@@ -353,18 +369,22 @@ const Dashboard: React.FC = () => {
                   size={doc.size}
                   uploadDate={doc.uploadDate}
                   status={doc.status}
-                  onView={(id) => console.log('View document:', id)}
-                  onDownload={(id) => console.log('Download document:', id)}
-                  onShare={(id) => console.log('Share document:', id)}
+                  onView={(id) => console.log("View document:", id)}
+                  onDownload={(id) => console.log("Download document:", id)}
+                  onShare={(id) => console.log("Share document:", id)}
                 />
               ))}
             </div>
           ) : (
             <div className={styles.emptyState}>
-              <div className={styles.emptyIcon}>📁</div>
+              <div className={styles.emptyIcon}>
+                <Icon name="folder" size="large" />
+              </div>
               <h3>No documents yet</h3>
               <p>Upload your first document to get started</p>
-              <Button variant="primary" onClick={openUploadModal}>Upload Document</Button>
+              <Button variant="primary" onClick={openUploadModal}>
+                Upload Document
+              </Button>
             </div>
           )}
         </div>
@@ -373,7 +393,9 @@ const Dashboard: React.FC = () => {
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
             <h2>Active Workflows</h2>
-            <Link to="/workflows" className={styles.viewAll}>Manage All</Link>
+            <Link to="/workflows" className={styles.viewAll}>
+              Manage All
+            </Link>
           </div>
           {activeWorkflows.length > 0 ? (
             <div className={styles.contentGrid}>
@@ -387,17 +409,23 @@ const Dashboard: React.FC = () => {
                   documentsProcessed={workflow.documentsProcessed}
                   lastRun={workflow.lastRun}
                   variant="dashboard"
-                  onEdit={(id) => console.log('Edit workflow:', id)}
-                  onToggleStatus={(id) => console.log('Toggle workflow status:', id)}
+                  onEdit={(id) => console.log("Edit workflow:", id)}
+                  onToggleStatus={(id) =>
+                    console.log("Toggle workflow status:", id)
+                  }
                 />
               ))}
             </div>
           ) : (
             <div className={styles.emptyState}>
-              <div className={styles.emptyIcon}>⚡</div>
+              <div className={styles.emptyIcon}>
+                <Icon name="lightning" size="large" />
+              </div>
               <h3>No active workflows</h3>
               <p>Create automated workflows to process your documents</p>
-              <Button variant="primary" onClick={openWorkflowModal}>Create Workflow</Button>
+              <Button variant="primary" onClick={openWorkflowModal}>
+                Create Workflow
+              </Button>
             </div>
           )}
         </div>
@@ -409,37 +437,45 @@ const Dashboard: React.FC = () => {
           </div>
           <div className={styles.actionsGrid}>
             <div className={styles.actionCard} onClick={openUploadModal}>
-              <div className={styles.actionIcon}>📄</div>
+              <div className={styles.actionIcon}>
+                <Icon name="upload" size="large" />
+              </div>
               <h4>Upload Documents</h4>
               <p>Upload new documents for processing</p>
             </div>
             <div className={styles.actionCard} onClick={openWorkflowModal}>
-              <div className={styles.actionIcon}>⚡</div>
+              <div className={styles.actionIcon}>
+                <Icon name="lightning" size="large" />
+              </div>
               <h4>Create Workflow</h4>
               <p>Set up new automated processing workflows</p>
             </div>
             <div className={styles.actionCard}>
-              <div className={styles.actionIcon}>🔍</div>
+              <div className={styles.actionIcon}>
+                <Icon name="search" size="large" />
+              </div>
               <h4>Search Documents</h4>
               <p>Find documents using AI-powered search</p>
             </div>
             <div className={styles.actionCard}>
-              <div className={styles.actionIcon}>💬</div>
+              <div className={styles.actionIcon}>
+                <Icon name="chat" size="large" />
+              </div>
               <h4>Document Chat</h4>
               <p>Ask questions about your documents</p>
             </div>
           </div>
         </div>
       </div>
-      
+
       {/* Modals */}
-      <UploadModal 
+      <UploadModal
         isOpen={showUploadModal}
         onClose={closeUploadModal}
         onFilesUploaded={onFilesUploaded}
       />
 
-      <WorkflowModal 
+      <WorkflowModal
         isOpen={showWorkflowModal}
         onClose={closeWorkflowModal}
         onWorkflowCreated={onWorkflowCreated}

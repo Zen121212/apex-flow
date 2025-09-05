@@ -1,5 +1,5 @@
 .hero-section {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #04172f 0%, #764ba2 100%);
   color: white;
   padding: 8rem 2rem 4rem;
   text-align: center;
@@ -56,12 +56,12 @@
 
 .btn-primary {
   background: white;
-  color: #667eea;
+  color: #04172f;
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  /* transform: translateY(-2px); */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .btn-secondary {
@@ -72,7 +72,7 @@
 
 .btn-secondary:hover {
   background: white;
-  color: #667eea;
+  color: #04172f;
 }
 
 .container {
@@ -105,21 +105,21 @@
   background: white;
   padding: 2rem;
   border-radius: 1rem;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   text-align: center;
   border: 2px solid transparent;
   transition: all 0.3s ease;
 }
 
 .value-card:hover {
-  border-color: #667eea;
+  border-color: #04172f;
   transform: translateY(-5px);
 }
 
 .value-number {
   font-size: 3rem;
   font-weight: bold;
-  color: #667eea;
+  color: #04172f;
   margin-bottom: 0.5rem;
 }
 
@@ -174,7 +174,7 @@
 
 .solution-card:hover {
   background: white;
-  border-color: #667eea;
+  border-color: #04172f;
   box-shadow: 0 10px 30px rgba(102, 126, 234, 0.1);
   transform: translateY(-5px);
 }
@@ -206,7 +206,7 @@
 }
 
 .feature-tag {
-  background: #667eea;
+  background: #04172f;
   color: white;
   padding: 0.25rem 0.75rem;
   border-radius: 1rem;
@@ -237,14 +237,14 @@
   background: white;
   padding: 2rem;
   border-radius: 1rem;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
   text-align: center;
   transition: all 0.3s ease;
 }
 
 .use-case-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 .use-case-icon {
@@ -267,7 +267,7 @@
 }
 
 .use-case-stat {
-  background: #667eea;
+  background: #04172f;
   color: white;
   padding: 0.5rem 1rem;
   border-radius: 2rem;

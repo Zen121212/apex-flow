@@ -20,72 +20,84 @@
   text-decoration: none;
 }
 
-/* Primary - Your ApexFlow Green */
+/* Primary - ApexFlow Accent Color */
 .btn-primary {
-  background: #28a745;
-  color: white;
+  background: var(--apex-accent);
+  color: var(--color-white);
+  border: 1px solid var(--apex-accent);
 }
 
 .btn-primary:hover {
-  background: #1e7e34;
+  background: var(--apex-accent-hover);
+  border-color: var(--apex-accent-hover);
 }
 
-/* Secondary - Your ApexFlow Blue */
+/* Secondary - ApexFlow Main Color */
 .btn-secondary {
-  background: #007bff;
-  color: white;
+  background: transparent;
+  color: var(--apex-main);
+  border: 1px solid var(--apex-main);
 }
 
 .btn-secondary:hover {
-  background: #0056b3;
+  background: var(--apex-main);
+  color: var(--color-white);
+  border-color: var(--apex-main);
 }
 
-/* Ghost - Transparent with border */
+/* Ghost - Neutral with border */
 .btn-ghost {
   background: transparent;
-  color: #333;
-  border: 1px solid #ddd;
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
 }
 
 .btn-ghost:hover {
-  background: #f8f9fa;
-  border-color: #adb5bd;
+  background: var(--bg-secondary);
+  border-color: var(--border-secondary);
 }
 
 /* Success */
 .btn-success {
-  background: #10b981;
-  color: white;
+  background: var(--color-success);
+  color: var(--color-white);
+  border: 1px solid var(--color-success);
 }
 
 .btn-success:hover {
-  background: #059669;
+  background: var(--color-success);
+  filter: brightness(0.9);
 }
 
 /* Warning */
 .btn-warning {
-  background: #f59e0b;
-  color: white;
+  background: var(--color-warning);
+  color: var(--color-white);
+  border: 1px solid var(--color-warning);
 }
 
 .btn-warning:hover {
-  background: #d97706;
+  background: var(--color-warning);
+  filter: brightness(0.9);
 }
 
 /* Danger */
 .btn-danger {
-  background: #ef4444;
-  color: white;
+  background: var(--color-danger);
+  color: var(--color-white);
+  border: 1px solid var(--color-danger);
 }
 
 .btn-danger:hover {
-  background: #dc2626;
+  background: var(--color-danger);
+  filter: brightness(0.9);
 }
 
 /* Google Button */
 .btn-google {
   background: #4285f4;
-  color: white;
+  color: var(--color-white);
+  border: 1px solid #4285f4;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -94,6 +106,7 @@
 
 .btn-google:hover {
   background: #357ae8;
+  border-color: #357ae8;
 }
 
 /* Sizes */
@@ -131,8 +144,17 @@
 }
 
 /* Icons */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  margin-right: 0.5rem;
+}
+
+/* Backward compatibility with old classes */
 .button__icon {
-  display: flex;
+  display: inline-flex;
   align-items: center;
 }
 

@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { Icon } from '../../../components/atoms/Icon/Icon';
 import "./WorkflowModal.css";
 
 // Specific config types for different trigger and action configurations
@@ -165,7 +166,7 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
       description:
         "Automatically extract data from invoices and update systems",
       category: "Finance",
-      icon: "🧾",
+      icon: "receipt",
       steps: [
         {
           id: "1",
@@ -173,7 +174,7 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
           name: "File Upload Trigger",
           description: "Triggers when invoice is uploaded",
           config: {},
-          icon: "📄",
+          icon: "document",
         },
         {
           id: "2",
@@ -181,7 +182,7 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
           name: "OCR Processing",
           description: "Extract text from document",
           config: {},
-          icon: "🔤",
+          icon: "file-text",
         },
         {
           id: "3",
@@ -189,7 +190,7 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
           name: "Data Extraction",
           description: "Extract invoice data",
           config: {},
-          icon: "📊",
+          icon: "dashboard",
         },
       ],
     },
@@ -199,7 +200,7 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
       description:
         "Analyze contracts for key terms and compliance requirements",
       category: "Legal",
-      icon: "📋",
+      icon: "file-check",
       steps: [
         {
           id: "1",
@@ -207,7 +208,7 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
           name: "File Upload Trigger",
           description: "Triggers when contract is uploaded",
           config: {},
-          icon: "📄",
+          icon: "document",
         },
         {
           id: "2",
@@ -215,7 +216,7 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
           name: "Text Analysis",
           description: "Analyze contract terms",
           config: {},
-          icon: "🔍",
+          icon: "search",
         },
         {
           id: "3",
@@ -223,7 +224,7 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
           name: "Compliance Check",
           description: "Check compliance requirements",
           config: {},
-          icon: "✅",
+          icon: "check-circle",
         },
       ],
     },
@@ -232,7 +233,7 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
       name: "Document Classification",
       description: "Automatically categorize documents by type and content",
       category: "General",
-      icon: "🏷️",
+      icon: "tag",
       steps: [
         {
           id: "1",
@@ -240,7 +241,7 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
           name: "File Upload Trigger",
           description: "Triggers when document is uploaded",
           config: {},
-          icon: "📄",
+          icon: "document",
         },
         {
           id: "2",
@@ -248,7 +249,7 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
           name: "AI Classification",
           description: "Classify document type",
           config: {},
-          icon: "🤖",
+          icon: "robot",
         },
         {
           id: "3",
@@ -256,7 +257,7 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
           name: "Auto-tag",
           description: "Add relevant tags",
           config: {},
-          icon: "🏷️",
+          icon: "tag",
         },
       ],
     },
@@ -269,21 +270,21 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
       id: "file_upload",
       name: "File Upload",
       description: "Trigger when files are uploaded",
-      icon: "📄",
+      icon: "document",
       config: { fileTypes: [] },
     },
     {
       id: "schedule",
       name: "Scheduled",
       description: "Run at specific times or intervals",
-      icon: "⏰",
+      icon: "alarm-clock",
       config: { schedule: "daily" },
     },
     {
       id: "manual",
       name: "Manual",
       description: "Start manually when needed",
-      icon: "👆",
+      icon: "hand",
       config: {},
     },
   ];
@@ -450,7 +451,7 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
                       setActions(templateActions);
                     }}
                   >
-                    <div className="template-icon">{template.icon}</div>
+                    <div className="template-icon"><Icon name={template.icon} size="large" /></div>
                     <h4>{template.name}</h4>
                     <p>{template.description}</p>
                     <div className="template-steps">
@@ -510,7 +511,7 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
                         setTriggerConfig({ ...trigger.config });
                       }}
                     >
-                      <div className="option-icon">{trigger.icon}</div>
+                      <div className="option-icon"><Icon name={trigger.icon} size="medium" /></div>
                       <div className="option-info">
                         <h5>{trigger.name}</h5>
                         <p>{trigger.description}</p>
@@ -577,7 +578,7 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
                         onChange={() => setWorkflowType("immediate")}
                       />
                       <div className="option-content">
-                        <span className="option-icon">⚡</span>
+                        <span className="option-icon"><Icon name="lightning" size="medium" /></span>
                         <div>
                           <h6>Immediate Execution</h6>
                           <p>
@@ -598,7 +599,7 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
                         onChange={() => setWorkflowType("approval")}
                       />
                       <div className="option-content">
-                        <span className="option-icon">✋</span>
+                        <span className="option-icon"><Icon name="hand" size="medium" /></span>
                         <div>
                           <h6>Approval Required</h6>
                           <p>Require approval before executing final actions</p>
@@ -627,7 +628,7 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
                           onChange={() => setApprovalMethod("slack")}
                         />
                         <div className="method-content">
-                          <span className="method-icon">💬</span>
+                          <span className="method-icon"><Icon name="chat" size="medium" /></span>
                           <div>
                             <h6>Slack Approval</h6>
                             <p>Send approval request to Slack with buttons</p>
@@ -646,7 +647,7 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
                           onChange={() => setApprovalMethod("email")}
                         />
                         <div className="method-content">
-                          <span className="method-icon">📧</span>
+                          <span className="method-icon"><Icon name="email" size="medium" /></span>
                           <div>
                             <h6>Email Approval</h6>
                             <p>Send approval request via email</p>
@@ -742,7 +743,7 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
                   <div className="integration-card">
                     <div className="integration-header">
                       <div className="integration-info">
-                        <span className="integration-icon">🗄️</span>
+                        <span className="integration-icon"><Icon name="database" size="medium" /></span>
                         <div>
                           <h5>Save to Database</h5>
                           <p>Store extracted data in database</p>
@@ -810,7 +811,7 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
                   <div className="integration-card">
                     <div className="integration-header">
                       <div className="integration-info">
-                        <span className="integration-icon">🔗</span>
+                        <span className="integration-icon"><Icon name="link" size="medium" /></span>
                         <div>
                           <h5>Send to External System</h5>
                           <p>Forward data to external API via webhook</p>
@@ -880,7 +881,7 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
                   <div className="integration-card">
                     <div className="integration-header">
                       <div className="integration-info">
-                        <span className="integration-icon">📧</span>
+                        <span className="integration-icon"><Icon name="email" size="medium" /></span>
                         <div>
                           <h5>Email Notification</h5>
                           <p>Send notification emails</p>
@@ -987,7 +988,7 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
                   <h4>Trigger</h4>
                   <div className="workflow-step">
                     <div className="step-icon">
-                      {selectedTrigger?.icon || "⚡"}
+                      <Icon name={selectedTrigger?.icon || "lightning"} size="medium" />
                     </div>
                     <div className="step-details">
                       <h5>{selectedTrigger?.name || "Manual Trigger"}</h5>
@@ -1005,7 +1006,7 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
                     {actions.map((action, i) => (
                       <div key={i} className="workflow-step">
                         <div className="step-number">{i + 1}</div>
-                        <div className="step-icon">{action.icon}</div>
+                        <div className="step-icon"><Icon name={action.icon} size="small" /></div>
                         <div className="step-details">
                           <h5>{action.name}</h5>
                           <p>{action.description}</p>
