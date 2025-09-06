@@ -300,7 +300,7 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
   const filteredTemplates = useMemo(() => {
     if (selectedCategory === "All") return templates;
     return templates.filter((t) => t.category === selectedCategory);
-  }, [selectedCategory]);
+  }, [selectedCategory, templates]);
 
   if (!isOpen) return null;
 

@@ -7,7 +7,7 @@ export const documentsKeys = {
   all: ['documents'] as const,
   workflows: () => [...documentsKeys.all, 'workflows'] as const,
   options: () => [...documentsKeys.workflows(), 'options'] as const,
-  list: (filters: any) => [...documentsKeys.all, 'list', filters] as const,
+  list: (filters: import('../../../types/documents').DocumentListFilters) => [...documentsKeys.all, 'list', filters] as const,
 };
 
 // Hook for fetching workflow options

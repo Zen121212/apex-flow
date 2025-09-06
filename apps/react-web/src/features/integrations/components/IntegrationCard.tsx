@@ -69,7 +69,7 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
     try {
       const result = await onTest(integration);
       setLastTestResult(result);
-    } catch (error) {
+    } catch {
       setLastTestResult({
         success: false,
         message: 'Test failed',
