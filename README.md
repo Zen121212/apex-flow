@@ -1,5 +1,7 @@
 <img src="./readme/title1.svg"/>
 
+<!-- CI/CD Pipeline Status: Testing CD trigger after fixing major lint errors -->
+
 <br><br>
 
 <!-- project overview -->
