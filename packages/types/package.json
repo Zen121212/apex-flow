@@ -6,7 +6,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "echo \"No tests specified\""
+    "test": "echo \"No tests specified\"",
+    "lint": "echo \"Linting not configured for this workspace\""
   },
   "dependencies": {
     "zod": "^3.22.2"
