@@ -8,7 +8,17 @@ import type {
   DocumentUploadResponse,
   DocumentListFilters,
   DocumentListResponse,
+  DocumentItem,
 } from '../../types/documents';
+
+// Backend document interface (what API returns)
+interface BackendDocument {
+  id: string;
+  filename: string;
+  mimeType?: string;
+  size?: number;
+  uploadedAt: string;
+}
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -87,10 +97,10 @@ class DocumentAPI {
     // The controller now returns all documents for debugging, so we don't need userId filtering
 
     const query = params.toString() ? `?${params.toString()}` : '';
-    const response = await this.request<{ documents: any[] }>(`/documents${query}`);
+    const response = await this.request<{ documents: BackendDocument[] }>(`/documents${query}`);
 
     // Transform backend response to match our frontend types
-    const items = response.documents.map((doc: any) => ({
+    const items = response.documents.map((doc: BackendDocument): DocumentItem => ({
       id: doc.id,
       originalName: doc.filename, // Backend uses 'filename', frontend expects 'originalName'
       mimeType: doc.mimeType,
@@ -106,27 +116,27 @@ class DocumentAPI {
     let filteredItems = items;
     if (filters.query) {
       const query = filters.query.toLowerCase();
-      filteredItems = filteredItems.filter((item: any) => 
+      filteredItems = filteredItems.filter((item: DocumentItem) => 
         item.originalName.toLowerCase().includes(query)
       );
     }
     if (filters.status && filters.status !== 'completed') {
-      filteredItems = filteredItems.filter((item: any) => item.status === filters.status);
+      filteredItems = filteredItems.filter((item: DocumentItem) => item.status === filters.status);
     }
     if (filters.from) {
       const fromDate = new Date(filters.from);
-      filteredItems = filteredItems.filter((item: any) => new Date(item.createdAt) >= fromDate);
+      filteredItems = filteredItems.filter((item: DocumentItem) => new Date(item.createdAt) >= fromDate);
     }
     if (filters.to) {
       const toDate = new Date(filters.to);
-      filteredItems = filteredItems.filter((item: any) => new Date(item.createdAt) <= toDate);
+      filteredItems = filteredItems.filter((item: DocumentItem) => new Date(item.createdAt) <= toDate);
     }
 
     // Apply client-side sorting
     if (filters.sortBy) {
-      filteredItems.sort((a: any, b: any) => {
-        let aVal = a[filters.sortBy!];
-        let bVal = b[filters.sortBy!];
+      filteredItems.sort((a: DocumentItem, b: DocumentItem) => {
+        let aVal: unknown = a[filters.sortBy as keyof DocumentItem];
+        let bVal: unknown = b[filters.sortBy as keyof DocumentItem];
         
         if (filters.sortBy === 'name') {
           aVal = a.originalName;
@@ -138,9 +148,15 @@ class DocumentAPI {
           return filters.sortDir === 'desc' ? -comparison : comparison;
         }
         
-        if (aVal < bVal) return filters.sortDir === 'desc' ? 1 : -1;
-        if (aVal > bVal) return filters.sortDir === 'desc' ? -1 : 1;
-        return 0;
+        if (typeof aVal === 'number' && typeof bVal === 'number') {
+          return filters.sortDir === 'desc' ? bVal - aVal : aVal - bVal;
+        }
+        
+        // Fallback string comparison
+        const aStr = String(aVal);
+        const bStr = String(bVal);
+        const comparison = aStr.localeCompare(bStr);
+        return filters.sortDir === 'desc' ? -comparison : comparison;
       });
     }
 

@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { integrationsApiService } from '../../../services/integrations.service';
-import type { Integration, IntegrationType, TestResult } from '../types/index';
+import type { Integration, IntegrationType, TestResult, SlackConfig, EmailConfig, DatabaseConfig, WebhookConfig } from '../types/index';
+
+type IntegrationConfig = SlackConfig | EmailConfig | DatabaseConfig | WebhookConfig;
 
 // Query Keys
 export const integrationsKeys = {
@@ -39,7 +41,7 @@ export function useCreateIntegration() {
       type: IntegrationType;
       name: string;
       description?: string;
-      config: any;
+      config: IntegrationConfig;
     }) => integrationsApiService.createIntegration(data),
     onSuccess: (newIntegration) => {
       // Add the new integration to the cache
@@ -72,7 +74,7 @@ export function useUpdateIntegration() {
       data: {
         name?: string;
         description?: string;
-        config?: any;
+        config?: Partial<IntegrationConfig>;
         enabled?: boolean;
       };
     }) => integrationsApiService.updateIntegration(id, data),
