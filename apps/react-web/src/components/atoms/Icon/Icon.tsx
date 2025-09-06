@@ -16,6 +16,8 @@ import {
   ChevronUp,
   ChevronDown,
   ArrowRight,
+  ArrowUp,
+  Send,
   Check,
   X,
   AlertTriangle,
@@ -94,6 +96,9 @@ const iconMap: Record<string, LucideIcon> = {
   chevronUp: ChevronUp,
   chevronDown: ChevronDown,
   arrow: ArrowRight,
+  'arrow-right': ArrowRight,
+  'arrow-up': ArrowUp,
+  send: Send,
   
   // Status
   check: Check,

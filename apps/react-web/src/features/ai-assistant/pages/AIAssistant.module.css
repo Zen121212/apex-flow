@@ -60,6 +60,7 @@
 
 .tabNavigation {
   display: flex;
+  gap: 0.5rem;
   background: white;
   border-radius: 12px;
   padding: 0.5rem;
@@ -128,6 +129,7 @@
   }
 
   .tabNavigation {
+    gap: 0.25rem;
     overflow-x: auto;
     padding: 0.25rem;
   }

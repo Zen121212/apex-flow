@@ -58,7 +58,7 @@ const SmartSearch: React.FC<SmartSearchProps> = ({
             {isLoading ? (
               <Icon name="loader" className={styles.spinner} />
             ) : (
-              <Icon name="arrow-right" />
+              <Icon name="send" />
             )}
           </Button>
         </div>
