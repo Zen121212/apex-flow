@@ -151,7 +151,7 @@ const Dashboard: React.FC = () => {
   }, []);
 
   const loadDashboardData = (): void => {
-    // Simulate loading data - replace with actual API calls
+    // Simulate loading data/ replace with actual API calls
     setTimeout(() => {
       setStats({
         totalDocuments: 152,
