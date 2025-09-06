@@ -13,6 +13,6 @@ export interface WorkflowSelectionOptions {
   workflowSelectionMode: 'manual' | 'auto' | 'hybrid';
 }
 
-export interface UploadOptions extends WorkflowSelectionOptions {
-  // Additional upload specific options can be added here
-}
+// Type alias for upload options - currently same as WorkflowSelectionOptions
+// but can be extended in the future with upload-specific properties
+export type UploadOptions = WorkflowSelectionOptions;

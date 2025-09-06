@@ -4,7 +4,7 @@
 export interface WorkflowStep {
   name: string;
   type: 'extract_text' | 'analyze_content' | 'send_notification' | 'store_data';
-  config: Record<string, any>;
+  config: Record<string, unknown>;
 }
 
 export interface WorkflowDefinition {
@@ -23,7 +23,7 @@ export interface WorkflowExecution {
     stepName: string;
     status: 'RUNNING' | 'COMPLETED' | 'FAILED';
     completedAt?: string;
-    result?: any;
+    result?: unknown;
     error?: string;
   }>;
 }

@@ -9,9 +9,9 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
       gcTime: 10 * 60 * 1000, // 10 minutes
-      retry: (failureCount, error: any) => {
+      retry: (failureCount, error: Error & { status?: number }) => {
         // Don't retry on 4xx errors (client errors)
-        if (error?.status >= 400 && error?.status < 500) {
+        if (error?.status && error.status >= 400 && error.status < 500) {
           return false;
         }
         // Retry up to 3 times for other errors

@@ -17,9 +17,9 @@ const UploadDocuments: React.FC = () => {
   const { data, isLoading, isError, refetch, isFetching } = useDocumentsList(filters);
 
   // Normalize response to avoid runtime errors when items is undefined
-  const items: DocumentItem[] = (data && Array.isArray((data as any).items)) ? (data as any).items : [];
-  const total = typeof (data as any)?.total === 'number' ? (data as any).total : items.length;
-  const pageSize = typeof (data as any)?.pageSize === 'number' ? (data as any).pageSize : (filters.pageSize || defaultPageSize);
+  const items: DocumentItem[] = (data && 'items' in data && Array.isArray(data.items)) ? data.items : [];
+  const total = (data && 'total' in data && typeof data.total === 'number') ? data.total : items.length;
+  const pageSize = (data && 'pageSize' in data && typeof data.pageSize === 'number') ? data.pageSize : (filters.pageSize || defaultPageSize);
 
   const totalPages = useMemo(() => {
     return Math.max(1, Math.ceil(total / pageSize));
@@ -51,7 +51,7 @@ const UploadDocuments: React.FC = () => {
         <select
           className={styles.select}
           value={filters.status || ''}
-          onChange={(e) => onChange('status', (e.target.value || undefined) as any)}
+          onChange={(e) => onChange('status', (e.target.value || undefined) as DocumentListFilters['status'])}
         >
           <option value="">All statuses</option>
           <option value="pending">Pending</option>
@@ -85,7 +85,7 @@ const UploadDocuments: React.FC = () => {
           <select
             className={styles.select}
             value={filters.sortBy || 'createdAt'}
-            onChange={(e) => onChange('sortBy', e.target.value as any)}
+            onChange={(e) => onChange('sortBy', e.target.value as DocumentListFilters['sortBy'])}
           >
             <option value="createdAt">Newest</option>
             <option value="updatedAt">Recently updated</option>
@@ -95,7 +95,7 @@ const UploadDocuments: React.FC = () => {
           <select
             className={styles.select}
             value={filters.sortDir || 'desc'}
-            onChange={(e) => onChange('sortDir', e.target.value as any)}
+            onChange={(e) => onChange('sortDir', e.target.value as DocumentListFilters['sortDir'])}
           >
             <option value="desc">Desc</option>
             <option value="asc">Asc</option>

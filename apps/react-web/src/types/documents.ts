@@ -39,7 +39,7 @@ export interface ExecutionResult {
   id: string;
   status: string;
   startedAt: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface DocumentUploadResponse {

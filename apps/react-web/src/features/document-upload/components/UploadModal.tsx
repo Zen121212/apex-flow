@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Button from '../../../components/atoms/Button/Button';
 import { useWorkflowOptions, useUploadDocument } from '../hooks/useDocuments';
 import { workflowApi } from '../../../services/workflowApi';
+import type { WorkflowDefinition, WorkflowStep } from '../../../types/workflow';
 import './UploadModal.css';
 
 interface UploadOptions {
@@ -25,7 +26,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onFilesUploa
     workflowSelectionMode: 'hybrid',
     autoDetectWorkflow: true,
   });
-  const [availableWorkflows, setAvailableWorkflows] = useState<any[]>([]);
+  const [availableWorkflows, setAvailableWorkflows] = useState<WorkflowDefinition[]>([]);
   const [loadingWorkflows, setLoadingWorkflows] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -272,7 +273,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onFilesUploa
                           <h5>📋 Workflow: {selectedWorkflow.name}</h5>
                           <p><strong>Steps ({selectedWorkflow.steps.length}):</strong></p>
                           <ol className="workflow-steps">
-                            {selectedWorkflow.steps.map((step: any, index: number) => (
+                            {selectedWorkflow.steps.map((step: WorkflowStep, index: number) => (
                               <li key={index}>
                                 <span className="step-name">{step.name}</span>
                                 <span className="step-type">({step.type})</span>
