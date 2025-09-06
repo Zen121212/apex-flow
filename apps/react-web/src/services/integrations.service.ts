@@ -1,6 +1,7 @@
-import type { Integration, IntegrationType, TestResult, SlackConfig, EmailConfig, DatabaseConfig, WebhookConfig } from '../features/integrations/types/index';
+import type { Integration, IntegrationType, TestResult } from '../features/integrations/types/index';
 
-type IntegrationConfig = SlackConfig | EmailConfig | DatabaseConfig | WebhookConfig;
+// Flexible config type that can handle any integration configuration
+type IntegrationConfig = Record<string, unknown>;
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -69,7 +70,7 @@ class IntegrationsApiService {
     data: {
       name?: string;
       description?: string;
-      config?: Partial<IntegrationConfig>;
+        config?: IntegrationConfig;
       enabled?: boolean;
     }
   ): Promise<Integration> {
