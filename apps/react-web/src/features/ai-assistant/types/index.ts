@@ -49,7 +49,7 @@ export interface ChatSession {
 export interface AnalysisResult {
   summary: string;
   keyFindings: string[];
-  metrics?: Record<string, any>;
+  metrics?: Record<string, string | number | boolean>;
   comparisons?: ComparisonResult[];
   visualizations?: VisualizationData[];
 }
@@ -68,7 +68,7 @@ export interface ComparisonResult {
 export interface VisualizationData {
   type: 'chart' | 'table' | 'timeline';
   title: string;
-  data: any;
+  data: Record<string, unknown>;
   description?: string;
 }
 

@@ -17,6 +17,43 @@ import type {
 } from '../types/index';
 import styles from './AIAssistant.module.css';
 
+// Mock data moved outside component to avoid useEffect dependency issues
+const mockInsights: InsightCard[] = [
+  {
+    id: '1',
+    type: 'trend',
+    title: 'Revenue Growth Acceleration',
+    description: 'Analysis shows a 23% increase in quarterly revenue with consistent month-over-month growth across all product lines.',
+    confidence: 0.92,
+    sourceDocuments: [{ id: '1', title: 'Q2 2024 Financial Report.pdf' }],
+    actionable: true,
+    timestamp: new Date()
+  },
+  {
+    id: '2',
+    type: 'anomaly',
+    title: 'Unusual Expense Pattern',
+    description: 'Marketing expenses increased by 45% in June, significantly higher than historical patterns.',
+    confidence: 0.78,
+    sourceDocuments: [{ id: '1', title: 'Q2 2024 Financial Report.pdf' }],
+    actionable: true,
+    timestamp: new Date()
+  },
+  {
+    id: '3',
+    type: 'recommendation',
+    title: 'Contract Renewal Optimization',
+    description: 'Consider renegotiating vendor contracts expiring in Q4 to leverage improved market position.',
+    confidence: 0.85,
+    sourceDocuments: [
+      { id: '2', title: 'Vendor Contract - TechCorp.pdf' },
+      { id: '1', title: 'Q2 2024 Financial Report.pdf' }
+    ],
+    actionable: true,
+    timestamp: new Date()
+  }
+];
+
 const AIAssistant: React.FC = () => {
   const [state, setState] = useState<AIAssistantState>({
     activeTab: 'search',
@@ -54,42 +91,6 @@ const AIAssistant: React.FC = () => {
       documentType: 'PDF',
       lastModified: new Date('2024-06-10'),
       tags: ['contract', 'vendor', 'sla']
-    }
-  ];
-
-  const mockInsights: InsightCard[] = [
-    {
-      id: '1',
-      type: 'trend',
-      title: 'Revenue Growth Acceleration',
-      description: 'Analysis shows a 23% increase in quarterly revenue with consistent month-over-month growth across all product lines.',
-      confidence: 0.92,
-      sourceDocuments: [{ id: '1', title: 'Q2 2024 Financial Report.pdf' }],
-      actionable: true,
-      timestamp: new Date()
-    },
-    {
-      id: '2',
-      type: 'anomaly',
-      title: 'Unusual Expense Pattern',
-      description: 'Marketing expenses increased by 45% in June, significantly higher than historical patterns.',
-      confidence: 0.78,
-      sourceDocuments: [{ id: '1', title: 'Q2 2024 Financial Report.pdf' }],
-      actionable: true,
-      timestamp: new Date()
-    },
-    {
-      id: '3',
-      type: 'recommendation',
-      title: 'Contract Renewal Optimization',
-      description: 'Consider renegotiating vendor contracts expiring in Q4 to leverage improved market position.',
-      confidence: 0.85,
-      sourceDocuments: [
-        { id: '2', title: 'Vendor Contract - TechCorp.pdf' },
-        { id: '1', title: 'Q2 2024 Financial Report.pdf' }
-      ],
-      actionable: true,
-      timestamp: new Date()
     }
   ];
 
