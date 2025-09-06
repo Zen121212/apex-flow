@@ -1,7 +1,6 @@
-# Multi-stage build for PDF Workflows Worker
+# Build stage
 FROM node:20-alpine AS builder
 
-# Set working directory
 WORKDIR /app
 
 # Copy package files
@@ -16,44 +15,33 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Build the PDF Workflows Worker
+# Build the application
 RUN npm run build -w @apex-flow/pdf-workflows
 
 # Production stage
-FROM node:20-alpine AS production
+FROM node:20-alpine
 
-# Install dumb-init for proper signal handling
 RUN apk add --no-cache dumb-init
 
 # Create non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S worker -u 1001
+RUN addgroup -g 1001 -S nodejs && adduser -S worker -u 1001
 
-# Set working directory
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
-COPY apps/pdf-workflows/package*.json ./apps/pdf-workflows/
-COPY packages/shared/package*.json ./packages/shared/
-COPY packages/types/package*.json ./packages/types/
+COPY apps/pdf-workflows/package*.json ./
 
-# Install only production dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Copy node_modules from builder
+COPY --from=builder /app/node_modules ./node_modules
 
-# Copy built application from builder stage
-COPY --from=builder --chown=worker:nodejs /app/apps/pdf-workflows/dist ./apps/pdf-workflows/dist
-COPY --from=builder --chown=worker:nodejs /app/packages ./packages
+# Copy built application
+COPY --from=builder --chown=worker:nodejs /app/apps/pdf-workflows/dist ./dist
 
-# Change to non-root privilege
 USER worker
-
-# No port exposed as this is a worker service
 
 # Health check for worker process
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD ps aux | grep -v grep | grep "node.*worker.js" || exit 1
+  CMD pgrep -f "node.*worker.js" || exit 1
 
-# Start the worker
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["node", "apps/pdf-workflows/dist/worker.js"]
+CMD ["node", "dist/worker.js"]

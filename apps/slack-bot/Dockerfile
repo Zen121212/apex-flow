@@ -1,7 +1,6 @@
-# Multi-stage build for Slack Bot
+# Build stage
 FROM node:20-alpine AS builder
 
-# Set working directory
 WORKDIR /app
 
 # Copy package files
@@ -16,45 +15,35 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Build the Slack Bot
+# Build the application
 RUN npm run build -w @apex-flow/slack-bot
 
 # Production stage
-FROM node:20-alpine AS production
+FROM node:20-alpine
 
-# Install dumb-init for proper signal handling
 RUN apk add --no-cache dumb-init
 
 # Create non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S slackbot -u 1001
+RUN addgroup -g 1001 -S nodejs && adduser -S slackbot -u 1001
 
-# Set working directory
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
-COPY apps/slack-bot/package*.json ./apps/slack-bot/
-COPY packages/shared/package*.json ./packages/shared/
-COPY packages/types/package*.json ./packages/types/
+COPY apps/slack-bot/package*.json ./
 
-# Install only production dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Copy node_modules from builder
+COPY --from=builder /app/node_modules ./node_modules
 
-# Copy built application from builder stage
-COPY --from=builder --chown=slackbot:nodejs /app/apps/slack-bot/dist ./apps/slack-bot/dist
-COPY --from=builder --chown=slackbot:nodejs /app/packages ./packages
+# Copy built application
+COPY --from=builder --chown=slackbot:nodejs /app/apps/slack-bot/dist ./dist
 
-# Change to non-root privilege
 USER slackbot
 
-# Expose port (assuming it runs on port 3002)
 EXPOSE 3002
 
 # Health check for slack bot
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD ps aux | grep -v grep | grep "node.*index.js" || exit 1
+  CMD pgrep -f "node.*index.js" || exit 1
 
-# Start the application
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["node", "apps/slack-bot/dist/index.js"]
+CMD ["node", "dist/index.js"]
