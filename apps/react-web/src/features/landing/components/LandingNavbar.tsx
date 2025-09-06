@@ -43,8 +43,8 @@ const LandingNavbar: React.FC<LandingNavbarProps> = ({ onAuthClick }) => {
               <Button variant="primary" onClick={() => navigate('/dashboard')}>
                 Dashboard
               </Button>
-              <Button variant="ghost" onClick={() => navigate('/upload')}>
-                Upload
+              <Button variant="ghost" onClick={() => navigate('/documents')}>
+                Documents
               </Button>
             </>
           )}

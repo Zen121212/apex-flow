@@ -80,7 +80,6 @@ const AppNavbar: React.FC<AppNavbarProps> = ({ onToggleSidebar, isSidebarCollaps
   const getPageTitle = () => {
     switch (location.pathname) {
       case '/dashboard': return 'Dashboard';
-      case '/upload': return 'Upload Documents';
       case '/documents': return 'Documents';
       case '/workflows': return 'Workflows';
       case '/ai-assistant': return 'AI Assistant';

@@ -42,7 +42,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error) {
       // No valid session, user not logged in
       console.log('No valid session found:', error);
-      setUser(null);
+      
+      // In development, check if we should mock a user for easier testing
+      const isDev = import.meta.env.DEV;
+      const mockAuth = localStorage.getItem('mock-auth');
+      
+      if (isDev && mockAuth === 'true') {
+        const mockUser: User = {
+          id: 'mock-user-1',
+          email: 'demo@apexflow.com',
+          name: 'Demo User',
+          provider: 'email',
+          role: 'Administrator'
+        };
+        setUser(mockUser);
+        console.log('Using mock user for development');
+      } else {
+        setUser(null);
+      }
     } finally {
       setLoading(false);
     }

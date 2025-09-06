@@ -1,0 +1,163 @@
+.aiAssistant {
+  padding: 2rem;
+  min-height: 100vh;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.assistantHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.headerContent h1 {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 2rem;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+}
+
+.headerContent p {
+  color: #6b7280;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.headerStats {
+  display: flex;
+  gap: 2rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.statValue {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #04172f;
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+.tabNavigation {
+  display: flex;
+  background: white;
+  border-radius: 12px;
+  padding: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.tabButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.tabButton:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.tabButton.active {
+  background: #04172f;
+  color: white;
+}
+
+.tabButton.active:hover {
+  background: #1f2937;
+}
+
+.tabContent {
+  flex: 1;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .aiAssistant {
+    padding: 1rem;
+    gap: 1.5rem;
+  }
+
+  .assistantHeader {
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.5rem;
+  }
+
+  .headerContent h1 {
+    font-size: 1.75rem;
+  }
+
+  .headerStats {
+    gap: 1rem;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .tabNavigation {
+    overflow-x: auto;
+    padding: 0.25rem;
+  }
+
+  .tabButton {
+    flex: none;
+    min-width: max-content;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .tabButton span {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .aiAssistant {
+    padding: 0.75rem;
+  }
+
+  .assistantHeader {
+    padding: 1rem;
+  }
+
+  .headerContent h1 {
+    font-size: 1.5rem;
+  }
+
+  .statValue {
+    font-size: 1.5rem;
+  }
+}

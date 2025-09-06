@@ -1,0 +1,318 @@
+.documentAnalysis {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.analysisHeader h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+}
+
+.analysisHeader p {
+  color: #6b7280;
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.newAnalysisForm {
+  background: #f9fafb;
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.formSection h4 {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #374151;
+  margin: 0 0 1rem 0;
+}
+
+.analysisTypes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.analysisTypeOption {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.analysisTypeOption:hover {
+  border-color: #d1d5db;
+}
+
+.analysisTypeOption input[type="radio"] {
+  margin-top: 0.25rem;
+}
+
+.analysisTypeOption input[type="radio"]:checked + .optionContent {
+  color: #04172f;
+}
+
+.analysisTypeOption:has(input[type="radio"]:checked) {
+  border-color: #04172f;
+  background: #f8fafc;
+}
+
+.optionContent {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.optionContent > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.optionContent strong {
+  font-weight: 500;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.optionContent span {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.documentSelection {
+  margin-bottom: 1.5rem;
+}
+
+.documentList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.5rem;
+  background: white;
+}
+
+.documentItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.documentItem:hover {
+  background: #f9fafb;
+}
+
+.documentInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.documentTitle {
+  font-size: 0.875rem;
+  color: #374151;
+  font-weight: 400;
+}
+
+.activeAnalyses h4 {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #111827;
+  margin: 0 0 1rem 0;
+}
+
+.analysesList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.analysisCard {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.2s;
+}
+
+.analysisCard:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.analysisHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.analysisInfo {
+  flex: 1;
+}
+
+.analysisTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.analysisTitle span {
+  font-weight: 500;
+  color: #111827;
+  font-size: 1rem;
+}
+
+.analysisMeta {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.status.success {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.status.warning {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.status.error {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.documentCount,
+.createdDate {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.analysisPreview {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.analysisPreview p {
+  color: #6b7280;
+  margin: 0 0 1rem 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.keyFindings strong {
+  font-size: 0.875rem;
+  color: #374151;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.keyFindings ul {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+.keyFindings li {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .documentAnalysis {
+    padding: 1rem;
+    gap: 1.5rem;
+  }
+
+  .newAnalysisForm {
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+
+  .analysisTypes {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .analysisTypeOption {
+    padding: 0.75rem;
+  }
+
+  .analysisHeader {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .analysisMeta {
+    gap: 0.5rem;
+  }
+
+  .documentList {
+    max-height: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .documentAnalysis {
+    padding: 0.75rem;
+  }
+
+  .newAnalysisForm {
+    padding: 1rem;
+  }
+
+  .analysisCard {
+    padding: 1rem;
+  }
+
+  .analysisTypeOption {
+    padding: 0.5rem;
+  }
+
+  .optionContent strong {
+    font-size: 0.75rem;
+  }
+
+  .optionContent span {
+    font-size: 0.625rem;
+  }
+}
