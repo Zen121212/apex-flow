@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import type { 
   Integration, 
-  IntegrationType
+  IntegrationType,
+  SlackFormData,
+  EmailFormData,
+  DatabaseFormData,
+  WebhookFormData
 } from '../types/index';
 import Button from '../../../components/atoms/Button/Button';
 import styles from './IntegrationModal.module.css';
+
+type IntegrationFormData = SlackFormData | EmailFormData | DatabaseFormData | WebhookFormData;
 
 interface IntegrationModalProps {
   isOpen: boolean;
   type: IntegrationType;
   integration?: Integration;
   onClose: () => void;
-  onSave: (data: any) => void;
+  onSave: (data: IntegrationFormData) => void;
 }
 
 const INTEGRATION_TITLES = {
@@ -28,7 +34,7 @@ const IntegrationModal: React.FC<IntegrationModalProps> = ({
   onClose,
   onSave
 }) => {
-  const [formData, setFormData] = useState<any>({});
+  const [formData, setFormData] = useState<Partial<IntegrationFormData>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -179,8 +185,8 @@ const IntegrationModal: React.FC<IntegrationModalProps> = ({
     }
   };
 
-  const handleInputChange = (field: string, value: any) => {
-    setFormData((prev: any) => ({
+  const handleInputChange = (field: string, value: string | number | boolean) => {
+    setFormData((prev) => ({
       ...prev,
       [field]: value
     }));
@@ -190,11 +196,11 @@ const IntegrationModal: React.FC<IntegrationModalProps> = ({
     }
   };
 
-  const handleNestedChange = (parent: string, field: string, value: any) => {
-    setFormData((prev: any) => ({
+  const handleNestedChange = (parent: string, field: string, value: boolean | string) => {
+    setFormData((prev) => ({
       ...prev,
       [parent]: {
-        ...prev[parent],
+        ...(prev[parent as keyof IntegrationFormData] as Record<string, unknown>),
         [field]: value
       }
     }));

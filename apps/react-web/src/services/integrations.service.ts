@@ -1,4 +1,6 @@
-import type { Integration, IntegrationType, TestResult } from '../features/integrations/types/index';
+import type { Integration, IntegrationType, TestResult, SlackConfig, EmailConfig, DatabaseConfig, WebhookConfig } from '../features/integrations/types/index';
+
+type IntegrationConfig = SlackConfig | EmailConfig | DatabaseConfig | WebhookConfig;
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -54,7 +56,7 @@ class IntegrationsApiService {
     type: IntegrationType;
     name: string;
     description?: string;
-    config: any;
+    config: IntegrationConfig;
   }): Promise<Integration> {
     return this.request<Integration>('/integrations', {
       method: 'POST',
@@ -67,7 +69,7 @@ class IntegrationsApiService {
     data: {
       name?: string;
       description?: string;
-      config?: any;
+      config?: Partial<IntegrationConfig>;
       enabled?: boolean;
     }
   ): Promise<Integration> {

@@ -109,57 +109,8 @@ interface IntegrationConfig {
   };
 }
 
-const WorkflowModal: React.FC<WorkflowModalProps> = ({
-  isOpen,
-  onClose,
-  onWorkflowCreated,
-}) => {
-  const [step, setStep] = useState<number>(1);
-  const [workflowName, setWorkflowName] = useState("");
-  const [workflowDescription, setWorkflowDescription] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("All");
-  const [selectedTemplate, setSelectedTemplate] =
-    useState<WorkflowTemplate | null>(null);
-  const [selectedTrigger, setSelectedTrigger] = useState<TriggerOption | null>(
-    null,
-  );
-  const [actions, setActions] = useState<ActionOption[]>([]);
-  const [autoStart, setAutoStart] = useState(true);
-  const [enableNotifications, setEnableNotifications] = useState(true);
-  const [workflowType, setWorkflowType] = useState<"immediate" | "approval">(
-    "immediate",
-  );
-  const [approvalMethod, setApprovalMethod] = useState<
-    "slack" | "email" | null
-  >(null);
-  const [triggerConfig, setTriggerConfig] = useState<TriggerConfig>({
-    fileTypes: [],
-  });
-  const [creating, setCreating] = useState(false);
-  const [integrationConfig, setIntegrationConfig] = useState<IntegrationConfig>(
-    {
-      approval: {
-        channel: "#approvals",
-        recipients: "",
-        messageTemplate:
-          "📄 New {document_type} requires approval: {summary}. Please review and approve/reject.",
-      },
-      slack: {
-        enabled: false,
-        channel: "#general",
-        messageTemplate: "📄 New {document_type} processed: {summary}",
-      },
-      email: {
-        enabled: false,
-        recipients: "",
-        subjectTemplate: "Workflow Alert: {document_type} processed",
-      },
-      database: { enabled: false, tableName: "", fields: "" },
-      webhook: { enabled: false, url: "", method: "POST" },
-    },
-  );
-
-  const templates: WorkflowTemplate[] = [
+// Define templates outside component to prevent recreating on every render
+const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
     {
       id: "invoice_processing",
       name: "Invoice Processing",
@@ -263,6 +214,56 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
     },
   ];
 
+const WorkflowModal: React.FC<WorkflowModalProps> = ({
+  isOpen,
+  onClose,
+  onWorkflowCreated,
+}) => {
+  const [step, setStep] = useState<number>(1);
+  const [workflowName, setWorkflowName] = useState("");
+  const [workflowDescription, setWorkflowDescription] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<WorkflowTemplate | null>(null);
+  const [selectedTrigger, setSelectedTrigger] = useState<TriggerOption | null>(
+    null,
+  );
+  const [actions, setActions] = useState<ActionOption[]>([]);
+  const [autoStart, setAutoStart] = useState(true);
+  const [enableNotifications, setEnableNotifications] = useState(true);
+  const [workflowType, setWorkflowType] = useState<"immediate" | "approval">(
+    "immediate",
+  );
+  const [approvalMethod, setApprovalMethod] = useState<
+    "slack" | "email" | null
+  >(null);
+  const [triggerConfig, setTriggerConfig] = useState<TriggerConfig>({
+    fileTypes: [],
+  });
+  const [creating, setCreating] = useState(false);
+  const [integrationConfig, setIntegrationConfig] = useState<IntegrationConfig>(
+    {
+      approval: {
+        channel: "#approvals",
+        recipients: "",
+        messageTemplate:
+          "📄 New {document_type} requires approval: {summary}. Please review and approve/reject.",
+      },
+      slack: {
+        enabled: false,
+        channel: "#general",
+        messageTemplate: "📄 New {document_type} processed: {summary}",
+      },
+      email: {
+        enabled: false,
+        recipients: "",
+        subjectTemplate: "Workflow Alert: {document_type} processed",
+      },
+      database: { enabled: false, tableName: "", fields: "" },
+      webhook: { enabled: false, url: "", method: "POST" },
+    },
+  );
+
   const categories = ["All", "Finance", "Legal", "General", "Custom"];
 
   const triggerOptions: TriggerOption[] = [
@@ -298,9 +299,9 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
   // ];
 
   const filteredTemplates = useMemo(() => {
-    if (selectedCategory === "All") return templates;
-    return templates.filter((t) => t.category === selectedCategory);
-  }, [selectedCategory, templates]);
+    if (selectedCategory === "All") return WORKFLOW_TEMPLATES;
+    return WORKFLOW_TEMPLATES.filter((t) => t.category === selectedCategory);
+  }, [selectedCategory]);
 
   if (!isOpen) return null;
 
