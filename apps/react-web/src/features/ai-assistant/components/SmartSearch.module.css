@@ -1,0 +1,276 @@
+.smartSearch {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.searchHeader h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+}
+
+.searchHeader p {
+  color: #6b7280;
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.searchForm {
+  margin-bottom: 1rem;
+}
+
+.searchInputGroup {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #f9fafb;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  transition: border-color 0.2s;
+}
+
+.searchInputGroup:focus-within {
+  border-color: #04172f;
+  background: white;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 1rem;
+  color: #6b7280;
+  z-index: 1;
+}
+
+.searchInput {
+  flex: 1;
+  padding: 1rem 1rem 1rem 3rem;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  outline: none;
+  color: #111827;
+}
+
+.searchInput::placeholder {
+  color: #9ca3af;
+}
+
+.searchButton {
+  margin: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  min-width: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.recentSearches {
+  margin-bottom: 1rem;
+}
+
+.recentSearches h4 {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #374151;
+  margin: 0 0 0.75rem 0;
+}
+
+.searchTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.searchTag {
+  padding: 0.5rem 1rem;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.searchTag:hover {
+  background: #e5e7eb;
+  border-color: #04172f;
+}
+
+.searchResults {
+  margin-top: 1rem;
+}
+
+.resultsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.resultsHeader h4 {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #111827;
+  margin: 0;
+}
+
+.resultCount {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.resultsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.resultItem {
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: white;
+  transition: all 0.2s;
+}
+
+.resultItem:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.resultHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.resultHeader h5 {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #111827;
+  margin: 0;
+  flex: 1;
+}
+
+.resultMeta {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.relevanceScore {
+  padding: 0.125rem 0.5rem;
+  background: #ecfdf5;
+  color: #059669;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.documentType {
+  padding: 0.125rem 0.5rem;
+  background: #f3f4f6;
+  color: #6b7280;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.resultExcerpt {
+  color: #6b7280;
+  margin: 0 0 1rem 0;
+  line-height: 1.5;
+  font-size: 0.875rem;
+}
+
+.resultTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-bottom: 1rem;
+}
+
+.tag {
+  padding: 0.125rem 0.5rem;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-radius: 12px;
+  font-size: 0.75rem;
+}
+
+.resultActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .smartSearch {
+    padding: 1rem;
+    gap: 1.5rem;
+  }
+
+  .searchInputGroup {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchInput {
+    padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+    font-size: 0.875rem;
+  }
+
+  .searchIcon {
+    left: 0.75rem;
+  }
+
+  .searchButton {
+    margin: 0.5rem;
+    align-self: flex-end;
+  }
+
+  .resultHeader {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+
+  .resultMeta {
+    gap: 0.5rem;
+  }
+
+  .resultActions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .smartSearch {
+    padding: 0.75rem;
+  }
+
+  .searchInput::placeholder {
+    font-size: 0.75rem;
+  }
+
+  .resultItem {
+    padding: 1rem;
+  }
+}

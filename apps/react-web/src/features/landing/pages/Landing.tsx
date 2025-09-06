@@ -56,7 +56,7 @@ const Landing: React.FC = () => {
                 <Button variant="primary" onClick={() => navigate('/dashboard')}>
                   Go to Dashboard
                 </Button>
-                <Button variant="secondary" onClick={() => navigate('/upload')}>
+                <Button variant="secondary" onClick={() => navigate('/documents')}>
                   Upload Document
                 </Button>
               </>

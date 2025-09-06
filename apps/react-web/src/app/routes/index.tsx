@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import { AppLayout } from '../layout/AppLayout';
 import ProtectedRoute from '../guards/ProtectedRoute';
@@ -8,31 +8,9 @@ const Landing = lazy(() => import('../../features/landing/pages/Landing'));
 const Dashboard = lazy(() => import('../../features/dashboard/pages/Dashboard'));
 const UploadDocuments = lazy(() => import('../../features/document-upload/pages/UploadDocuments'));
 const Workflows = lazy(() => import('../../features/workflows/pages/Workflows'));
+const AIAssistant = lazy(() => import('../../features/ai-assistant/pages/AIAssistant'));
 
 // Placeholder components for routes that don't have pages yet
-const DocumentsPage = () => (
-  <div style={{ padding: '2rem' }}>
-    <h1>Documents</h1>
-    <p>Documents page coming soon...</p>
-  </div>
-);
-
-const AIAssistantPage = () => (
-  <div style={{ padding: '2rem' }}>
-    <h1>🤖 AI Assistant</h1>
-    <div style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '8px', marginTop: '1rem' }}>
-      <h3>Intelligent Document Search & Chat</h3>
-      <p>This unified AI tool combines:</p>
-      <ul>
-        <li><strong>Smart Search:</strong> Find documents using natural language queries</li>
-        <li><strong>Document Chat:</strong> Ask questions about your documents and get instant answers</li>
-        <li><strong>Cross-Document Analysis:</strong> Compare and analyze multiple documents</li>
-        <li><strong>Insights & Summaries:</strong> Get key information extracted automatically</li>
-      </ul>
-      <p><em>Coming soon...</em></p>
-    </div>
-  </div>
-);
 
 const IntegrationsPage = lazy(() => import('../../features/integrations/pages/Integrations'));
 
@@ -79,7 +57,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: 'upload',
+        path: 'documents',
         element: (
           <ProtectedRoute>
             <Suspense fallback={<div>Loading...</div>}>
@@ -99,18 +77,17 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: 'documents',
-        element: (
-          <ProtectedRoute>
-            <DocumentsPage />
-          </ProtectedRoute>
-        ),
+        // Redirect old /upload route to /documents
+        path: 'upload',
+        element: <Navigate to="/documents" replace />,
       },
       {
         path: 'ai-assistant',
         element: (
           <ProtectedRoute>
-            <AIAssistantPage />
+            <Suspense fallback={<div>Loading...</div>}>
+              <AIAssistant />
+            </Suspense>
           </ProtectedRoute>
         ),
       },

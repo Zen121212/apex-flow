@@ -42,12 +42,8 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ isCollapsed, isMobileOpen = fal
             <Icon name="dashboard" className="nav-icon" />
             {!isCollapsed && <span className="nav-text">Dashboard</span>}
           </NavLink>
-          <NavLink to="/upload" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} title="Upload">
-            <Icon name="upload" className="nav-icon" />
-            {!isCollapsed && <span className="nav-text">Upload</span>}
-          </NavLink>
           <NavLink to="/documents" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} title="Documents">
-            <Icon name="document" className="nav-icon" />
+            <Icon name="upload" className="nav-icon" />
             {!isCollapsed && <span className="nav-text">Documents</span>}
           </NavLink>
         </div>
