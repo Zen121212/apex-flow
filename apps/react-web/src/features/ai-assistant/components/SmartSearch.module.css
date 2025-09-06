@@ -244,12 +244,11 @@
   }
 
   .searchInputGroup {
-    flex-direction: column;
-    align-items: stretch;
+    border-radius: 8px;
   }
 
   .searchInput {
-    padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+    padding: 0.75rem 4rem 0.75rem 2.5rem;
     font-size: 0.875rem;
   }
 
@@ -258,8 +257,11 @@
   }
 
   .searchButton {
-    margin: 0.5rem;
-    align-self: flex-end;
+    margin: 0.25rem;
+    padding: 0.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    min-width: 2.5rem;
   }
 
   .resultHeader {

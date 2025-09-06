@@ -266,7 +266,7 @@ const AIAssistant: React.FC = () => {
     switch (tab) {
       case 'search': return 'search';
       case 'chat': return 'message-square';
-      case 'analysis': return 'git-compare';
+      case 'analysis': return 'files';
       case 'insights': return 'brain';
       default: return 'help-circle';
     }

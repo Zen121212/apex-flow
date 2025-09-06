@@ -61,6 +61,10 @@ import {
   Link,
   Shield,
   CheckCircle2,
+  MessageSquare,
+  Files,
+  HelpCircle,
+  LifeBuoy,
   type LucideIcon
 } from 'lucide-react';
 import './Icon.css';
@@ -81,6 +85,7 @@ const iconMap: Record<string, LucideIcon> = {
   document: FileText,
   folder: Folder,
   file: File,
+  files: Files,
   
   // Actions
   edit: Edit,
@@ -117,6 +122,7 @@ const iconMap: Record<string, LucideIcon> = {
   
   // Communication
   chat: MessageCircle,
+  'message-square': MessageSquare,
   email: Mail,
   notification: Bell,
   bell: Bell,
@@ -173,6 +179,12 @@ const iconMap: Record<string, LucideIcon> = {
   link: Link,
   shield: Shield,
   'check-circle': CheckCircle2,
+  
+  // Help & Support
+  help: HelpCircle,
+  'help-circle': HelpCircle,
+  support: LifeBuoy,
+  'life-buoy': LifeBuoy,
 };
 
 export type IconName = keyof typeof iconMap;
