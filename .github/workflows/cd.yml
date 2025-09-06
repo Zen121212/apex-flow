@@ -11,6 +11,12 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
+# Grant GITHUB_TOKEN the necessary permissions
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
 jobs:
   # Build and test before deployment
   build:
@@ -146,6 +152,12 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     
+    # Explicit permissions for this job
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    
     strategy:
       matrix:
         service: [api-gateway, pdf-workflows, agent-orchestrator, slack-bot]
@@ -178,6 +190,12 @@ jobs:
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
             type=raw,value=dev-latest,enable=${{ github.ref == 'refs/heads/dev' }}
+          labels: |
+            org.opencontainers.image.title=${{ matrix.service }}
+            org.opencontainers.image.description=ApexFlow ${{ matrix.service }} service
+            org.opencontainers.image.source=${{ github.event.repository.html_url }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ needs.build.outputs.version }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
