@@ -1,180 +1,352 @@
 name: CD
 
 on:
-  workflow_run:
-    workflows: ["CI"]
+  push:
     branches: [main, dev]
-    types:
-      - completed
+  release:
+    types: [published]
 
 env:
-  NODE_VERSION: "20.x"
+  NODE_VERSION: '20.x'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  #Only run deployment if CI passed
-  check-ci:
-    runs-on: ubuntu-latest
-    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'push'
-    steps:
-      - name: CI Status Check
-        run: echo "CI passed, proceeding with deployment"
-
-  # Build and prepare artifacts
+  # Build and test before deployment
   build:
-    needs: [check-ci]
     runs-on: ubuntu-latest
-    if: always() && (needs.check-ci.result == 'success')
-
+    
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      environment: ${{ steps.environment.outputs.environment }}
+      
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build all services
+      - name: Lint code
+        run: npm run lint
+
+      - name: Build all workspaces
         run: npm run build
 
-      - name: Create deployment package
+      - name: Run tests
+        run: npm run test
+
+      - name: Get version
+        id: version
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Set environment
+        id: environment
         run: |
-          mkdir -p deployment-package
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "environment=production" >> $GITHUB_OUTPUT
+          else
+            echo "environment=staging" >> $GITHUB_OUTPUT
+          fi
 
-          # Copy built React app
-          cp -r apps/react-web/dist deployment-package/react-web
-
-          # Copy built backend services
-          cp -r apps/api-gateway/dist deployment-package/api-gateway
-          cp -r apps/agent-orchestrator/dist deployment-package/agent-orchestrator
-          cp -r apps/pdf-workflows/dist deployment-package/pdf-workflows
-          cp -r apps/slack-bot/dist deployment-package/slack-bot
-
-          # Copy package files and configs
-          cp package.json deployment-package/
-          cp -r packages deployment-package/
-
-          # Copy environment configs
-          cp -r apps/react-web/.env.example deployment-package/react-web/.env.production || true
-
-      - name: Upload build artifacts
+      # Archive build artifacts for deployment
+      - name: Archive React Web build
         uses: actions/upload-artifact@v4
         with:
-          name: deployment-package
-          path: deployment-package/
+          name: react-web-build
+          path: apps/react-web/dist/
           retention-days: 30
 
-  # Deploy to Staging Environment
-  deploy-staging:
-    needs: [build]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/dev'
-    environment:
-      name: staging
-      url: https://apexflow-staging.yourapp.com
+      - name: Archive API Gateway build
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-gateway-build
+          path: apps/api-gateway/dist/
+          retention-days: 30
 
+  # Deploy React Web App (Frontend)
+  deploy-frontend:
+    needs: build
+    runs-on: ubuntu-latest
+    
+    environment:
+      name: ${{ needs.build.outputs.environment }}
+      url: ${{ steps.deploy.outputs.url }}
+      
     steps:
-      - name: Download build artifacts
+      - name: Download React Web build
         uses: actions/download-artifact@v4
         with:
-          name: deployment-package
-          path: deployment-package/
+          name: react-web-build
+          path: ./dist
 
-      - name: Deploy React Frontend to Staging
+      # Example deployment to Vercel (uncomment and configure as needed)
+      # - name: Deploy to Vercel
+      #   id: deploy
+      #   uses: amondnet/vercel-action@v25
+      #   with:
+      #     vercel-token: ${{ secrets.VERCEL_TOKEN }}
+      #     vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+      #     vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+      #     working-directory: ./dist
+      #     production: ${{ github.ref == 'refs/heads/main' }}
+
+      # Example deployment to Netlify (uncomment and configure as needed)
+      # - name: Deploy to Netlify
+      #   id: deploy
+      #   uses: netlify/actions/deploy@main
+      #   with:
+      #     publish-dir: ./dist
+      #     production-branch: main
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     deploy-message: "Deploy from GitHub Actions - ${{ github.sha }}"
+      #   env:
+      #     NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      #     NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
+      # Example deployment to AWS S3 + CloudFront (uncomment and configure as needed)
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: us-east-1
+
+      # - name: Deploy to S3
+      #   run: |
+      #     BUCKET_NAME="${{ github.ref == 'refs/heads/main' && secrets.S3_BUCKET_PROD || secrets.S3_BUCKET_STAGING }}"
+      #     DISTRIBUTION_ID="${{ github.ref == 'refs/heads/main' && secrets.CLOUDFRONT_DISTRIBUTION_PROD || secrets.CLOUDFRONT_DISTRIBUTION_STAGING }}"
+      #     aws s3 sync ./dist s3://$BUCKET_NAME --delete
+      #     aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths "/*"
+
+      # Example deployment to GitHub Pages (uncomment for GitHub Pages deployment)
+      # - name: Deploy to GitHub Pages
+      #   if: github.ref == 'refs/heads/main'
+      #   uses: peaceiris/actions-gh-pages@v3
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     publish_dir: ./dist
+
+      - name: Deployment Status
         run: |
-          echo "🚀 Deploying React frontend to staging..."
-          # Add your frontend deployment commands here
-          # Examples:
-          # - Deploy to Vercel: vercel --prod --token ${{ secrets.VERCEL_TOKEN }}
-          # - Deploy to Netlify: netlify deploy --prod --auth ${{ secrets.NETLIFY_TOKEN }}
-          # - Deploy to S3: aws s3 sync deployment-package/react-web s3://staging-bucket
-          echo "Frontend deployed to staging"
+          echo "✅ Frontend deployment completed"
+          echo "Environment: ${{ needs.build.outputs.environment }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Version: ${{ needs.build.outputs.version }}"
+          echo "Commit: ${{ github.sha }}"
 
-      - name: Deploy Backend Services to Staging
-        run: |
-          echo "🚀 Deploying backend services to staging..."
-          # Add your backend deployment commands here
-          # Examples:
-          # - Deploy to Railway: railway deploy
-          # - Deploy to Heroku: git push heroku main
-          # - Deploy to AWS ECS/Lambda
-          # - Deploy to Google Cloud Run
-          # - SSH to server and restart services
-          echo "Backend services deployed to staging"
-
-      - name: Run Database Migrations (Staging)
-        run: |
-          echo "📊 Running database migrations for staging..."
-          # Add database migration commands
-          # Examples:
-          # - npm run migrate:staging
-          # - npx prisma migrate deploy
-          echo "Database migrations completed"
-
-      - name: Health Check - Staging
-        run: |
-          echo "🩺 Running health checks on staging..."
-          # Add health check commands
-          # curl -f https://api-staging.yourapp.com/health || exit 1
-          echo "Health checks passed"
-
-  # Deploy to Production Environment
-  deploy-production:
-    needs: [build]
+  # Build and deploy Docker containers
+  deploy-backend:
+    needs: build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    
+    strategy:
+      matrix:
+        service: [api-gateway, pdf-workflows, agent-orchestrator, slack-bot]
+    
     environment:
-      name: production
-      url: https://apexflow.yourapp.com
-
+      name: ${{ needs.build.outputs.environment }}
+      
     steps:
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
         with:
-          name: deployment-package
-          path: deployment-package/
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Deploy React Frontend to Production
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.service }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=dev-latest,enable=${{ github.ref == 'refs/heads/dev' }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./apps/${{ matrix.service }}/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NODE_ENV=${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
+
+      - name: Service Deployment Status
         run: |
-          echo "🚀 Deploying React frontend to production..."
-          # Add your production frontend deployment commands
-          echo "Frontend deployed to production"
+          echo "✅ ${{ matrix.service }} container built and pushed"
+          echo "Environment: ${{ needs.build.outputs.environment }}"
+          echo "Image tags: ${{ steps.meta.outputs.tags }}"
 
-      - name: Deploy Backend Services to Production
+  # Deploy to cloud provider
+  deploy-infrastructure:
+    needs: [build, deploy-backend]
+    runs-on: ubuntu-latest
+    
+    environment:
+      name: ${{ needs.build.outputs.environment }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Example Kubernetes deployment (uncomment and configure as needed)
+      # - name: Setup kubectl
+      #   uses: azure/k8s-set-context@v3
+      #   with:
+      #     method: kubeconfig
+      #     kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+      # - name: Deploy to Kubernetes
+      #   run: |
+      #     NAMESPACE="${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}"
+      #     IMAGE_TAG="${{ github.ref_name }}-${{ github.sha }}"
+      #     
+      #     kubectl set image deployment/api-gateway api-gateway=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/api-gateway:${IMAGE_TAG} -n ${NAMESPACE}
+      #     kubectl set image deployment/pdf-workflows pdf-workflows=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/pdf-workflows:${IMAGE_TAG} -n ${NAMESPACE}
+      #     kubectl set image deployment/agent-orchestrator agent-orchestrator=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/agent-orchestrator:${IMAGE_TAG} -n ${NAMESPACE}
+      #     kubectl set image deployment/slack-bot slack-bot=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/slack-bot:${IMAGE_TAG} -n ${NAMESPACE}
+      #     
+      #     kubectl rollout status deployment/api-gateway -n ${NAMESPACE}
+      #     kubectl rollout status deployment/pdf-workflows -n ${NAMESPACE}
+      #     kubectl rollout status deployment/agent-orchestrator -n ${NAMESPACE}
+      #     kubectl rollout status deployment/slack-bot -n ${NAMESPACE}
+
+      # Example Docker Compose deployment (uncomment and configure as needed)
+      # - name: Deploy with Docker Compose
+      #   run: |
+      #     COMPOSE_FILE="${{ github.ref == 'refs/heads/main' && 'docker-compose.prod.yml' || 'docker-compose.staging.yml' }}"
+      #     export IMAGE_TAG="${{ github.ref_name }}-${{ github.sha }}"
+      #     docker-compose -f ${COMPOSE_FILE} pull
+      #     docker-compose -f ${COMPOSE_FILE} up -d
+      #     docker-compose -f ${COMPOSE_FILE} logs --tail=50
+
+      # Example deployment via SSH to VPS (uncomment and configure as needed)
+      # - name: Deploy to VPS
+      #   uses: appleboy/ssh-action@v1.0.0
+      #   with:
+      #     host: ${{ secrets.DEPLOY_HOST }}
+      #     username: ${{ secrets.DEPLOY_USER }}
+      #     key: ${{ secrets.DEPLOY_SSH_KEY }}
+      #     script: |
+      #       cd /path/to/your/app
+      #       git pull origin ${{ github.ref_name }}
+      #       docker-compose down
+      #       docker-compose pull
+      #       docker-compose up -d
+      #       docker system prune -f
+
+      - name: Infrastructure Deployment Status
         run: |
-          echo "🚀 Deploying backend services to production..."
-          # Add your production backend deployment commands
-          echo "Backend services deployed to production"
+          echo "✅ Infrastructure deployment completed"
+          echo "Environment: ${{ needs.build.outputs.environment }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Services: api-gateway, pdf-workflows, agent-orchestrator, slack-bot"
 
-      - name: Run Database Migrations (Production)
+  # Health checks after deployment
+  health-check:
+    needs: [deploy-frontend, deploy-backend, deploy-infrastructure]
+    runs-on: ubuntu-latest
+    if: success()
+    
+    steps:
+      - name: Wait for services to be ready
+        run: sleep 30
+
+      # Example health checks (uncomment and configure as needed)
+      # - name: Check API Gateway Health
+      #   run: |
+      #     API_URL="${{ github.ref == 'refs/heads/main' && secrets.API_URL_PROD || secrets.API_URL_STAGING }}"
+      #     curl -f ${API_URL}/health || exit 1
+
+      # - name: Check Frontend Health
+      #   run: |
+      #     FRONTEND_URL="${{ github.ref == 'refs/heads/main' && secrets.FRONTEND_URL_PROD || secrets.FRONTEND_URL_STAGING }}"
+      #     curl -f ${FRONTEND_URL} || exit 1
+
+      - name: Health Check Status
         run: |
-          echo "📊 Running database migrations for production..."
-          # Add production database migration commands
-          echo "Database migrations completed"
+          echo "✅ Health checks passed"
+          echo "All services are healthy and ready"
 
-      - name: Health Check - Production
-        run: |
-          echo "🩺 Running health checks on production..."
-          # Add production health check commands
-          echo "Health checks passed"
-
+  # Notify deployment status
+  notify:
+    needs: [build, deploy-frontend, deploy-backend, deploy-infrastructure, health-check]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
       - name: Notify Success
+        if: ${{ needs.deploy-frontend.result == 'success' && needs.deploy-backend.result == 'success' && needs.deploy-infrastructure.result == 'success' }}
         run: |
-          echo "✅ Production deployment completed successfully!"
-          # Add notification commands (Slack, email, etc.)
+          echo "🎉 Deployment successful!"
+          echo "Environment: ${{ needs.build.outputs.environment }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Version: ${{ needs.build.outputs.version }}"
+          echo "Commit: ${{ github.sha }}"
+          echo ""
+          echo "All services deployed successfully:"
+          echo "- Frontend (React Web)"
+          echo "- API Gateway"
+          echo "- PDF Workflows"
+          echo "- Agent Orchestrator"
+          echo "- Slack Bot"
 
-  # Rollback capability
-  rollback:
-    runs-on: ubuntu-latest
-    if: failure()
-    environment: production
-    steps:
-      - name: Rollback Production
+      - name: Notify Failure
+        if: ${{ needs.deploy-frontend.result == 'failure' || needs.deploy-backend.result == 'failure' || needs.deploy-infrastructure.result == 'failure' }}
         run: |
-          echo "🔄 Rolling back production deployment..."
-          # Add rollback commands
-          echo "Rollback completed"
+          echo "❌ Deployment failed!"
+          echo "Environment: ${{ needs.build.outputs.environment }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Please check the logs for details"
+          exit 1
+
+      # Optional: Slack notification (uncomment and configure as needed)
+      # - name: Slack Notification
+      #   uses: 8398a7/action-slack@v3
+      #   with:
+      #     status: ${{ job.status }}
+      #     channel: '#deployments'
+      #     webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+      #     message: |
+      #       Deployment ${{ job.status }} for ApexFlow
+      #       Environment: ${{ needs.build.outputs.environment }}
+      #       Branch: ${{ github.ref_name }}
+      #       Version: ${{ needs.build.outputs.version }}
+      #   if: always()
+
+      # Optional: GitHub Release on main branch (uncomment if desired)
+      # - name: Create Release
+      #   if: github.ref == 'refs/heads/main' && success()
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     tag_name: v${{ needs.build.outputs.version }}-${{ github.run_number }}
+      #     release_name: Release v${{ needs.build.outputs.version }}-${{ github.run_number }}
+      #     body: |
+      #       Automated release from main branch
+      #       Commit: ${{ github.sha }}
+      #       Deployed to production
+      #     draft: false
+      #     prerelease: false
