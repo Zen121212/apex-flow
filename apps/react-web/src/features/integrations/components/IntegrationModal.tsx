@@ -1,16 +1,57 @@
 import React, { useState, useEffect } from 'react';
 import type { 
   Integration, 
-  IntegrationType,
-  SlackFormData,
-  EmailFormData,
-  DatabaseFormData,
-  WebhookFormData
+  IntegrationType
 } from '../types/index';
 import Button from '../../../components/atoms/Button/Button';
 import styles from './IntegrationModal.module.css';
 
-type IntegrationFormData = SlackFormData | EmailFormData | DatabaseFormData | WebhookFormData;
+// Use a more flexible form data type that can accommodate all integration types
+export interface IntegrationFormData {
+  name: string;
+  // Common fields
+  description?: string;
+  // Slack fields
+  workspaceUrl?: string;
+  botToken?: string;
+  defaultChannel?: string;
+  notificationSettings?: {
+    onWorkflowComplete: boolean;
+    onWorkflowError: boolean;
+    onApprovalRequired: boolean;
+  };
+  // Email fields
+  provider?: 'smtp' | 'gmail' | 'outlook' | 'sendgrid';
+  smtpHost?: string;
+  smtpPort?: number;
+  username?: string;
+  password?: string;
+  fromAddress?: string;
+  fromName?: string;
+  security?: 'tls' | 'ssl' | 'none';
+  // Database fields
+  type?: 'mongodb' | 'mysql' | 'postgresql' | 'sqlite' | 'mssql' | 'oracle';
+  connectionString?: string;
+  host?: string;
+  port?: number;
+  database?: string;
+  ssl?: boolean;
+  schema?: string;
+  collectionPrefix?: string;
+  tablePrefix?: string;
+  // Webhook fields
+  url?: string;
+  method?: 'POST' | 'PUT' | 'PATCH';
+  headers?: Record<string, string>;
+  authenticationType?: 'none' | 'bearer' | 'basic' | 'apikey';
+  token?: string;
+  apiKey?: string;
+  apiKeyHeader?: string;
+  maxRetries?: number;
+  retryDelay?: number;
+  format?: 'json' | 'xml' | 'form';
+  template?: string;
+}
 
 interface IntegrationModalProps {
   isOpen: boolean;
@@ -34,7 +75,7 @@ const IntegrationModal: React.FC<IntegrationModalProps> = ({
   onClose,
   onSave
 }) => {
-  const [formData, setFormData] = useState<Partial<IntegrationFormData>>({});
+  const [formData, setFormData] = useState<IntegrationFormData>({} as IntegrationFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -51,7 +92,7 @@ const IntegrationModal: React.FC<IntegrationModalProps> = ({
     setErrors({});
   }, [integration, type, isOpen]);
 
-  const getDefaultFormData = (integrationType: IntegrationType) => {
+  const getDefaultFormData = (integrationType: IntegrationType): IntegrationFormData => {
     switch (integrationType) {
       case 'slack':
         return {
@@ -110,7 +151,7 @@ const IntegrationModal: React.FC<IntegrationModalProps> = ({
           template: ''
         };
       default:
-        return {};
+        return { name: '' };
     }
   };
 
@@ -180,7 +221,7 @@ const IntegrationModal: React.FC<IntegrationModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      onSave(formData);
+      onSave(formData as IntegrationFormData);
       onClose();
     }
   };
@@ -200,7 +241,7 @@ const IntegrationModal: React.FC<IntegrationModalProps> = ({
     setFormData((prev) => ({
       ...prev,
       [parent]: {
-        ...(prev[parent as keyof IntegrationFormData] as Record<string, unknown>),
+        ...(prev[parent as keyof IntegrationFormData] as Record<string, unknown> || {}),
         [field]: value
       }
     }));

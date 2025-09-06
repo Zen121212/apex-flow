@@ -1,7 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import type { Integration, IntegrationType, TestResult, SlackFormData, EmailFormData, DatabaseFormData, WebhookFormData } from '../types/index';
-
-type IntegrationFormData = SlackFormData | EmailFormData | DatabaseFormData | WebhookFormData;
+import type { Integration, IntegrationType, TestResult } from '../types/index';
+import type { IntegrationFormData } from '../components/IntegrationModal';
 import IntegrationCard from '../components/IntegrationCard';
 import IntegrationModal from '../components/IntegrationModal';
 import Button from '../../../components/atoms/Button/Button';
@@ -53,21 +52,24 @@ const Integrations: React.FC = () => {
   const handleSaveIntegration = useCallback((formData: IntegrationFormData) => {
     if (modalState.integration) {
       // Update existing integration
+      const { name, description, ...config } = formData;
       updateIntegrationMutation.mutate({
         id: modalState.integration.id.toString(),
         data: {
-          name: formData.name,
-          config: formData
+          name,
+          description,
+          config
         }
       });
     } else {
       // Create new integration
       if (modalState.type) {
+        const { name, description, ...config } = formData;
         createIntegrationMutation.mutate({
           type: modalState.type,
-          name: formData.name,
-          description: formData.description || getDefaultDescription(modalState.type),
-          config: formData
+          name,
+          description: description || getDefaultDescription(modalState.type),
+          config
         });
       }
     }

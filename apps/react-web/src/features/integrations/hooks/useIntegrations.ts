@@ -1,8 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { integrationsApiService } from '../../../services/integrations.service';
-import type { Integration, IntegrationType, TestResult, SlackConfig, EmailConfig, DatabaseConfig, WebhookConfig } from '../types/index';
+import type { Integration, IntegrationType, TestResult } from '../types/index';
 
-type IntegrationConfig = SlackConfig | EmailConfig | DatabaseConfig | WebhookConfig;
+// Flexible config type that can handle any integration configuration
+type IntegrationConfig = Record<string, unknown>;
 
 // Query Keys
 export const integrationsKeys = {
@@ -74,7 +75,7 @@ export function useUpdateIntegration() {
       data: {
         name?: string;
         description?: string;
-        config?: Partial<IntegrationConfig>;
+        config?: IntegrationConfig;
         enabled?: boolean;
       };
     }) => integrationsApiService.updateIntegration(id, data),
