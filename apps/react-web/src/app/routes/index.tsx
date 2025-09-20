@@ -82,6 +82,11 @@ const router = createBrowserRouter([
         element: <Navigate to="/documents" replace />,
       },
       {
+        // Redirect /home route to landing page
+        path: 'home',
+        element: <Navigate to="/landing" replace />,
+      },
+      {
         path: 'ai-assistant',
         element: (
           <ProtectedRoute>

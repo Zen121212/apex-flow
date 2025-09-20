@@ -1,0 +1,230 @@
+{
+  "name": "ApexFlow Slack Approval Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "approval",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a4a8c0e4-8a26-4f9b-9c8c-8f1f9e6c5f7c",
+      "name": "Webhook - Approval Request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract approval data from webhook\nconst approvalData = $input.first().json;\n\n// Format message for Slack\nconst approvalMessage = {\n  channel: '#approvals',\n  text: `🔐 *${approvalData.title}*`,\n  blocks: [\n    {\n      \"type\": \"header\",\n      \"text\": {\n        \"type\": \"plain_text\",\n        \"text\": `🔐 ${approvalData.title}`\n      }\n    },\n    {\n      \"type\": \"section\",\n      \"text\": {\n        \"type\": \"mrkdwn\",\n        \"text\": `*Description:* ${approvalData.description}\\n*Document:* ${approvalData.metadata?.documentName || 'N/A'}\\n*Type:* ${approvalData.approvalType}\\n*Priority:* ${approvalData.metadata?.priority || 'normal'}\\n*Requester:* ${approvalData.requesterId}`\n      }\n    },\n    {\n      \"type\": \"actions\",\n      \"elements\": [\n        {\n          \"type\": \"button\",\n          \"text\": {\n            \"type\": \"plain_text\",\n            \"text\": \"✅ Approve\"\n          },\n          \"style\": \"primary\",\n          \"action_id\": \"approve_button\",\n          \"value\": approvalData.id\n        },\n        {\n          \"type\": \"button\",\n          \"text\": {\n            \"type\": \"plain_text\",\n            \"text\": \"❌ Reject\"\n          },\n          \"style\": \"danger\",\n          \"action_id\": \"reject_button\",\n          \"value\": approvalData.id\n        }\n      ]\n    },\n    {\n      \"type\": \"context\",\n      \"elements\": [\n        {\n          \"type\": \"mrkdwn\",\n          \"text\": `📋 Approval ID: ${approvalData.id} | ⏰ Expires: ${new Date(Date.now() + (approvalData.expiresInHours * 60 * 60 * 1000)).toLocaleString()}`\n        }\n      ]\n    }\n  ]\n};\n\n// Pass both the formatted message and original data\nreturn {\n  slackMessage: approvalMessage,\n  approvalData: approvalData\n};"
+      },
+      "id": "b5b6d1e2-8a26-4f9b-9c8c-8f1f9e6c5f7d",
+      "name": "Format Approval Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{$node[\"Format Approval Message\"].json[\"slackMessage\"][\"channel\"]}}",
+        "text": "={{$node[\"Format Approval Message\"].json[\"slackMessage\"][\"text\"]}}",
+        "blocksUi": {
+          "blocksValues": [
+            {
+              "type": "json",
+              "jsonValue": "={{JSON.stringify($node[\"Format Approval Message\"].json[\"slackMessage\"][\"blocks\"])}}"
+            }
+          ]
+        },
+        "otherOptions": {}
+      },
+      "id": "c6c7d2e3-8a26-4f9b-9c8c-8f1f9e6c5f7e",
+      "name": "Send Slack Message",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.1,
+      "position": [680, 300],
+      "credentials": {
+        "slackApi": {
+          "id": "slack_api_creds",
+          "name": "Slack API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"success\": true,\n  \"message\": \"Approval request sent to Slack\",\n  \"approvalId\": \"{{$node[\"Format Approval Message\"].json[\"approvalData\"][\"id\"]}}\"\n}"
+      },
+      "id": "d7d8e3f4-8a26-4f9b-9c8c-8f1f9e6c5f7f",
+      "name": "Response - Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "approve",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "e8e9f4f5-8a26-4f9b-9c8c-8f1f9e6c5f8g",
+      "name": "Webhook - Button Action",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 500]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Slack button payload\nconst payload = $input.first().json;\nconsole.log('Received payload:', JSON.stringify(payload, null, 2));\n\n// Handle different payload formats\nlet slackPayload;\nif (payload.payload) {\n  // URL-encoded payload from Slack\n  slackPayload = typeof payload.payload === 'string' \n    ? JSON.parse(payload.payload) \n    : payload.payload;\n} else if (payload.actions) {\n  // Direct JSON payload\n  slackPayload = payload;\n} else {\n  throw new Error('Invalid payload format');\n}\n\n// Extract action details\nconst action = slackPayload.actions[0];\nconst approvalId = action.value;\nconst decision = action.action_id === 'approve_button' ? 'approved' : 'rejected';\nconst userId = slackPayload.user.id;\nconst userName = slackPayload.user.name || slackPayload.user.username;\n\n// Create approval decision data\nconst approvalDecision = {\n  approvalId: approvalId,\n  decision: decision,\n  decidedBy: userId,\n  decidedByName: userName,\n  timestamp: new Date().toISOString(),\n  comments: `Decision made via Slack by ${userName}`\n};\n\nconsole.log('Processed decision:', approvalDecision);\n\nreturn {\n  approvalDecision: approvalDecision,\n  responseToken: slackPayload.response_url,\n  originalPayload: slackPayload\n};"
+      },
+      "id": "f9faf5f6-8a26-4f9b-9c8c-8f1f9e6c5f8h",
+      "name": "Parse Button Action",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 500]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:3000/approvals/{{$node[\"Parse Button Action\"].json[\"approvalDecision\"][\"approvalId\"]}}/decision",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "decision",
+              "value": "={{$node[\"Parse Button Action\"].json[\"approvalDecision\"][\"decision\"]}}"
+            },
+            {
+              "name": "decidedBy",
+              "value": "={{$node[\"Parse Button Action\"].json[\"approvalDecision\"][\"decidedBy\"]}}"
+            },
+            {
+              "name": "comments",
+              "value": "={{$node[\"Parse Button Action\"].json[\"approvalDecision\"][\"comments\"]}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "g1g1f6f7-8a26-4f9b-9c8c-8f1f9e6c5f8i",
+      "name": "Send Decision to ApexFlow",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 500]
+    },
+    {
+      "parameters": {
+        "respondWith": "html",
+        "responseBody": "<!DOCTYPE html>\n<html>\n<head>\n    <title>ApexFlow Approval</title>\n    <style>\n        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f5f5f5; }\n        .container { background: white; border-radius: 10px; padding: 30px; max-width: 400px; margin: 0 auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }\n        .success { color: #28a745; }\n        .error { color: #dc3545; }\n        .icon { font-size: 48px; margin-bottom: 20px; }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        {{#if $node[\"Send Decision to ApexFlow\"].json.success}}\n            <div class=\"icon\">✅</div>\n            <h2 class=\"success\">{{$node[\"Parse Button Action\"].json[\"approvalDecision\"][\"decision\"] === \"approved\" ? \"Approved!\" : \"Rejected!\"}}</h2>\n            <p>The approval decision has been processed successfully.</p>\n            <p><strong>Approval ID:</strong> {{$node[\"Parse Button Action\"].json[\"approvalDecision\"][\"approvalId\"]}}</p>\n        {{else}}\n            <div class=\"icon\">❌</div>\n            <h2 class=\"error\">Error</h2>\n            <p>There was an error processing your decision. Please try again or contact support.</p>\n        {{/if}}\n        <hr>\n        <small>ApexFlow Workflow System</small>\n    </div>\n</body>\n</html>"
+      },
+      "id": "h2h2g7h8-8a26-4f9b-9c8c-8f1f9e6c5f8j",
+      "name": "Response - Decision Result",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [900, 500]
+    }
+  ],
+  "connections": {
+    "Webhook - Approval Request": {
+      "main": [
+        [
+          {
+            "node": "Format Approval Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Approval Message": {
+      "main": [
+        [
+          {
+            "node": "Send Slack Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Slack Message": {
+      "main": [
+        [
+          {
+            "node": "Response - Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - Button Action": {
+      "main": [
+        [
+          {
+            "node": "Parse Button Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Button Action": {
+      "main": [
+        [
+          {
+            "node": "Send Decision to ApexFlow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Decision to ApexFlow": {
+      "main": [
+        [
+          {
+            "node": "Response - Decision Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1.0.0",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "apexflow-n8n-instance"
+  },
+  "id": "apexflow-slack-approval",
+  "tags": [
+    {
+      "createdAt": "2024-09-10T22:42:00.000Z",
+      "updatedAt": "2024-09-10T22:42:00.000Z",
+      "id": "approval",
+      "name": "approval"
+    },
+    {
+      "createdAt": "2024-09-10T22:42:00.000Z", 
+      "updatedAt": "2024-09-10T22:42:00.000Z",
+      "id": "slack",
+      "name": "slack"
+    }
+  ]
+}

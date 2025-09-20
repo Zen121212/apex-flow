@@ -1,0 +1,229 @@
+version: '3.8'
+
+services:
+  # Core Infrastructure Services
+  mongo:
+    image: mongo:7
+    container_name: apexflow-mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: apexflow
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+    networks:
+      - apexflow
+
+  redis:
+    image: redis:7
+    container_name: apexflow-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - apexflow
+
+  minio:
+    image: minio/minio:latest
+    container_name: apexflow-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    restart: unless-stopped
+    networks:
+      - apexflow
+
+  # API Gateway Service
+  api-gateway:
+    build:
+      context: .
+      dockerfile: apps/api-gateway/Dockerfile
+    image: apexflow-api-gateway:latest
+    container_name: apexflow-api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongo:27017/apexflow
+      - MONGO_URI=mongodb://mongo:27017/apexflow
+      - REDIS_URL=redis://redis:6379
+      - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9000
+      - MINIO_ACCESS_KEY=minio
+      - MINIO_SECRET_KEY=minio123
+      - JWT_SECRET=your-jwt-secret-key
+      - ENABLE_NER_MODEL=true
+      - HF_CACHE_DIR=/app/cache/huggingface
+      - ZSC_QUANTIZED=true
+      - OCR_MAX_PAGES=3
+      - OCR_SCALE=2
+    volumes:
+      - ./apps/api-gateway/uploads:/app/uploads
+      - ./.hf-cache:/app/cache/huggingface
+    depends_on:
+      - mongo
+      - redis
+      - minio
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health').on('error',()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - apexflow
+    labels:
+      - "com.apexflow.service=api-gateway"
+      - "com.apexflow.version=2.0.0"
+      - "com.apexflow.features=local-ai-analysis"
+
+  # Enhanced OCR Service with Intelligent Method Selection
+  ocr-service:
+    build:
+      context: ./docker-ocr
+      dockerfile: Dockerfile-enhanced
+    image: apexflow-ocr-enhanced:latest
+    container_name: apexflow-ocr-enhanced
+    ports:
+      - "3010:3001"
+    volumes:
+      # Mount temp directories for OCR processing
+      - ./docker-ocr/temp-ocr:/app/temp-ocr
+      - ./docker-ocr/temp-uploads:/app/temp-uploads
+      # Optional: Mount logs directory
+      - ./docker-ocr/logs:/app/logs
+    environment:
+      - NODE_ENV=production
+      - OCR_MAX_PAGES=10
+      - OCR_IMAGE_QUALITY=200
+      - OCR_LANGUAGE=eng
+      - PORT=3001
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - apexflow
+    labels:
+      - "com.apexflow.service=ocr"
+      - "com.apexflow.version=2.0.0"
+      - "com.apexflow.features=intelligent-method-selection"
+
+  # N8N Workflow Automation
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: apexflow-n8n
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - N8N_USER_MANAGEMENT_DISABLED=true
+      - N8N_EDITOR_BASE_URL=http://localhost:5678
+      - WEBHOOK_URL=http://localhost:5678/
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - N8N_RUNNERS_ENABLED=true
+    volumes:
+      - n8n_data:/home/node/.n8n
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    networks:
+      - apexflow
+    labels:
+      - "com.apexflow.service=n8n"
+      - "com.apexflow.version=2.0.0"
+      - "com.apexflow.features=workflow-automation"
+
+  # Enhanced Visual AI Service
+  visual-ai-service:
+    build:
+      context: ./services/visual-ai
+      dockerfile: Dockerfile
+    image: apexflow-visual-ai:latest
+    container_name: apexflow-visual-ai
+    ports:
+      - "8001:8000"
+    volumes:
+      - visual_ai_models:/app/models
+      - visual_ai_data:/app/data
+      - visual_ai_logs:/app/logs
+      - cache_data:/app/cache
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MODEL_CACHE_DIR=/app/models
+      - DATA_DIR=/app/data
+      - TORCH_HOME=/app/models
+      - TRANSFORMERS_CACHE=/app/models
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 60s
+      timeout: 30s
+      retries: 3
+      start_period: 120s
+    networks:
+      - apexflow
+    labels:
+      - "com.apexflow.service=visual-ai"
+      - "com.apexflow.version=2.0.0"
+      - "com.apexflow.features=enhanced-layoutlm,improved-extraction,regex-patterns,confidence-scoring"
+
+  # PDF Workflows Worker
+  pdf-workflows:
+    build:
+      context: .
+      dockerfile: apps/pdf-workflows/Dockerfile
+    container_name: apexflow-pdf-workflows
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/apexflow
+      - MONGO_URI=mongodb://mongo:27017/apexflow
+      - REDIS_URL=redis://redis:6379
+      - S3_ENDPOINT=http://minio:9000
+      - S3_ACCESS_KEY=minio
+      - S3_SECRET_KEY=minio123
+      - S3_BUCKET=apexflow-local
+      - S3_REGION=us-east-1
+      - OPENAI_API_KEY=sk-placeholder-openai-key
+      - VISUAL_AI_SERVICE_URL=http://visual-ai-service:8000
+      - NODE_ENV=development
+    depends_on:
+      - mongo
+      - redis
+      - minio
+      - visual-ai-service
+    restart: unless-stopped
+    networks:
+      - apexflow
+    labels:
+      - "com.apexflow.service=pdf-workflows"
+      - "com.apexflow.version=2.0.0"
+      - "com.apexflow.features=background-processing"
+
+networks:
+  apexflow:
+    driver: bridge
+
+volumes:
+  mongo_data:
+  redis_data:
+  minio_data:
+  n8n_data:
+  visual_ai_models:
+  visual_ai_data:
+  visual_ai_logs:
+  cache_data:

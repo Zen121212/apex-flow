@@ -2,9 +2,46 @@ import { App, LogLevel } from '@slack/bolt';
 import axios from 'axios';
 require('dotenv').config();
 
-const app = new App({
-  signingSecret: process.env.SLACK_SIGNING_SECRET!,
-  token: process.env.SLACK_BOT_TOKEN!,
+// Simple Slack bot for basic functionality (n8n handles approvals)
+const isMockMode = process.env.SLACK_BOT_TOKEN === 'xoxb-your-slack-bot-token' || 
+                   process.env.SLACK_BOT_TOKEN === 'xoxb-dummy-token' ||
+                   !process.env.SLACK_BOT_TOKEN;
+
+if (isMockMode) {
+  console.log('🤖 Running Slack bot in MOCK MODE (no real Slack connection)');
+  console.log('📝 To enable real Slack integration, set SLACK_BOT_TOKEN and SLACK_SIGNING_SECRET in .env');
+  
+  // Start a simple HTTP server instead of Slack app
+  const express = require('express');
+  const mockApp = express();
+  mockApp.use(express.json());
+  
+  mockApp.get('/health', (req: any, res: any) => {
+    res.json({ 
+      status: 'mock-mode', 
+      message: 'Slack bot running in mock mode',
+      note: 'Set real Slack credentials to enable full functionality'
+    });
+  });
+  
+  const port = process.env.SLACK_BOT_PORT ? Number(process.env.SLACK_BOT_PORT) : 3001;
+  mockApp.listen(port, () => {
+    console.log(`⚡️ ApexFlow Slack bot (MOCK MODE) running on port ${port}`);
+    console.log('📡 Approval workflows handled by n8n');
+  });
+  
+  // Keep the process running
+  process.on('SIGTERM', () => {
+    console.log('Received SIGTERM, shutting down Slack bot gracefully');
+    process.exit(0);
+  });
+  
+  // Keep the process alive - don't exit
+} else {
+  // Real Slack bot code
+  const app = new App({
+  signingSecret: process.env.SLACK_SIGNING_SECRET || 'dummy-secret-for-n8n',
+  token: process.env.SLACK_BOT_TOKEN || 'xoxb-dummy-token',
   logLevel: LogLevel.INFO,
 });
 
@@ -166,6 +203,9 @@ app.shortcut('search_documents', async ({ ack, body, client }) => {
   }
 });
 
+// Note: Approval functionality moved to n8n workflows
+// This keeps the bot simple and focused on document Q&A
+
 // Error handling
 app.error(async (error) => {
   console.error('Slack app error:', error);
@@ -175,9 +215,11 @@ app.error(async (error) => {
 (async () => {
   try {
     const port = process.env.SLACK_BOT_PORT ? Number(process.env.SLACK_BOT_PORT) : 3001;
-    await app.start(port);
     
+    // Start Slack Bolt app (simplified - n8n handles approvals)
+    await app.start(port);
     console.log('⚡️ ApexFlow Slack bot is running on port', port);
+    console.log('📡 Approval workflows handled by n8n');
     
     // Graceful shutdown
     process.on('SIGTERM', async () => {
@@ -191,3 +233,4 @@ app.error(async (error) => {
     process.exit(1);
   }
 })();
+}

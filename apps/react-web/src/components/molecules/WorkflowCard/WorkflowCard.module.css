@@ -5,6 +5,9 @@
   border-radius: 12px;
   padding: 1.5rem;
   transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .workflowCard:hover {
@@ -208,9 +211,12 @@
   margin-bottom: 0.25rem;
 }
 
-/* Actions */
+/* Actions - positioned at bottom */
 .workflowActions {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid #f3f4f6;
 }

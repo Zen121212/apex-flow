@@ -1,16 +1,43 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import Button from '../../../components/atoms/Button/Button';
-import { useWorkflowOptions, useUploadDocument } from '../hooks/useDocuments';
-import { workflowApi } from '../../../services/workflowApi';
-import type { WorkflowDefinition, WorkflowStep } from '../../../types/workflow';
+import { useUploadDocument } from '../hooks/useDocuments';
+import { useWorkflows } from '../../workflows/hooks/useWorkflows';
+import { documentAPI } from '../../../services/api/documents';
+import type { WorkflowStep } from '../../../types/workflow';
+import AIAnalysisModal from './AIAnalysisModal';
 import './UploadModal.css';
 
 interface UploadOptions {
   workflowId?: string;
-  documentCategory?: string;
-  autoDetectWorkflow: boolean;
-  workflowSelectionMode: 'manual' | 'auto' | 'hybrid';
 }
+
+interface WorkflowWithId {
+  id?: string;
+  _id?: string;
+  name: string;
+  steps: WorkflowStep[];
+}
+
+interface FileAnalysis {
+  fileName: string;
+  originalFile: File;
+  documentType: string;
+  keyData: Record<string, unknown>;
+  confidence: number;
+  suggestedWorkflow: unknown;
+  extractedText: string;
+  metadata: Record<string, unknown>;
+  workflowId?: string;
+  workflowName?: string;
+}
+
+interface UploadModalData {
+  files: FileAnalysis[];
+  uploadOptions: UploadOptions;
+  originalFiles: File[];
+}
+
+
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -23,34 +50,16 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onFilesUploa
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadOptions, setUploadOptions] = useState<UploadOptions>({
-    workflowSelectionMode: 'hybrid',
-    autoDetectWorkflow: true,
+    workflowId: undefined,
   });
-  const [availableWorkflows, setAvailableWorkflows] = useState<WorkflowDefinition[]>([]);
-  const [loadingWorkflows, setLoadingWorkflows] = useState(false);
+  const [showAnalysisResults, setShowAnalysisResults] = useState(false);
+  const [analysisData, setAnalysisData] = useState<any>(null);
+  const [isProcessingAnalysis, setIsProcessingAnalysis] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // TanStack Query hooks
-  const { data: workflowOptions, isLoading: isLoadingOptions } = useWorkflowOptions();
+  const { data: availableWorkflows = [], isLoading: loadingWorkflows } = useWorkflows();
   const uploadMutation = useUploadDocument();
-
-  // Fetch available workflows when modal opens
-  useEffect(() => {
-    if (isOpen && availableWorkflows.length === 0) {
-      const fetchWorkflows = async () => {
-        try {
-          setLoadingWorkflows(true);
-          const workflows = await workflowApi.getWorkflows();
-          setAvailableWorkflows(workflows);
-        } catch (error) {
-          console.error('Failed to fetch workflows:', error);
-        } finally {
-          setLoadingWorkflows(false);
-        }
-      };
-      fetchWorkflows();
-    }
-  }, [isOpen, availableWorkflows.length]);
 
   if (!isOpen) return null;
 
@@ -84,35 +93,158 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onFilesUploa
     setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleUpload = async () => {
-    if (selectedFiles.length === 0) return;
 
+
+
+
+  // Main upload handler - direct upload without Visual AI processing
+  const handleUpload = async () => {
+    if (!uploadOptions.workflowId) {
+      alert('Please select a workflow before uploading documents.');
+      return;
+    }
+    
     setIsUploading(true);
     
     try {
-      // Upload each file using the document API
+      // Upload files directly without Visual AI processing
       const uploadPromises = selectedFiles.map(async (file) => {
+        // Convert file to base64 for upload
+        const fileContent = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const base64 = reader.result as string;
+            // Remove data:application/pdf;base64, prefix
+            const base64Content = base64.split(',')[1] || base64;
+            resolve(base64Content);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+
         const uploadData = {
           originalName: file.name,
           mimeType: file.type,
           size: file.size,
-          content: 'simulated file content', // In real implementation, convert file to base64 or use multipart
-          ...uploadOptions,
+          content: fileContent,
+          workflowId: uploadOptions.workflowId,
         };
         
+        console.log('📤 Direct upload without Visual AI processing:', {
+          originalName: uploadData.originalName,
+          mimeType: uploadData.mimeType,
+          size: uploadData.size,
+          workflowId: uploadData.workflowId
+        });
+        
+        // Use the JSON upload method
         return uploadMutation.mutateAsync(uploadData);
       });
       
       const results = await Promise.all(uploadPromises);
       
-      // Show success results to user
-      console.log('Upload results:', results);
-      onFilesUploaded(selectedFiles);
+      console.log('Direct upload completed:', results);
+      
+      // Auto-process documents and show AI analysis results
+      setIsUploading(false);
+      setIsProcessingAnalysis(true);
+      
+      try {
+        // Wait a moment for documents to be saved
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Process documents for AI analysis
+        const processPromises = results.map(async (result) => {
+          if (result.documentId) {
+            try {
+              // Try the direct analysis endpoint
+              const response = await fetch(`http://localhost:3000/api/documents/${result.documentId}/analyze-direct`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              });
+              
+              if (response.ok) {
+                console.log(`✅ AI analysis completed for document: ${result.documentId}`);
+                return result.documentId;
+              }
+            } catch (processError) {
+              console.warn(`⚠️ Analysis failed for document ${result.documentId}:`, processError);
+            }
+          }
+          return null;
+        });
+        
+        const processedIds = (await Promise.all(processPromises)).filter(Boolean);
+        
+        if (processedIds.length > 0) {
+          // Wait a bit more for analysis to complete
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          
+          // Fetch analysis results for the first processed document
+          const analysisResponse = await documentAPI.getDocumentAnalysis(processedIds[0]);
+          const analysis = analysisResponse.analysis || {};
+          
+          // Transform to analysis modal format
+          const transformedData = {
+            files: results.map((result, index) => ({
+              fileName: selectedFiles[index].name,
+              originalFile: selectedFiles[index],
+              documentType: analysis.documentType || 'Document',
+              keyData: {
+                invoice_number: analysis.invoice_number,
+                vendor_info: analysis.vendor_info || {},
+                customer_info: analysis.customer_info || {},
+                date_info: analysis.date_info || {},
+                financial_info: analysis.financial_info || {},
+                payment_info: analysis.payment_info || {},
+                line_items: analysis.line_items || [],
+                serial_number: analysis.serial_number,
+                ...analysis.structuredFields,
+                documentType: analysis.documentType,
+                confidence: analysis.confidence,
+                extractionMethod: analysis.extractionMethod
+              },
+              confidence: analysis.confidence || 0.8,
+              suggestedWorkflow: null,
+              extractedText: analysisResponse.extractedText || '',
+              metadata: {
+                extractionConfidence: analysis.confidence || 0.8,
+                extractionMethod: analysis.extractionMethod || 'Auto Analysis',
+                documentType: analysis.documentType || 'Document',
+                fieldsFound: Object.keys(analysis).length,
+                totalFields: Object.keys(analysis).length,
+                ...analysis
+              },
+              workflowId: uploadOptions.workflowId
+            })),
+            uploadOptions: uploadOptions,
+            originalFiles: selectedFiles
+          };
+          
+          setAnalysisData(transformedData);
+          setShowAnalysisResults(true);
+        } else {
+          // No analysis results, just show success and close
+          onFilesUploaded(selectedFiles);
+          setSelectedFiles([]);
+          onClose();
+        }
+        
+      } catch (analysisError) {
+        console.error('Post-upload analysis failed:', analysisError);
+        // Still call success callback even if analysis fails
+        onFilesUploaded(selectedFiles);
+        setSelectedFiles([]);
+        onClose();
+      } finally {
+        setIsProcessingAnalysis(false);
+      }
       
     } catch (error) {
-      console.error('Upload failed:', error);
-      // Handle error - could show toast notification
-    } finally {
+      console.error('Direct upload failed:', error);
+      alert('Failed to upload documents. Please try again.');
       setSelectedFiles([]);
       setIsUploading(false);
       onClose();
@@ -125,6 +257,23 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onFilesUploa
     }
   };
 
+  const handleAnalysisConfirm = async (editedData: any) => {
+    console.log('Analysis results confirmed:', editedData);
+    setShowAnalysisResults(false);
+    setAnalysisData(null);
+    onFilesUploaded(selectedFiles);
+    setSelectedFiles([]);
+    onClose();
+  };
+
+  const handleAnalysisCancel = () => {
+    setShowAnalysisResults(false);
+    setAnalysisData(null);
+    onFilesUploaded(selectedFiles);
+    setSelectedFiles([]);
+    onClose();
+  };
+
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -134,34 +283,64 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onFilesUploa
   };
 
   return (
-    <div className="modal-backdrop" onClick={handleBackdropClick}>
-      <div className="modal-content upload-modal">
-        <div className="modal-header">
-          <h2>Upload Documents</h2>
-          <button className="close-btn" onClick={onClose}>×</button>
-        </div>
-
-        <div className="modal-body">
-          <div 
-            className={`upload-zone ${dragActive ? 'drag-active' : ''}`}
-            onDragEnter={handleDrag}
-            onDragLeave={handleDrag}
-            onDragOver={handleDrag}
-            onDrop={handleDrop}
-            onClick={() => inputRef.current?.click()}
-          >
-            <div className="upload-icon">📁</div>
-            <h3>Drag and drop your files here</h3>
-            <p>or click to browse</p>
-            <input
-              ref={inputRef}
-              type="file"
-              multiple
-              accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg"
-              onChange={handleFileSelect}
-              style={{ display: 'none' }}
-            />
+    <>
+      <div className="modal-backdrop" onClick={handleBackdropClick}>
+        <div className="modal-content upload-modal">
+          <div className="modal-header">
+            <h2>Upload Documents</h2>
+            <button className="close-btn" onClick={onClose}>×</button>
           </div>
+
+          <div className="modal-body">
+            {/* AI Analysis Processing Indicator */}
+            {isProcessingAnalysis && (
+              <div className="ai-processing-indicator">
+                <div className="processing-animation">
+                  <div className="spinner"></div>
+                </div>
+                <h4>🤖 Processing AI Analysis...</h4>
+                <p>Analyzing uploaded documents and extracting key data</p>
+                <div className="processing-details">
+                  <div className="processing-steps">
+                    <div className="step active">
+                      <span className="step-icon">✅</span>
+                      <span>Documents uploaded successfully</span>
+                    </div>
+                    <div className="step active">
+                      <span className="step-icon">🔍</span>
+                      <span>Running AI analysis</span>
+                    </div>
+                    <div className="step">
+                      <span className="step-icon">📊</span>
+                      <span>Preparing results</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {!isProcessingAnalysis && (
+              <div 
+                className={`upload-zone ${dragActive ? 'drag-active' : ''}`}
+                onDragEnter={handleDrag}
+                onDragLeave={handleDrag}
+                onDragOver={handleDrag}
+                onDrop={handleDrop}
+                onClick={() => inputRef.current?.click()}
+              >
+                <div className="upload-icon">📁</div>
+                <h3>Drag and drop your files here</h3>
+                <p>or click to browse</p>
+                <input
+                  ref={inputRef}
+                  type="file"
+                  multiple
+                  accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg"
+                  onChange={handleFileSelect}
+                  style={{ display: 'none' }}
+                />
+              </div>
+            )}
 
           {selectedFiles.length > 0 && (
             <div className="selected-files">
@@ -186,147 +365,71 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onFilesUploa
             </div>
           )}
 
-          {/* Workflow Selection Options */}
+          {/* Workflow Selection */}
           <div className="workflow-options">
-            <h4>Workflow Selection</h4>
+            <h4>Select Workflow</h4>
             
-            <div className="workflow-mode">
-              <label htmlFor="workflow-mode">Processing Mode:</label>
+            <div className="workflow-selection">
+              <label htmlFor="workflow-id">Choose Workflow (Required):</label>
               <select 
-                id="workflow-mode"
-                value={uploadOptions.workflowSelectionMode}
+                id="workflow-id"
+                value={uploadOptions.workflowId || ''}
                 onChange={(e) => setUploadOptions(prev => ({ 
                   ...prev, 
-                  workflowSelectionMode: e.target.value as 'manual' | 'auto' | 'hybrid' 
+                  workflowId: e.target.value || undefined
                 }))}
-                disabled={isUploading}
+                disabled={isUploading || loadingWorkflows}
               >
-                <option value="hybrid">Hybrid (Smart + Manual)</option>
-                <option value="auto">Automatic Detection</option>
-                <option value="manual">Manual Selection</option>
+                <option value="">Select a workflow...</option>
+                {availableWorkflows.map(workflow => {
+                  // Handle both 'id' and '_id' fields for MongoDB compatibility
+                  const workflowId = workflow.id || (workflow as WorkflowWithId)._id;
+                  return (
+                    <option key={workflowId} value={workflowId}>
+                      🔧 {workflow.name} ({workflow.steps.length} steps)
+                    </option>
+                  );
+                })}
               </select>
-              <small className="mode-description">
-                {uploadOptions.workflowSelectionMode === 'hybrid' && 'AI analyzes documents, but you can override the selection'}
-                {uploadOptions.workflowSelectionMode === 'auto' && 'AI automatically selects the best workflow based on document content'}
-                {uploadOptions.workflowSelectionMode === 'manual' && 'You choose the exact workflow or category'}
-              </small>
+              {loadingWorkflows && <small>Loading workflows...</small>}
+              {!loadingWorkflows && availableWorkflows.length === 0 && <small>No workflows available</small>}
+              {!loadingWorkflows && availableWorkflows.length > 0 && (
+                <small>{availableWorkflows.length} workflow{availableWorkflows.length !== 1 ? 's' : ''} available</small>
+              )}
             </div>
-
-            {uploadOptions.workflowSelectionMode !== 'auto' && (
-              <>
-                <div className="workflow-selection">
-                  <label htmlFor="workflow-category">Document Category (optional):</label>
-                  <select 
-                    id="workflow-category"
-                    value={uploadOptions.documentCategory || ''}
-                    onChange={(e) => setUploadOptions(prev => ({ 
-                      ...prev, 
-                      documentCategory: e.target.value || undefined,
-                      workflowId: undefined // Clear workflow ID when category changes
-                    }))}
-                    disabled={isUploading || isLoadingOptions}
-                  >
-                    <option value="">Auto-detect category</option>
-                    {workflowOptions?.categories.map(category => (
-                      <option key={category.id} value={category.id}>
-                        {category.name} - {category.description}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="workflow-selection">
-                  <label htmlFor="workflow-id">Choose Specific Workflow:</label>
-                  <select 
-                    id="workflow-id"
-                    value={uploadOptions.workflowId || ''}
-                    onChange={(e) => setUploadOptions(prev => ({ 
-                      ...prev, 
-                      workflowId: e.target.value || undefined,
-                      documentCategory: undefined // Clear category when specific workflow is selected
-                    }))}
-                    disabled={isUploading || loadingWorkflows}
-                  >
-                    <option value="">Auto-select workflow</option>
-                    {availableWorkflows.map(workflow => (
-                      <option key={workflow.id} value={workflow.id}>
-                        🔧 {workflow.name} ({workflow.steps.length} steps)
-                      </option>
-                    ))}
-                  </select>
-                  {loadingWorkflows && <small>Loading workflows...</small>}
-                  {!loadingWorkflows && availableWorkflows.length === 0 && <small>No workflows available</small>}
-                  {!loadingWorkflows && availableWorkflows.length > 0 && (
-                    <small>{availableWorkflows.length} workflow{availableWorkflows.length !== 1 ? 's' : ''} available</small>
-                  )}
-                </div>
-                
-                {/* Show workflow details when one is selected */}
-                {uploadOptions.workflowId && (
-                  <div className="selected-workflow-info">
-                    {(() => {
-                      const selectedWorkflow = availableWorkflows.find(w => w.id === uploadOptions.workflowId);
-                      if (!selectedWorkflow) return null;
-                      
-                      return (
-                        <div className="workflow-details">
-                          <h5>📋 Workflow: {selectedWorkflow.name}</h5>
-                          <p><strong>Steps ({selectedWorkflow.steps.length}):</strong></p>
-                          <ol className="workflow-steps">
-                            {selectedWorkflow.steps.map((step: WorkflowStep, index: number) => (
-                              <li key={index}>
-                                <span className="step-name">{step.name}</span>
-                                <span className="step-type">({step.type})</span>
-                              </li>
-                            ))}
-                          </ol>
-                        </div>
-                      );
-                    })()} 
-                  </div>
-                )}
-              </>
-            )}
-
-            {uploadOptions.workflowSelectionMode === 'hybrid' && (
-              <div className="auto-detect-option">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={uploadOptions.autoDetectWorkflow}
-                    onChange={(e) => setUploadOptions(prev => ({ 
-                      ...prev, 
-                      autoDetectWorkflow: e.target.checked 
-                    }))}
-                    disabled={isUploading}
-                  />
-                  Enable AI validation (recommended)
-                </label>
-                <small>AI will verify your manual selection and suggest alternatives if needed</small>
-              </div>
-            )}
           </div>
 
           <div className="modal-actions">
             <Button 
               onClick={onClose} 
               variant="secondary"
-              disabled={isUploading}
+              disabled={isUploading || isProcessingAnalysis}
             >
               Cancel
             </Button>
             <Button 
               onClick={handleUpload} 
               variant="primary"
-              disabled={selectedFiles.length === 0 || isUploading}
-              loading={isUploading}
+              disabled={selectedFiles.length === 0 || isUploading || isProcessingAnalysis || !uploadOptions.workflowId}
+              loading={isUploading || isProcessingAnalysis}
             >
-              {isUploading ? 'Uploading...' : `Upload ${selectedFiles.length} file${selectedFiles.length !== 1 ? 's' : ''}`}
+              {isProcessingAnalysis ? 'Processing Analysis...' : isUploading ? 'Uploading...' : `Upload ${selectedFiles.length} file${selectedFiles.length !== 1 ? 's' : ''}`}
             </Button>
+          </div>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* AI Analysis Results Modal */}
+      {showAnalysisResults && analysisData && (
+        <AIAnalysisModal
+          isOpen={showAnalysisResults}
+          data={analysisData}
+          onConfirm={handleAnalysisConfirm}
+          onCancel={handleAnalysisCancel}
+        />
+      )}
+    </>
   );
 };
 

@@ -10,6 +10,7 @@ export enum DocumentStatus {
 export enum WorkflowStatus {
   PENDING = 'pending',
   RUNNING = 'running',
+  PAUSED_FOR_APPROVAL = 'paused_for_approval',
   COMPLETED = 'completed',
   FAILED = 'failed'
 }
@@ -31,8 +32,8 @@ export class Document {
   @Column()
   size: number;
 
-  @Column()
-  filePath: string; // Path where file is stored on disk
+@Column()
+  fileId: string; // MongoDB GridFS file ID
 
   @Column({ enum: DocumentStatus, default: DocumentStatus.UPLOADED })
   status: DocumentStatus;
@@ -41,13 +42,20 @@ export class Document {
   uploadedBy: string; // User ID who uploaded the document
 
   // Workflow execution tracking
-  @Column({ type: 'json', nullable: true })
+  @Column({ nullable: true })
   workflowExecution: {
     workflowId?: string;
-    status: WorkflowStatus;
+    status?: WorkflowStatus;
     startedAt?: Date;
     completedAt?: Date;
     error?: string;
+    pendingApprovalId?: string;
+    approvals?: Array<{
+      stepName: string;
+      status: string;
+      approvedAt: string;
+      approverId: string;
+    }>;
     steps?: Array<{
       stepName: string;
       status: WorkflowStatus;
@@ -58,7 +66,7 @@ export class Document {
   };
 
   // Integration notifications tracking
-  @Column({ type: 'json', nullable: true })
+  @Column({ nullable: true })
   integrationNotifications: Array<{
     integrationId: string;
     integrationType: string;
@@ -69,12 +77,8 @@ export class Document {
   }>;
 
   // Document processing results
-  @Column({ type: 'json', nullable: true })
-  processingResults: {
-    extractedText?: string;
-    metadata?: Record<string, any>;
-    analysis?: Record<string, any>;
-  };
+  @Column({ nullable: true })
+  processingResults: any;
 
   @CreateDateColumn()
   createdAt: Date;

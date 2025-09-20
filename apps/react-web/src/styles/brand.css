@@ -98,7 +98,7 @@
 
 .btn-secondary:hover {
   background-color: var(--apex-main);
-  color: white;
+  color: var(--text-primary);
 }
 
 /* Main background elements */

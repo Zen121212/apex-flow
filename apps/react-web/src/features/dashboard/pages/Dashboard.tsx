@@ -6,9 +6,10 @@ import { Icon } from "../../../components/atoms/Icon/Icon";
 import StatCard from "../../../components/molecules/StatCard/StatCard";
 import ValueBanner from "../../../components/molecules/ValueBanner/ValueBanner";
 import DocumentCard from "../../../components/molecules/DocumentCard/DocumentCard";
-import WorkflowCard from "../../../components/molecules/WorkflowCard/WorkflowCard";
 import UploadModal from "../../document-upload/components/UploadModal";
 import WorkflowModal from "../../workflows/components/WorkflowModal";
+import { documentAPI } from "../../../services/api/documents";
+import type { DocumentItem } from "../../../types/documents";
 import styles from "./Dashboard.module.css";
 
 interface DashboardStats {
@@ -29,14 +30,6 @@ interface RecentDocument {
   size: string;
 }
 
-interface WorkflowItem {
-  id: string;
-  name: string;
-  description: string;
-  documentsProcessed: number;
-  lastRun: Date;
-  status: "active" | "paused" | "error";
-}
 
 // Types matching those from WorkflowModal
 interface FileUploadConfig {
@@ -142,7 +135,8 @@ const Dashboard: React.FC = () => {
   });
 
   const [recentDocuments, setRecentDocuments] = useState<RecentDocument[]>([]);
-  const [activeWorkflows, setActiveWorkflows] = useState<WorkflowItem[]>([]);
+  const [loadingDocuments, setLoadingDocuments] = useState(false);
+  const [documentsError, setDocumentsError] = useState<string | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showWorkflowModal, setShowWorkflowModal] = useState(false);
 
@@ -150,100 +144,86 @@ const Dashboard: React.FC = () => {
     loadDashboardData();
   }, []);
 
-  const loadDashboardData = (): void => {
-    // Simulate loading data/ replace with actual API calls
-    setTimeout(() => {
+  // Helper function to format file size
+  const formatFileSize = (bytes?: number): string => {
+    if (!bytes) return "Unknown";
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`;
+  };
+
+  // Helper function to get file type from mimeType
+  const getFileType = (mimeType?: string): string => {
+    if (!mimeType) return "unknown";
+    if (mimeType.includes('pdf')) return "pdf";
+    if (mimeType.includes('word') || mimeType.includes('document')) return "text";
+    if (mimeType.includes('image')) return "image";
+    if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return "spreadsheet";
+    return "document";
+  };
+
+  // Transform API DocumentItem to RecentDocument
+  const transformToRecentDocument = (item: DocumentItem): RecentDocument => ({
+    id: item.id,
+    name: item.originalName,
+    type: getFileType(item.mimeType),
+    uploadDate: new Date(item.createdAt),
+    status: item.status === "failed" ? "error" : (item.status || "completed") as "processing" | "completed" | "error",
+    size: formatFileSize(item.size),
+  });
+
+  const loadRecentDocuments = async (): Promise<void> => {
+    try {
+      setLoadingDocuments(true);
+      setDocumentsError(null);
+      
+      // Fetch recent documents (sorted by creation date, limit to 5 most recent)
+      const response = await documentAPI.getDocuments({
+        sortBy: 'createdAt',
+        sortDir: 'desc',
+        pageSize: 5,
+        page: 1
+      });
+      
+      const recentDocs = response.items.map(transformToRecentDocument);
+      setRecentDocuments(recentDocs);
+      
+      // Update stats with actual document count
+      setStats(prevStats => ({
+        ...prevStats,
+        totalDocuments: response.total,
+      }));
+      
+    } catch (error) {
+      console.error('Failed to load recent documents:', error);
+      setDocumentsError('Failed to load recent documents');
+      // Keep dummy stats for other metrics
       setStats({
-        totalDocuments: 152,
+        totalDocuments: 0,
         processingJobs: 8,
         completedWorkflows: 14,
         storageUsed: "8.7 GB",
         timeSaved: "78 hours",
         accuracyRate: "99.2%",
       });
+    } finally {
+      setLoadingDocuments(false);
+    }
+  };
 
-      setRecentDocuments([
-        {
-          id: "1",
-          name: "Q2_Invoice_Batch.pdf",
-          type: "pdf",
-          uploadDate: new Date(Date.now() - 25 * 60 * 1000), // 25 minutes ago
-          status: "completed",
-          size: "4.2 MB",
-        },
-        {
-          id: "2",
-          name: "Vendor_Contract_2025.docx",
-          type: "text",
-          uploadDate: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-          status: "processing",
-          size: "1.8 MB",
-        },
-        {
-          id: "3",
-          name: "Medical_Claims_March.pdf",
-          type: "pdf",
-          uploadDate: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
-          status: "completed",
-          size: "8.7 MB",
-        },
-        {
-          id: "4",
-          name: "Employee_Onboarding_Forms.pdf",
-          type: "pdf",
-          uploadDate: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
-          status: "completed",
-          size: "3.2 MB",
-        },
-        {
-          id: "5",
-          name: "Real_Estate_Closing_Docs.pdf",
-          type: "pdf",
-          uploadDate: new Date(Date.now() - 40 * 60 * 1000), // 40 minutes ago
-          status: "processing",
-          size: "12.4 MB",
-        },
-      ]);
+  const loadDashboardData = (): void => {
+    // Load initial stats with dummy data (can be replaced with real API calls later)
+    setStats({
+      totalDocuments: 0, // Will be updated by loadRecentDocuments
+      processingJobs: 8,
+      completedWorkflows: 14,
+      storageUsed: "8.7 GB",
+      timeSaved: "78 hours",
+      accuracyRate: "99.2%",
+    });
 
-      setActiveWorkflows([
-        {
-          id: "1",
-          name: "Invoice Processing",
-          description:
-            "Extract invoice data, route for approval, update accounting system",
-          documentsProcessed: 38,
-          lastRun: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
-          status: "active",
-        },
-        {
-          id: "2",
-          name: "Contract Analysis",
-          description:
-            "Analyze contracts for key terms and compliance requirements",
-          documentsProcessed: 12,
-          lastRun: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-          status: "active",
-        },
-        {
-          id: "3",
-          name: "Document Classification",
-          description:
-            "Automatically categorize documents by type and route to right department",
-          documentsProcessed: 85,
-          lastRun: new Date(Date.now() - 20 * 60 * 1000), // 20 minutes ago
-          status: "active",
-        },
-        {
-          id: "4",
-          name: "Legal Document Review",
-          description:
-            "AI-powered legal document review with approval workflow",
-          documentsProcessed: 17,
-          lastRun: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
-          status: "active",
-        },
-      ]);
-    }, 500);
+    // Load actual recent documents
+    loadRecentDocuments();
   };
 
   // Helper functions moved to molecule components
@@ -266,8 +246,8 @@ const Dashboard: React.FC = () => {
 
   const onFilesUploaded = (files: File[]): void => {
     console.log("Files uploaded:", files);
-    // Refresh dashboard data after upload
-    loadDashboardData();
+    // Refresh recent documents after upload
+    loadRecentDocuments();
   };
 
   const onWorkflowCreated = (workflow: CreatedWorkflow): void => {
@@ -358,7 +338,26 @@ const Dashboard: React.FC = () => {
               View All
             </Link>
           </div>
-          {recentDocuments.length > 0 ? (
+          {loadingDocuments ? (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}>
+                <Icon name="loading" size="large" />
+              </div>
+              <h3>Loading documents...</h3>
+              <p>Fetching your recent documents</p>
+            </div>
+          ) : documentsError ? (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}>
+                <Icon name="alert-triangle" size="large" />
+              </div>
+              <h3>Failed to load documents</h3>
+              <p>{documentsError}</p>
+              <Button variant="primary" onClick={loadRecentDocuments}>
+                Try Again
+              </Button>
+            </div>
+          ) : recentDocuments.length > 0 ? (
             <div className={styles.contentGrid}>
               {recentDocuments.map((doc) => (
                 <DocumentCard
@@ -389,46 +388,6 @@ const Dashboard: React.FC = () => {
           )}
         </div>
 
-        {/* Active Workflows */}
-        <div className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h2>Active Workflows</h2>
-            <Link to="/workflows" className={styles.viewAll}>
-              Manage All
-            </Link>
-          </div>
-          {activeWorkflows.length > 0 ? (
-            <div className={styles.contentGrid}>
-              {activeWorkflows.map((workflow) => (
-                <WorkflowCard
-                  key={workflow.id}
-                  id={workflow.id}
-                  name={workflow.name}
-                  description={workflow.description}
-                  status={workflow.status}
-                  documentsProcessed={workflow.documentsProcessed}
-                  lastRun={workflow.lastRun}
-                  variant="dashboard"
-                  onEdit={(id) => console.log("Edit workflow:", id)}
-                  onToggleStatus={(id) =>
-                    console.log("Toggle workflow status:", id)
-                  }
-                />
-              ))}
-            </div>
-          ) : (
-            <div className={styles.emptyState}>
-              <div className={styles.emptyIcon}>
-                <Icon name="lightning" size="large" />
-              </div>
-              <h3>No active workflows</h3>
-              <p>Create automated workflows to process your documents</p>
-              <Button variant="primary" onClick={openWorkflowModal}>
-                Create Workflow
-              </Button>
-            </div>
-          )}
-        </div>
 
         {/* Quick Actions */}
         <div className={styles.section}>

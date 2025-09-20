@@ -1,51 +1,64 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
-import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module';
-import * as cookieParser from 'cookie-parser';
+const cookieParser = require('cookie-parser');
+const cors = require('cors');
+const express = require('express');
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestFastifyApplication>(
-    AppModule,
-    new FastifyAdapter({ logger: true })
-  );
-
-  // Register cookie support
-  await app.register(require('@fastify/cookie'), {
-    secret: process.env.COOKIE_SECRET || 'cookie-secret-key',
+  // Create NestJS application with Express platform (default)
+  const app = await NestFactory.create(AppModule, {
+    logger: ['log', 'error', 'warn', 'debug', 'verbose'],
+    abortOnError: false
   });
 
-  // Register multipart support for file uploads
-  await app.register(require('@fastify/multipart'), {
-    limits: {
-      fileSize: 100 * 1024 * 1024, // 100MB
-    },
-  });
-
-  // Enable CORS
-  app.enableCors({
-    origin: [
-      process.env.FRONTEND_URL || 'http://localhost:5173',
-      'http://localhost:5173',
-      'http://127.0.0.1:5173',
-      'http://localhost:3001', // Keep this for backwards compatibility
-      'http://127.0.0.1:3001'
+  // Enable CORS with permissive development configuration
+  app.use(cors({
+    origin: true, // Allow all origins in development
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH', 'HEAD'],
+    allowedHeaders: [
+      'Content-Type', 
+      'Authorization', 
+      'X-Requested-With',
+      'Accept',
+      'Origin',
+      'Access-Control-Request-Method',
+      'Access-Control-Request-Headers',
+      'Cache-Control',
+      'Pragma'
     ],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    exposedHeaders: ['Content-Length', 'X-Request-Id'],
     credentials: true,
-  });
+    optionsSuccessStatus: 200,
+    preflightContinue: false
+  }));
+
+  // Enable cookie parsing
+  app.use(cookieParser(process.env.COOKIE_SECRET || 'cookie-secret-key'));
+
+  // Configure express for large file uploads
+  app.use(express.json({ limit: '50mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+  // Set global prefix for all routes
+  app.setGlobalPrefix('api');
 
   // Health check endpoint
-  app.getHttpAdapter().get('/health', (_req, reply) => {
-    reply.send({ ok: true, service: 'api-gateway', timestamp: new Date().toISOString() });
+  app.getHttpAdapter().get('/health', (_req, res) => {
+    res.json({ 
+      ok: true, 
+      service: 'api-gateway', 
+      timestamp: new Date().toISOString(),
+      platform: 'express'
+    });
   });
 
   // Root endpoint
-  app.getHttpAdapter().get('/', (_req, reply) => {
-    reply.send({
+  app.getHttpAdapter().get('/', (_req, res) => {
+    res.json({
       message: 'ApexFlow API Gateway',
       version: '1.0.0',
+      platform: 'Express + NestJS',
       endpoints: {
         health: '/health',
         auth: {
@@ -69,6 +82,13 @@ async function bootstrap() {
           delete: 'DELETE /integrations/:id',
           test: 'POST /integrations/:id/test',
           toggle: 'POST /integrations/:id/toggle'
+        },
+        debug: {
+          categorization: 'POST /debug/analyze-categorization',
+          workflow: 'POST /debug/analyze-workflow-selection',
+          pdfText: 'POST /debug/extract-pdf-text',
+          invoiceData: 'POST /debug/extract-invoice-data',
+          options: 'GET /debug/workflow-options'
         }
       },
       timestamp: new Date().toISOString()
@@ -76,8 +96,13 @@ async function bootstrap() {
   });
 
   const port = process.env.API_GATEWAY_PORT ? Number(process.env.API_GATEWAY_PORT) : 3000;
+  app.use((req, res, next) => {
+    console.log(`Request: ${req.method} ${req.url}`);
+    next();
+  });
+
   await app.listen(port, '0.0.0.0');
-  console.log(`🚀 API Gateway listening on port ${port}`);
+  console.log(`🚀 API Gateway listening on port ${port} (Express + NestJS)`);
 }
 
 bootstrap().catch(console.error);

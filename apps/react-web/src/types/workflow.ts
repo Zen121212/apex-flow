@@ -2,7 +2,7 @@
 
 export interface WorkflowStep {
   name: string;
-  type: 'extract_text' | 'analyze_content' | 'send_notification' | 'store_data';
+  type: 'extract_text' | 'analyze_content' | 'send_notification' | 'store_data' | 'require_approval' | 'custom' | 'visual_ai_process';
   config: Record<string, unknown>;
 }
 

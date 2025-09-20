@@ -1,5 +1,5 @@
 import { logger } from './logger';
-import { MongoClient, Db, Collection } from 'mongodb';
+import { MongoClient, Db, Collection, ObjectId } from 'mongodb';
 
 interface DocumentChunk {
   id: string;
@@ -119,11 +119,13 @@ export class VectorStorage {
     }>,
     metadata: Record<string, any>
   ): Promise<void> {
+    console.log('VECTOR STORAGE: storeProcessedDocument method called!', { documentId, extractedTextLength: extractedText.length });
+    
     try {
       const now = new Date();
 
-      // Store document metadata
-      const document: ProcessedDocument = {
+      // Store document metadata in processed_documents collection
+      const processedDocument: ProcessedDocument = {
         documentId,
         filename,
         contentType,
@@ -136,7 +138,7 @@ export class VectorStorage {
         updatedAt: now
       };
 
-      await this.documentsCollection.insertOne(document);
+      await this.documentsCollection.insertOne(processedDocument);
       logger.info('Stored document metadata', { documentId, filename });
 
       // Store chunks with embeddings
@@ -153,6 +155,50 @@ export class VectorStorage {
           chunkCount: chunks.length,
           embeddedChunks: chunks.filter(c => c.embedding).length
         });
+      } else {
+        logger.warn('⚠️  No chunks to store (text too short or processing issue)', { 
+          documentId,
+          extractedTextLength: extractedText.length
+        });
+      }
+
+      // IMPORTANT: Always update the original document record with processing results
+      // This ensures the API endpoints can find the processing results regardless of chunk count
+      console.log('🔄 CONSOLE: About to update original document record - THIS SHOULD APPEAR!', { 
+        documentId, 
+        chunkCount: chunks.length,
+        extractedTextLength: extractedText.length
+      });
+      
+      logger.error('🔄 CRITICAL: About to update original document record', { 
+        documentId, 
+        chunkCount: chunks.length,
+        extractedTextLength: extractedText.length,
+        hasProcessingResults: true
+      });
+      
+      try {
+        await this.updateOriginalDocumentRecord(documentId, {
+          extractedText,
+          totalPages: metadata.totalPages,
+          processingDuration: metadata.processingDuration || 0,
+          chunkCount: chunks.length,
+          embeddedChunks: chunks.filter(c => c.embedding).length,
+          processingCompletedAt: now,
+          status: 'completed'
+        });
+        
+        logger.error('✅ CRITICAL: Successfully completed original document record update', { 
+          documentId,
+          extractedTextLength: extractedText.length
+        });
+      } catch (updateError) {
+        logger.error('❌ CRITICAL: Failed to update original document record', {
+          documentId,
+          updateError: updateError.message,
+          updateErrorStack: updateError.stack
+        });
+        // Don't throw - we still want the processed_documents record to be saved
       }
 
     } catch (error) {
@@ -374,6 +420,95 @@ export class VectorStorage {
           error: error.message
         }
       };
+    }
+  }
+
+  /**
+   * Update the original document record with processing results
+   * This ensures API endpoints can find the processing results
+   */
+  private async updateOriginalDocumentRecord(documentId: string, processingResults: {
+    extractedText: string;
+    totalPages?: number;
+    processingDuration: number;
+    chunkCount: number;
+    embeddedChunks: number;
+    processingCompletedAt: Date;
+    status: string;
+  }): Promise<void> {
+    try {
+      logger.info('Starting to update original document record', { documentId });
+      const documentsCollection = this.db.collection('documents');
+      
+      // Convert string ID to ObjectId if needed
+      let query: any;
+      try {
+        query = { _id: new ObjectId(documentId) };
+        logger.info('Using ObjectId query for document update', { documentId, objectIdQuery: true });
+      } catch (objectIdError) {
+        // If ObjectId conversion fails, try with string ID
+        query = { _id: documentId };
+        logger.info('Using string ID query for document update', { documentId, objectIdQuery: false, error: objectIdError.message });
+      }
+      
+      const updateData = {
+        $set: {
+          status: processingResults.status,
+          processingResults: {
+            extractedText: processingResults.extractedText,
+            totalPages: processingResults.totalPages,
+            processingDuration: processingResults.processingDuration,
+            chunkCount: processingResults.chunkCount,
+            embeddedChunks: processingResults.embeddedChunks,
+            processingCompletedAt: processingResults.processingCompletedAt,
+            analysis: {
+              documentType: 'PDF Document',
+              confidence: 0.9,
+              method: 'PDF Workflows Worker',
+              processed: true
+            }
+          },
+          updatedAt: new Date()
+        }
+      };
+      
+      logger.info('Executing document update', { 
+        documentId, 
+        queryType: query._id instanceof ObjectId ? 'ObjectId' : 'string',
+        extractedTextLength: processingResults.extractedText.length
+      });
+      
+      const result = await documentsCollection.updateOne(query, updateData);
+      
+      logger.info('Document update result', { 
+        documentId, 
+        matchedCount: result.matchedCount,
+        modifiedCount: result.modifiedCount,
+        acknowledged: result.acknowledged
+      });
+      
+      if (result.matchedCount > 0) {
+        logger.info('✅ Successfully updated original document record with processing results', { 
+          documentId, 
+          extractedTextLength: processingResults.extractedText.length,
+          chunkCount: processingResults.chunkCount
+        });
+      } else {
+        logger.warn('⚠️  Original document record not found for update', { 
+          documentId,
+          queryUsed: JSON.stringify(query)
+        });
+      }
+      
+    } catch (error) {
+      logger.error('❌ Failed to update original document record', {
+        documentId,
+        error: error.message,
+        errorStack: error.stack,
+        errorName: error.name
+      });
+      // Don't throw here - processing results are already stored in processed_documents
+      // The update to original document is for convenience but not critical
     }
   }
 

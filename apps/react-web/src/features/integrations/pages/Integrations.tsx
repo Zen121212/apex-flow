@@ -4,6 +4,7 @@ import type { IntegrationFormData } from '../components/IntegrationModal';
 import IntegrationCard from '../components/IntegrationCard';
 import IntegrationModal from '../components/IntegrationModal';
 import Button from '../../../components/atoms/Button/Button';
+import { Icon } from '../../../components/atoms/Icon/Icon';
 import { 
   useIntegrations, 
   useCreateIntegration, 
@@ -121,7 +122,7 @@ const Integrations: React.FC = () => {
       <div className={styles.container}>
         <div className={styles.header}>
           <div className={styles.headerContent}>
-            <h1 className={styles.title}>🔌 Integrations</h1>
+            <h1 className={styles.title}>Integrations</h1>
             <p className={styles.subtitle}>Loading your integrations...</p>
           </div>
         </div>
@@ -141,7 +142,7 @@ const Integrations: React.FC = () => {
       <div className={styles.container}>
         <div className={styles.header}>
           <div className={styles.headerContent}>
-            <h1 className={styles.title}>🔌 Integrations</h1>
+            <h1 className={styles.title}>Integrations</h1>
             <p className={styles.subtitle}>Unable to load integrations</p>
           </div>
         </div>
@@ -163,7 +164,7 @@ const Integrations: React.FC = () => {
     <div className={styles.container}>
       <div className={styles.header}>
         <div className={styles.headerContent}>
-          <h1 className={styles.title}>🔌 Integrations</h1>
+          <h1 className={styles.title}>Integrations</h1>
           <p className={styles.subtitle}>
             Connect ApexFlow with your existing tools and services to automate your document processing workflows.
           </p>
@@ -240,26 +241,32 @@ const Integrations: React.FC = () => {
           <h2 className={styles.sectionTitle}>Getting Started</h2>
           <div className={styles.helpGrid}>
             <div className={styles.helpCard}>
-              <div className={styles.helpIcon}>📋</div>
+              <div className={styles.helpIcon}>
+                <Icon name="file-text" size="large" color="#6b7280" />
+              </div>
               <h3>Setup Guide</h3>
               <p>Follow our step-by-step guides to configure each integration type and start automating your workflows.</p>
-              <Button variant="ghost" size="small">
+              <Button variant="secondary" size="small">
                 View Guides
               </Button>
             </div>
             <div className={styles.helpCard}>
-              <div className={styles.helpIcon}>🔧</div>
+              <div className={styles.helpIcon}>
+                <Icon name="settings" size="large" color="#6b7280" />
+              </div>
               <h3>Troubleshooting</h3>
               <p>Having issues with your integrations? Check our troubleshooting guide for common solutions.</p>
-              <Button variant="ghost" size="small">
+              <Button variant="secondary" size="small">
                 Get Help
               </Button>
             </div>
             <div className={styles.helpCard}>
-              <div className={styles.helpIcon}>🚀</div>
+              <div className={styles.helpIcon}>
+                <Icon name="lightning" size="large" color="#6b7280" />
+              </div>
               <h3>Best Practices</h3>
               <p>Learn how to optimize your integrations for better performance and reliability.</p>
-              <Button variant="ghost" size="small">
+              <Button variant="secondary" size="small">
                 Learn More
               </Button>
             </div>

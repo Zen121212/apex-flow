@@ -85,21 +85,21 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             <div className={styles.suggestedQuestions}>
               <button 
                 className={styles.suggestionButton}
-                onClick={() => setMessage("Summarize the key points from my recent contracts")}
+                onClick={() => setMessage("What is the highest price invoice I gave?")}
               >
-                "Summarize the key points from my recent contracts"
+                "What is the highest price invoice I gave?"
               </button>
               <button 
                 className={styles.suggestionButton}
-                onClick={() => setMessage("What are the payment terms in my invoices?")}
+                onClick={() => setMessage("Show me recent contracts from this year")}
               >
-                "What are the payment terms in my invoices?"
+                "Show me recent contracts from this year"
               </button>
               <button 
                 className={styles.suggestionButton}
-                onClick={() => setMessage("Find any compliance issues in my documents")}
+                onClick={() => setMessage("Find the cheapest purchase order")}
               >
-                "Find any compliance issues in my documents"
+                "Find the cheapest purchase order"
               </button>
             </div>
           </div>

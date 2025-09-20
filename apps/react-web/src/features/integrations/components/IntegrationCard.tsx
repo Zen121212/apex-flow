@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { Integration, IntegrationType, IntegrationStatus, TestResult } from '../types/index';
 import Button from '../../../components/atoms/Button/Button';
+import { Icon } from '../../../components/atoms/Icon/Icon';
 import styles from './IntegrationCard.module.css';
 
 interface IntegrationCardProps {
@@ -14,28 +15,28 @@ interface IntegrationCardProps {
 
 const INTEGRATION_CONFIGS = {
   slack: {
-    icon: '💬',
+    icon: 'chat',
     title: 'Slack',
     description: 'Send notifications and updates to Slack channels',
-    color: '#4A154B'
+    color: '#6b7280'
   },
   email: {
-    icon: '📧',
+    icon: 'email',
     title: 'Email',
     description: 'Send email notifications and approval requests',
-    color: '#1f2937'
+    color: '#6b7280'
   },
   database: {
-    icon: '🗄️',
+    icon: 'database',
     title: 'Database',
     description: 'Store extracted data in your database',
-    color: '#059669'
+    color: '#6b7280'
   },
   webhook: {
-    icon: '🔗',
+    icon: 'link',
     title: 'Webhook',
     description: 'Send data to external APIs and services',
-    color: '#7c3aed'
+    color: '#6b7280'
   }
 };
 
@@ -102,9 +103,7 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
     <div className={styles.card}>
       <div className={styles.header}>
         <div className={styles.iconContainer} style={{ backgroundColor: `${config.color}15` }}>
-          <span className={styles.icon} style={{ color: config.color }}>
-            {config.icon}
-          </span>
+          <Icon name={config.icon} size="medium" color={config.color} />
         </div>
         <div className={styles.titleSection}>
           <h3 className={styles.title}>
@@ -159,19 +158,19 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
               variant="secondary"
               size="small"
               onClick={handleConfigure}
-              icon="⚙️"
+              icon={<Icon name="settings" size="small" />}
             >
               Configure
             </Button>
             
             {onTest && (
               <Button
-                variant="ghost"
+                variant="secondary"
                 size="small"
                 onClick={handleTest}
                 loading={testing}
                 disabled={testing}
-                icon="🧪"
+                icon={<Icon name="search" size="small" />}
               >
                 Test
               </Button>
@@ -179,10 +178,10 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
             
             {onToggle && (
               <Button
-                variant={integration.enabled ? "warning" : "success"}
+                variant="secondary"
                 size="small"
                 onClick={handleToggle}
-                icon={integration.enabled ? "⏸️" : "▶️"}
+                icon={<Icon name={integration.enabled ? "x" : "check"} size="small" />}
               >
                 {integration.enabled ? 'Disable' : 'Enable'}
               </Button>
@@ -190,10 +189,10 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
             
             {onDelete && (
               <Button
-                variant="danger"
+                variant="secondary"
                 size="small"
                 onClick={handleDelete}
-                icon="🗑️"
+                icon={<Icon name="delete" size="small" />}
               >
                 Delete
               </Button>

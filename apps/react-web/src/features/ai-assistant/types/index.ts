@@ -96,7 +96,7 @@ export interface InsightCard {
 
 // Main State Type
 export interface AIAssistantState {
-  activeTab: 'search' | 'chat' | 'analysis' | 'insights';
+  activeTab: 'chat' | 'analysis' | 'insights';
   searchQueries: SearchQuery[];
   chatSessions: ChatSession[];
   activeAnalyses: DocumentAnalysis[];
