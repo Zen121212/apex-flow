@@ -11,3 +11,14 @@ coverage/
 build/
 temp/
 .cache/
+
+# ML Model Caches
+.hf-cache/
+__pycache__/
+
+# Large sample files (keep locally for testing)
+Sample-Pdf-invoices-main/
+
+# App specific ignores
+apps/api-gateway/uploads/
+apps/api-gateway/*.pid
