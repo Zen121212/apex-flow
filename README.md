@@ -113,9 +113,9 @@ Bot: "You have 3 contracts from this year: TechCorp Contract ($15K),
 | -------------------------------------- | --------------------------------------- |
 | ![Landing](./readme/gifs/recoder1.gif) | ![Landing](./readme/gifs/recorder3.gif) |
 
-| Integrations                            |
-| --------------------------------------- |
-| ![Landing](./readme/gifs/recorder4.gif) |
+| Integrations                          |
+| ------------------------------------- |
+| ![Landing](./readme/gifs/record4.gif) |
 
 <br><br>
 
