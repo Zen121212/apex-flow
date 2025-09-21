@@ -135,7 +135,9 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
           
           {integration.lastError && (
             <div className={styles.errorMessage}>
-              <span className={styles.errorIcon}>⚠️</span>
+              <span className={styles.errorIcon}>
+                <Icon name="alert-triangle" size="small" color="#dc2626" />
+              </span>
               {integration.lastError}
             </div>
           )}
@@ -143,7 +145,11 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({
           {lastTestResult && (
             <div className={`${styles.testResult} ${lastTestResult.success ? styles.success : styles.error}`}>
               <span className={styles.testIcon}>
-                {lastTestResult.success ? '✅' : '❌'}
+                <Icon 
+                  name={lastTestResult.success ? 'check' : 'x'} 
+                  size="small" 
+                  color={lastTestResult.success ? '#059669' : '#dc2626'}
+                />
               </span>
               {lastTestResult.message}
             </div>

@@ -298,20 +298,20 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onFilesUploa
                 <div className="processing-animation">
                   <div className="spinner"></div>
                 </div>
-                <h4>🤖 Processing AI Analysis...</h4>
+                <h4>AI Processing AI Analysis...</h4>
                 <p>Analyzing uploaded documents and extracting key data</p>
                 <div className="processing-details">
                   <div className="processing-steps">
                     <div className="step active">
-                      <span className="step-icon">✅</span>
+                      <span className="step-icon" style={{color: 'black'}}>✓</span>
                       <span>Documents uploaded successfully</span>
                     </div>
                     <div className="step active">
-                      <span className="step-icon">🔍</span>
+                      <span className="step-icon" style={{color: 'black'}}>🔍</span>
                       <span>Running AI analysis</span>
                     </div>
                     <div className="step">
-                      <span className="step-icon">📊</span>
+                      <span className="step-icon" style={{color: 'black'}}>📊</span>
                       <span>Preparing results</span>
                     </div>
                   </div>
@@ -328,7 +328,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onFilesUploa
                 onDrop={handleDrop}
                 onClick={() => inputRef.current?.click()}
               >
-                <div className="upload-icon">📁</div>
+                <div className="upload-icon" style={{color: 'black'}}>📂</div>
                 <h3>Drag and drop your files here</h3>
                 <p>or click to browse</p>
                 <input
@@ -386,7 +386,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onFilesUploa
                   const workflowId = workflow.id || (workflow as WorkflowWithId)._id;
                   return (
                     <option key={workflowId} value={workflowId}>
-                      🔧 {workflow.name} ({workflow.steps.length} steps)
+                      ⚙ {workflow.name} ({workflow.steps.length} steps)
                     </option>
                   );
                 })}
