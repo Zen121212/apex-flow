@@ -97,17 +97,25 @@ Bot: "You have 3 contracts from this year: TechCorp Contract ($15K),
 <!-- Demo -->
 <img src="./readme/title5.svg"/>
 
-### User Screens (Mobile)
+### User Screens
 
-| Login screen                            | Register screen                       | Register screen                       |
-| --------------------------------------- | ------------------------------------- | ------------------------------------- |
-| ![Landing](./readme/demo/1440x1024.png) | ![fsdaf](./readme/demo/1440x1024.png) | ![fsdaf](./readme/demo/1440x1024.png) |
+| Login screen                               | Register screen                             |
+| ------------------------------------------ | ------------------------------------------- |
+| ![Landing](./readme/screenshots/login.png) | ![fsdaf](./readme/screenshots/register.png) |
 
 ### Admin Screens (Web)
 
-| Login screen                            | Register screen                       |
-| --------------------------------------- | ------------------------------------- |
-| ![Landing](./readme/demo/1440x1024.png) | ![fsdaf](./readme/demo/1440x1024.png) |
+| Dashboard || Dashboard |
+| ---------------------------------------------- || ---------------------------------------------- |
+| ![Landing](./readme/screenshots/dashboard.png) || ![Landing](./readme/gifs/recorder2.gif) |
+
+| Workflows || AI assistant |
+| ---------------------------------------------- || ---------------------------------------------- |
+| ![Landing](./readme/gifs/recoder1.gif) || ![Landing](./readme/gifs/recorder3.gif) |
+
+| Integrations                            |
+| --------------------------------------- |
+| ![Landing](./readme/gifs/recorder4.gif) |
 
 <br><br>
 
