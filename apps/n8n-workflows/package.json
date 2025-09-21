@@ -1,0 +1,37 @@
+{
+  "name": "@apexflow/n8n-workflows",
+  "version": "1.0.0",
+  "description": "n8n workflow automation for ApexFlow approval system",
+  "main": "server.js",
+  "scripts": {
+    "start": "./start.sh",
+    "start:docker": "docker-compose up -d",
+    "stop": "docker-compose down",
+    "logs": "docker-compose logs -f",
+    "restart": "docker-compose restart",
+    "status": "docker-compose ps",
+    "start:dev": "N8N_LOG_LEVEL=debug n8n start",
+    "start:prod": "N8N_LOG_LEVEL=warn n8n start",
+    "tunnel": "n8n start --tunnel",
+    "import": "n8n import:workflow --input=./workflows/",
+    "export": "n8n export:workflow --output=./workflows/ --all",
+    "test": "echo \"n8n workflows - no tests configured\""
+  },
+  "dependencies": {
+    "n8n": "^1.19.4"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "n8n",
+    "workflow",
+    "automation", 
+    "slack",
+    "approval"
+  ],
+  "author": "ApexFlow Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}

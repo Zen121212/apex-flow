@@ -43,6 +43,8 @@ interface WorkflowModalProps {
   isOpen: boolean;
   onClose: () => void;
   onWorkflowCreated: (workflow: CreatedWorkflow) => void;
+  editingWorkflow?: CreatedWorkflow & { id?: string } | null;
+  mode?: 'create' | 'edit';
 }
 
 interface WorkflowStep {
@@ -112,101 +114,153 @@ interface IntegrationConfig {
 // Define templates outside component to prevent recreating on every render
 const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
     {
-      id: "invoice_processing",
+      id: "invoice_processing_huggingface",
       name: "Invoice Processing",
       description:
-        "Automatically extract data from invoices and update systems",
+        "Advanced invoice processing using Hugging Face LayoutLMv3 for accurate data extraction, confidence scoring, and structured field recognition",
       category: "Finance",
       icon: "receipt",
       steps: [
         {
           id: "1",
           type: "trigger",
-          name: "File Upload Trigger",
-          description: "Triggers when invoice is uploaded",
-          config: {},
+          name: "Document Upload",
+          description: "Triggers when invoice documents are uploaded",
+          config: { fileTypes: ["pdf", "jpg", "png"] },
           icon: "document",
         },
         {
           id: "2",
           type: "action",
-          name: "OCR Processing",
-          description: "Extract text from document",
-          config: {},
-          icon: "file-text",
+          name: "Hugging Face AI Analysis",
+          description: "Uses Hugging Face LayoutLMv3 to extract invoice data with confidence scores, field validation, and metadata analysis",
+          config: { 
+            aiService: "huggingface",
+            extractionType: "invoice",
+            includeConfidenceScores: true,
+            validateFields: true,
+            includeMetadata: true
+          },
+          icon: "robot",
         },
         {
           id: "3",
           type: "action",
-          name: "Data Extraction",
-          description: "Extract invoice data",
+          name: "Display AI Results",
+          description: "Show Hugging Face AI analysis results in the AI Analysis Results modal",
+          config: { 
+            showModal: true,
+            modalType: "ai_analysis_results"
+          },
+          icon: "eye",
+        },
+        {
+          id: "4",
+          type: "action",
+          name: "Store Results",
+          description: "Store Hugging Face AI processing results and metadata in database",
           config: {},
-          icon: "dashboard",
+          icon: "database",
         },
       ],
     },
     {
-      id: "contract_analysis",
+      id: "contract_analysis_huggingface",
       name: "Contract Analysis",
       description:
-        "Analyze contracts for key terms and compliance requirements",
+        "Intelligent contract analysis using Hugging Face LayoutLMv3 for key terms extraction, party identification, and compliance checking",
       category: "Legal",
       icon: "file-check",
       steps: [
         {
           id: "1",
           type: "trigger",
-          name: "File Upload Trigger",
-          description: "Triggers when contract is uploaded",
-          config: {},
+          name: "Document Upload",
+          description: "Triggers when contract documents are uploaded",
+          config: { fileTypes: ["pdf", "doc", "docx"] },
           icon: "document",
         },
         {
           id: "2",
           type: "action",
-          name: "Text Analysis",
-          description: "Analyze contract terms",
-          config: {},
-          icon: "search",
+          name: "Hugging Face Contract Analysis",
+          description: "Extract contract terms, party information, dates, and key clauses using Hugging Face LayoutLMv3",
+          config: { 
+            aiService: "huggingface",
+            extractionType: "contract",
+            includeConfidenceScores: true,
+            extractParties: true,
+            extractDates: true,
+            extractTerms: true
+          },
+          icon: "robot",
         },
         {
           id: "3",
           type: "action",
-          name: "Compliance Check",
-          description: "Check compliance requirements",
+          name: "Display Analysis Results",
+          description: "Show Hugging Face AI contract analysis in detailed results modal",
+          config: { 
+            showModal: true,
+            modalType: "ai_analysis_results"
+          },
+          icon: "eye",
+        },
+        {
+          id: "4",
+          type: "action",
+          name: "Store Contract Data",
+          description: "Store extracted contract information and metadata",
           config: {},
-          icon: "check-circle",
+          icon: "database",
         },
       ],
     },
     {
-      id: "document_classification",
+      id: "document_classification_huggingface",
       name: "Document Classification",
-      description: "Automatically categorize documents by type and content",
+      description: "Smart document classification and data extraction using Hugging Face LayoutLMv3 with confidence scoring and detailed analysis",
       category: "General",
       icon: "tag",
       steps: [
         {
           id: "1",
           type: "trigger",
-          name: "File Upload Trigger",
-          description: "Triggers when document is uploaded",
-          config: {},
+          name: "Document Upload",
+          description: "Triggers when any document is uploaded",
+          config: { fileTypes: ["pdf", "doc", "docx", "txt", "jpg", "png"] },
           icon: "document",
         },
         {
           id: "2",
           type: "action",
-          name: "AI Classification",
-          description: "Classify document type",
-          config: {},
+          name: "Hugging Face Classification & Extraction",
+          description: "Classify document type and extract relevant data using Hugging Face LayoutLMv3",
+          config: { 
+            aiService: "huggingface",
+            extractionType: "general",
+            includeConfidenceScores: true,
+            classifyDocument: true,
+            extractStructuredData: true
+          },
           icon: "robot",
         },
         {
           id: "3",
           type: "action",
-          name: "Auto-tag",
-          description: "Add relevant tags",
+          name: "Show AI Analysis",
+          description: "Display Hugging Face AI classification and extraction results",
+          config: { 
+            showModal: true,
+            modalType: "ai_analysis_results"
+          },
+          icon: "eye",
+        },
+        {
+          id: "4",
+          type: "action",
+          name: "Auto-tag & Store",
+          description: "Add AI-generated tags and store classification results",
           config: {},
           icon: "tag",
         },
@@ -218,6 +272,8 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
   isOpen,
   onClose,
   onWorkflowCreated,
+  editingWorkflow = null,
+  mode = 'create',
 }) => {
   const [step, setStep] = useState<number>(1);
   const [workflowName, setWorkflowName] = useState("");
@@ -337,6 +393,8 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
       integrations: integrationConfig,
       autoStart,
       enableNotifications,
+      workflowType,
+      approvalMethod,
     };
     setCreating(false);
     onWorkflowCreated(workflow);

@@ -4,7 +4,7 @@
 
 set -e
 
-echo "🚀 Starting ApexFlow Development Environment"
+echo "Starting ApexFlow Development Environment"
 echo "============================================="
 
 # Colors for output
@@ -56,16 +56,14 @@ wait_for_service() {
 if [ ! -f .env ]; then
     echo -e "${YELLOW}⚠️  .env file not found. Creating from template...${NC}"
     cp .env.example .env
-    echo -e "${RED}🔧 Please edit .env file with your Hugging Face API key${NC}"
-    echo -e "${RED}   HUGGINGFACE_API_KEY=your_key_here${NC}"
-    read -p "Press Enter after updating .env file..."
+    echo -e "${GREEN}✅ Created .env file from template${NC}"
 fi
 
-# Check for Hugging Face API key
-if ! grep -q "HUGGINGFACE_API_KEY=hf_" .env; then
-    echo -e "${RED}❌ Please set your Hugging Face API key in .env file${NC}"
-    echo "Get your key from: https://huggingface.co/settings/tokens"
-    exit 1
+# Check Visual AI service URL configuration
+if ! grep -q "VISUAL_AI_SERVICE_URL=" .env; then
+    echo -e "${YELLOW}⚠️  Adding Visual AI service URL to .env file...${NC}"
+    echo "VISUAL_AI_SERVICE_URL=http://localhost:8000" >> .env
+    echo -e "${GREEN}✅ Visual AI service URL configured${NC}"
 fi
 
 echo -e "${BLUE}🔧 Checking system dependencies...${NC}"
@@ -74,21 +72,16 @@ echo -e "${BLUE}🔧 Checking system dependencies...${NC}"
 if command -v docker &> /dev/null; then
     echo -e "${GREEN}✅ Docker found${NC}"
     
-    # Start MongoDB if not running
-    if ! docker ps | grep -q apexflow-mongo; then
-        echo -e "${YELLOW}🐳 Starting MongoDB container...${NC}"
-        docker run -d --name apexflow-mongo -p 27017:27017 mongo:latest
-        sleep 3
-    fi
+    # Start infrastructure services using main infrastructure setup
+    echo -e "${YELLOW}🐳 Starting infrastructure services (MongoDB, Redis, MinIO, n8n, Visual AI, API Gateway, PDF Workflows)...${NC}"
+    cd infrastructure
+    docker compose up -d
+    cd ..
+    sleep 15  # Allow more time for Visual AI model loading and service startup
     
-    # Start Redis if not running
-    if ! docker ps | grep -q apexflow-redis; then
-        echo -e "${YELLOW}🐳 Starting Redis container...${NC}"
-        docker run -d --name apexflow-redis -p 6379:6379 redis:alpine
-        sleep 2
-    fi
+    echo -e "${GREEN}✅ Infrastructure services started${NC}"
 else
-    echo -e "${YELLOW}⚠️  Docker not found. Make sure MongoDB and Redis are running locally${NC}"
+    echo -e "${YELLOW}⚠️  Docker not found. Make sure MongoDB, Redis, MinIO, and n8n are running locally${NC}"
 fi
 
 # Check Node.js version
@@ -105,15 +98,12 @@ echo -e "${BLUE}📦 Installing dependencies...${NC}"
 # Install root dependencies
 npm install > /dev/null 2>&1
 
-# Install service dependencies
-echo -e "${YELLOW}   Installing agent-orchestrator dependencies...${NC}"
+# Install service dependencies (only for local development, services run in Docker)
+echo -e "${YELLOW}   Installing agent-orchestrator dependencies (for local dev)...${NC}"
 cd apps/agent-orchestrator && npm install > /dev/null 2>&1 && cd ../..
 
-echo -e "${YELLOW}   Installing api-gateway dependencies...${NC}"
-cd apps/api-gateway && npm install > /dev/null 2>&1 && cd ../..
-
-echo -e "${YELLOW}   Installing pdf-workflows dependencies...${NC}"
-cd apps/pdf-workflows && npm install > /dev/null 2>&1 && cd ../..
+echo -e "${YELLOW}   Installing react-web dependencies...${NC}"
+cd apps/react-web && npm install > /dev/null 2>&1 && cd ../..
 
 echo -e "${GREEN}✅ Dependencies installed${NC}"
 
@@ -130,11 +120,11 @@ if command -v tmux &> /dev/null; then
     tmux select-pane -t 0
     tmux split-window -v
     
-    # Start services in each pane
+    # Start services in each pane (only local dev services, main services run in Docker)
     tmux send-keys -t apexflow:0.0 'cd apps/agent-orchestrator && npm run start:dev' Enter
-    tmux send-keys -t apexflow:0.1 'cd apps/pdf-workflows && npm run start:dev' Enter  
-    tmux send-keys -t apexflow:1.0 'cd apps/api-gateway && npm run start:dev' Enter
-    tmux send-keys -t apexflow:1.1 'echo "🎯 Services Status Dashboard" && echo "=========================" && echo "" && echo "Use these commands to test:" && echo "" && echo "# Health checks" && echo "curl http://localhost:3000/health" && echo "curl http://localhost:3002/health" && echo "curl http://localhost:3002/hf-health" && echo "" && echo "# Upload test document" && echo "echo \"Sample document content\" > test.txt" && echo "curl -X POST http://localhost:3000/documents/simple-upload \\\\" && echo "  -H \"Content-Type: application/json\" \\\\" && echo "  -d \\"{\\\"originalName\\\":\\\"test.txt\\\",\\\"content\\\":\\\"Sample content\\\"}\\\"" && echo "" && echo "# Ask questions" && echo "curl -X POST http://localhost:3002/qa \\\\" && echo "  -H \"Content-Type: application/json\" \\\\" && echo "  -d \\"{\\\"query\\\":\\\"What is this document about?\\\"}\\\"" && echo "" && bash' Enter
+    tmux send-keys -t apexflow:0.1 'cd apps/react-web && npm run start' Enter  
+    tmux send-keys -t apexflow:1.0 'echo "🎯 ApexFlow Services Dashboard" && echo "=============================" && echo "" && echo "🐳 Docker Services (Main):" && echo "• API Gateway: http://localhost:3000" && echo "• PDF Workflows: Running in Docker" && echo "• Visual AI: http://localhost:8001" && echo "• n8n: http://localhost:5678" && echo "• MongoDB: localhost:27017" && echo "• Redis: localhost:6379" && echo "• MinIO: http://localhost:9001" && echo "" && echo "🖥️  Local Services:" && echo "• Agent Orchestrator: http://localhost:3002" && echo "• React Web: http://localhost:5173" && echo "" && echo "📋 Test Commands:" && echo "curl http://localhost:3000/health" && echo "curl http://localhost:8001/health" && echo "curl http://localhost:3002/health" && echo "" && bash' Enter
+    tmux send-keys -t apexflow:1.1 'echo "📊 Docker Services Status:" && echo "=========================" && echo "" && echo "docker ps --format \"table {{.Names}}\\t{{.Status}}\\t{{.Ports}}\"" && echo "" && echo "🔍 View logs:" && echo "docker logs apexflow-api-gateway" && echo "docker logs apexflow-visual-ai" && echo "docker logs apexflow-pdf-workflows" && echo "" && bash' Enter
     
     echo -e "${GREEN}✅ Services started in tmux session 'apexflow'${NC}"
     echo -e "${BLUE}   Use 'tmux attach -t apexflow' to view services${NC}"
@@ -146,23 +136,24 @@ if command -v tmux &> /dev/null; then
 else
     echo -e "${YELLOW}⚠️  tmux not found. Please start services manually:${NC}"
     echo ""
+    echo -e "${BLUE}Main Services (Docker):${NC} Already running via infrastructure/docker-compose.yml"
     echo -e "${BLUE}Terminal 1:${NC} cd apps/agent-orchestrator && npm run start:dev"
-    echo -e "${BLUE}Terminal 2:${NC} cd apps/pdf-workflows && npm run start:dev"  
-    echo -e "${BLUE}Terminal 3:${NC} cd apps/api-gateway && npm run start:dev"
+    echo -e "${BLUE}Terminal 2:${NC} cd apps/react-web && npm run start"
     echo ""
-    read -p "Press Enter after starting all services..."
+    read -p "Press Enter after starting local services..."
 fi
 
 # Health checks
 echo -e "${BLUE}🏥 Performing health checks...${NC}"
 
-wait_for_service "http://localhost:3002/health" "Agent Orchestrator"
-wait_for_service "http://localhost:3000/health" "API Gateway"
+# Docker services (main infrastructure)
+wait_for_service "http://localhost:3000/health" "API Gateway (Docker)"
+wait_for_service "http://localhost:8001/health" "Visual AI Service (Docker)"
+wait_for_service "http://localhost:5678/healthz" "n8n (Docker)"
 
-# Advanced health checks
-echo -e "${BLUE}🧠 Checking AI services...${NC}"
-wait_for_service "http://localhost:3002/hf-health" "Hugging Face Models"
-wait_for_service "http://localhost:3002/vector-health" "Vector Storage"
+# Local services
+wait_for_service "http://localhost:3002/health" "Agent Orchestrator (Local)"
+wait_for_service "http://localhost:5173" "React Web (Local)"
 
 echo ""
 echo -e "${GREEN}🎉 ApexFlow is ready!${NC}"
@@ -170,24 +161,36 @@ echo "=================================="
 echo ""
 echo -e "${BLUE}📖 Quick Test Commands:${NC}"
 echo ""
-echo "# Test embedding generation"
-echo 'curl -X POST http://localhost:3002/embeddings \'
-echo '  -H "Content-Type: application/json" \'
-echo '  -d \'{"text": "Hello ApexFlow"}\''
+echo "# Test Visual AI service (Docker)"
+echo 'curl -X GET http://localhost:8001/health'
+echo ""
+echo "# Test Visual AI extraction"
+echo 'curl -X POST http://localhost:8001/extract-from-text \\'
+echo '  -H "Content-Type: application/json" \\'
+echo '  -d \'{"filename":"test.txt","content":"Invoice #12345 Amount: $100.00","mime_type":"text/plain"}\''
 echo ""
 echo "# Upload a test document"  
 echo 'curl -X POST http://localhost:3000/documents/simple-upload \'
 echo '  -H "Content-Type: application/json" \'
 echo '  -d \'{"originalName":"test.txt","content":"ApexFlow is amazing!"}\''
 echo ""
+echo "# Test debug invoice extraction"
+echo 'curl -X POST http://localhost:3000/debug/extract-invoice-data \\'
+echo '  -H "Content-Type: application/json" \\'
+echo '  -d \'{"filename":"test.txt","extractedText":"Invoice #12345\\nAmount: $100.00\\nVendor: ACME Corp","size":100}\''
+echo ""
 echo "# Ask a question (wait 30s after upload)"
-echo 'curl -X POST http://localhost:3002/qa \'
-echo '  -H "Content-Type: application/json" \'
+echo 'curl -X POST http://localhost:3002/qa \\'
+echo '  -H "Content-Type: application/json" \\'
 echo '  -d \'{"query": "What is ApexFlow?"}\''
 echo ""
 echo -e "${BLUE}📚 Full documentation: END_TO_END_WORKFLOW.md${NC}"
-echo -e "${BLUE}🌐 API Gateway: http://localhost:3000${NC}"
-echo -e "${BLUE}🤖 Agent Orchestrator: http://localhost:3002${NC}"
+echo -e "${BLUE}🌐 API Gateway (Docker): http://localhost:3000${NC}"
+echo -e "${BLUE}🤖 Agent Orchestrator (Local): http://localhost:3002${NC}"
+echo -e "${BLUE}🧠 Visual AI (Docker): http://localhost:8001${NC}"
+echo -e "${BLUE}🔧 n8n Automation (Docker): http://localhost:5678${NC}"
+echo -e "${BLUE}📦 MinIO Console (Docker): http://localhost:9001${NC}"
+echo -e "${BLUE}⚛️  React Web (Local): http://localhost:5173${NC}"
 
 if command -v tmux &> /dev/null; then
     echo ""

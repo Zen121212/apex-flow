@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Icon } from '../../../components/atoms/Icon/Icon';
 // import Button from '../../../components/atoms/Button/Button';
-import SmartSearch from '../components/SmartSearch';
 import ChatInterface from '../components/ChatInterface';
 import DocumentAnalysis from '../components/DocumentAnalysis';
 import InsightsSummary from '../components/InsightsSummary';
@@ -15,6 +14,10 @@ import type {
   DocumentReference,
   InsightCard 
 } from '../types/index';
+import { aiDocumentSearch } from '../../../services/aiDocumentSearch';
+
+// Debug: Test if AI search service is available
+console.log('🤖 AI Document Search service loaded:', aiDocumentSearch);
 import styles from './AIAssistant.module.css';
 
 // Mock data moved outside component to avoid useEffect dependency issues
@@ -56,7 +59,7 @@ const mockInsights: InsightCard[] = [
 
 const AIAssistant: React.FC = () => {
   const [state, setState] = useState<AIAssistantState>({
-    activeTab: 'search',
+    activeTab: 'chat',
     searchQueries: [],
     chatSessions: [],
     activeAnalyses: [],
@@ -106,16 +109,29 @@ const AIAssistant: React.FC = () => {
     setState(prev => ({ ...prev, activeTab: tab }));
   };
 
-  const handleSearch = (query: string) => {
+  const handleSearch = async (query: string) => {
     setState(prev => ({ ...prev, isLoading: true }));
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Use AI document search service
+      const searchResults = await aiDocumentSearch.search(query);
+      
+      // Convert AI search results to DocumentResult format
+      const documentResults: DocumentResult[] = searchResults.map(result => ({
+        id: result.id,
+        title: result.title,
+        excerpt: result.excerpt,
+        relevanceScore: result.relevanceScore,
+        documentType: result.documentType,
+        lastModified: result.lastModified,
+        tags: result.tags
+      }));
+      
       const newQuery: SearchQuery = {
         id: Date.now().toString(),
         query,
         timestamp: new Date(),
-        results: mockSearchResults,
+        results: documentResults,
         status: 'completed'
       };
       
@@ -124,10 +140,26 @@ const AIAssistant: React.FC = () => {
         searchQueries: [newQuery, ...prev.searchQueries],
         isLoading: false
       }));
-    }, 1500);
+    } catch (error) {
+      console.error('Search failed:', error);
+      
+      const failedQuery: SearchQuery = {
+        id: Date.now().toString(),
+        query,
+        timestamp: new Date(),
+        results: [],
+        status: 'error'
+      };
+      
+      setState(prev => ({
+        ...prev,
+        searchQueries: [failedQuery, ...prev.searchQueries],
+        isLoading: false
+      }));
+    }
   };
 
-  const handleSendMessage = (message: string) => {
+  const handleSendMessage = async (message: string) => {
     // Create or update current chat session
     const currentSession = state.chatSessions[0] || {
       id: Date.now().toString(),
@@ -156,16 +188,67 @@ const AIAssistant: React.FC = () => {
       isLoading: true
     }));
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      console.log('🔍 Starting AI document search for:', message);
+      
+      // Use AI document search to find relevant documents
+      const searchResults = await aiDocumentSearch.search(message);
+      console.log('📊 Search results:', searchResults);
+      
+      let responseContent: string;
+      let sources: DocumentReference[] = [];
+      
+      if (searchResults.length > 0) {
+        console.log('✅ Found results, processing...');
+        const topResult = searchResults[0];
+        
+        // Generate response based on search results and query analysis
+        const queryAnalysis = topResult.queryAnalysis;
+        
+        if (message.toLowerCase().includes('highest') && (message.toLowerCase().includes('price') || message.toLowerCase().includes('amount'))) {
+          responseContent = `I found the highest priced document: "${topResult.title}". ${topResult.excerpt}`;
+        } else if (message.toLowerCase().includes('lowest') && (message.toLowerCase().includes('price') || message.toLowerCase().includes('amount'))) {
+          responseContent = `I found the lowest priced document: "${topResult.title}". ${topResult.excerpt}`;
+        } else if (queryAnalysis?.intent === 'count' || message.toLowerCase().includes('what') && (message.toLowerCase().includes('do i have') || message.toLowerCase().includes('are there'))) {
+          // Handle count/list queries like "what invoices do I have"
+          const documentType = queryAnalysis?.entityType || 'document';
+          const pluralType = documentType === 'invoice' ? 'invoices' : `${documentType}s`;
+          
+          responseContent = `You have ${searchResults.length} ${pluralType} downloaded:\n\n`;
+          
+          searchResults.forEach((result, index) => {
+            responseContent += `${index + 1}. **${result.title}**\n`;
+            if (result.excerpt && !result.excerpt.startsWith('Document type:')) {
+              // Show key info like amount if available
+              const amountMatch = result.excerpt.match(/Amount: ([^.]+)/i);
+              if (amountMatch) {
+                responseContent += `   Amount: ${amountMatch[1]}\n`;
+              }
+            }
+            responseContent += `   Uploaded: ${result.lastModified.toDateString()}\n\n`;
+          });
+          
+          responseContent += `\nYou can ask me specific questions about these ${pluralType}, like finding the highest amount or searching for specific content.`;
+        } else {
+          responseContent = `I found ${searchResults.length} relevant document${searchResults.length > 1 ? 's' : ''}. The most relevant is "${topResult.title}": ${topResult.excerpt}`;
+        }
+        
+        // Add sources from search results
+        sources = searchResults.slice(0, 3).map(result => ({
+          id: result.id,
+          title: result.title
+        }));
+      } else {
+        console.log('❌ No results found');
+        responseContent = `I couldn't find any documents matching your query "${message}". Try uploading some documents first or rephrasing your question.`;
+      }
+      
       const aiMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         type: 'assistant',
-        content: `Based on your documents, I can see that ${message.toLowerCase().includes('revenue') ? 'revenue has shown strong growth in Q2 2024 with a 23% increase compared to the previous quarter' : 'the information you\'re looking for can be found in your uploaded documents'}. Would you like me to analyze specific aspects in more detail?`,
+        content: responseContent,
         timestamp: new Date(),
-        sources: message.toLowerCase().includes('revenue') ? [
-          { id: '1', title: 'Q2 2024 Financial Report.pdf', pageNumber: 3 }
-        ] : undefined
+        sources: sources.length > 0 ? sources : undefined
       };
 
       const finalSession = {
@@ -179,7 +262,30 @@ const AIAssistant: React.FC = () => {
         chatSessions: [finalSession, ...prev.chatSessions.slice(1)],
         isLoading: false
       }));
-    }, 2000);
+    } catch (error) {
+      console.error('❌ Chat search failed:', error);
+      console.error('Error details:', error.message);
+      console.error('Stack trace:', error.stack);
+      
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        type: 'assistant',
+        content: `I encountered an error while searching your documents: ${error.message}. Please check the browser console for details.`,
+        timestamp: new Date()
+      };
+
+      const finalSession = {
+        ...updatedSession,
+        messages: [...updatedSession.messages, errorMessage],
+        lastActivity: new Date()
+      };
+
+      setState(prev => ({
+        ...prev,
+        chatSessions: [finalSession, ...prev.chatSessions.slice(1)],
+        isLoading: false
+      }));
+    }
   };
 
   const handleNewChatSession = () => {
@@ -265,7 +371,6 @@ const AIAssistant: React.FC = () => {
 
   const getTabIcon = (tab: AIAssistantState['activeTab']) => {
     switch (tab) {
-      case 'search': return 'search';
       case 'chat': return 'message-square';
       case 'analysis': return 'files';
       case 'insights': return 'brain';
@@ -300,7 +405,7 @@ const AIAssistant: React.FC = () => {
       </div>
 
       <div className={styles.tabNavigation}>
-        {(['search', 'chat', 'analysis', 'insights'] as const).map((tab) => (
+        {(['chat', 'analysis', 'insights'] as const).map((tab) => (
           <button
             key={tab}
             className={`${styles.tabButton} ${state.activeTab === tab ? styles.active : ''}`}
@@ -308,7 +413,6 @@ const AIAssistant: React.FC = () => {
           >
             <Icon name={getTabIcon(tab)} />
             <span>
-              {tab === 'search' && 'Smart Search'}
               {tab === 'chat' && 'Document Chat'}
               {tab === 'analysis' && 'Cross-Document Analysis'}
               {tab === 'insights' && 'Insights & Summaries'}
@@ -318,15 +422,6 @@ const AIAssistant: React.FC = () => {
       </div>
 
       <div className={styles.tabContent}>
-        {state.activeTab === 'search' && (
-          <SmartSearch
-            onSearch={handleSearch}
-            recentSearches={state.searchQueries}
-            searchResults={state.searchQueries[0]?.results || []}
-            isLoading={state.isLoading}
-          />
-        )}
-
         {state.activeTab === 'chat' && (
           <ChatInterface
             currentSession={state.chatSessions[0]}

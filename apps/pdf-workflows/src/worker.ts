@@ -6,7 +6,7 @@ import { processDocument } from './processor';
 import { vectorStorage } from './vector-storage';
 
 const connection = new IORedis(process.env.REDIS_URL || 'redis://localhost:6379', {
-  maxRetriesPerRequest: 3,
+  maxRetriesPerRequest: null,
 });
 
 const ingestQueue = new Queue('ingest', { connection });

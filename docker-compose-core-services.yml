@@ -1,0 +1,118 @@
+version: '3.8'
+
+services:
+  # Core Infrastructure Services (Required for local API Gateway)
+  mongo:
+    image: mongo:7
+    container_name: apexflow-mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: apexflow
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+    networks:
+      - apexflow
+
+  redis:
+    image: redis:7
+    container_name: apexflow-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - apexflow
+
+  minio:
+    image: minio/minio:latest
+    container_name: apexflow-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    restart: unless-stopped
+    networks:
+      - apexflow
+
+  # N8N Workflow Automation
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: apexflow-n8n
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - N8N_USER_MANAGEMENT_DISABLED=true
+      - N8N_EDITOR_BASE_URL=http://localhost:5678
+      - WEBHOOK_URL=http://localhost:5678/
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - N8N_RUNNERS_ENABLED=true
+    volumes:
+      - n8n_data:/home/node/.n8n
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    networks:
+      - apexflow
+    labels:
+      - "com.apexflow.service=n8n"
+      - "com.apexflow.version=2.0.0"
+      - "com.apexflow.features=workflow-automation"
+
+  # Enhanced Visual AI Service
+  visual-ai-service:
+    build:
+      context: ./services/visual-ai
+      dockerfile: Dockerfile
+    image: apexflow-visual-ai:latest
+    container_name: apexflow-visual-ai
+    ports:
+      - "8001:8000"
+    volumes:
+      - visual_ai_models:/app/models
+      - visual_ai_data:/app/data
+      - visual_ai_logs:/app/logs
+      - cache_data:/app/cache
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MODEL_CACHE_DIR=/app/models
+      - DATA_DIR=/app/data
+      - TORCH_HOME=/app/models
+      - TRANSFORMERS_CACHE=/app/models
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 60s
+      timeout: 30s
+      retries: 3
+      start_period: 120s
+    networks:
+      - apexflow
+    labels:
+      - "com.apexflow.service=visual-ai"
+      - "com.apexflow.version=2.0.0"
+      - "com.apexflow.features=enhanced-layoutlm,improved-extraction,regex-patterns,confidence-scoring"
+
+networks:
+  apexflow:
+    driver: bridge
+
+volumes:
+  mongo_data:
+  redis_data:
+  minio_data:
+  n8n_data:
+  visual_ai_models:
+  visual_ai_data:
+  visual_ai_logs:
+  cache_data:

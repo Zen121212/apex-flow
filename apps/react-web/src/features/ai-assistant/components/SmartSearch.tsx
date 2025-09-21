@@ -34,8 +34,11 @@ const SmartSearch: React.FC<SmartSearchProps> = ({
   return (
     <div className={styles.smartSearch}>
       <div className={styles.searchHeader}>
-        <h3>Smart Document Search</h3>
-        <p>Ask questions in natural language to find relevant documents</p>
+        <h3>AI-Powered Document Search</h3>
+        <p>Ask questions in natural language to find documents with intelligent understanding</p>
+        <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.5rem' }}>
+          Try: "highest price invoice", "recent contracts", "invoices from this month", "cheapest purchase"
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className={styles.searchForm}>
@@ -45,7 +48,7 @@ const SmartSearch: React.FC<SmartSearchProps> = ({
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Ask about your documents... (e.g., 'Find all invoices from Q2 2024')"
+            placeholder="Ask about your documents... (e.g., 'What is the highest price invoice I gave?')"
             className={styles.searchInput}
             disabled={isLoading}
           />

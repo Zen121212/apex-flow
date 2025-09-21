@@ -38,14 +38,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Try to get user profile from server (which will use the HTTP-only cookie)
       const response = await authAPI.getProfile();
       setUser(response.user as User);
-      console.log('User profile loaded successfully');
-    } catch (error) {
-      // No valid session, user not logged in
-      console.log('No valid session found:', error);
+      console.log('✅ User session restored:', response.user.email);
+    } catch (error: any) {
+      console.error('❌ Auth profile request failed:');
+      console.error('Error details:', error);
+      console.error('Error message:', error.message);
+      console.error('Error status:', error.status);
       
-      // In development, check if we should mock a user for easier testing
+      // Only use mock auth if explicitly enabled (not automatically)
       const isDev = import.meta.env.DEV;
       const mockAuth = localStorage.getItem('mock-auth');
+      
+      console.log('🔍 Development mode:', isDev);
+      console.log('🔍 Mock auth setting:', mockAuth);
       
       if (isDev && mockAuth === 'true') {
         const mockUser: User = {
@@ -56,11 +61,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           role: 'Administrator'
         };
         setUser(mockUser);
-        console.log('Using mock user for development');
+        console.log('🔧 Using mock user for development (manually enabled)');
       } else {
+        console.log('🙅‍♂️ No mock auth - setting user to null');
         setUser(null);
       }
     } finally {
+      console.log('🏁 Auth loading complete. User:', user?.email || 'null');
       setLoading(false);
     }
   };

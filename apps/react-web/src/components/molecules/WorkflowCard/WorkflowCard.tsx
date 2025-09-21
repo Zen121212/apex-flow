@@ -99,14 +99,14 @@ export const WorkflowCard: React.FC<WorkflowCardProps> = ({
           {onToggleStatus && (
             <Button 
               size="small" 
-              variant={status === 'active' ? 'warning' : 'success'}
+              variant="primary"
               onClick={() => onToggleStatus(id)}
             >
               {status === 'active' ? 'Pause' : 'Resume'}
             </Button>
           )}
           {onEdit && (
-            <Button size="small" variant="secondary" onClick={() => onEdit(id)}>
+            <Button size="small" variant="primary" onClick={() => onEdit(id)}>
               Edit
             </Button>
           )}
@@ -172,21 +172,21 @@ export const WorkflowCard: React.FC<WorkflowCardProps> = ({
 
       <div className={styles.workflowActions}>
         {onEdit && (
-          <Button size="small" variant="secondary" onClick={() => onEdit(id)}>
+          <Button size="small" variant="primary" onClick={() => onEdit(id)}>
             Edit
           </Button>
         )}
         {onToggleStatus && (
           <Button 
             size="small" 
-            variant={status === 'active' ? 'warning' : 'success'}
+            variant="primary"
             onClick={() => onToggleStatus(id)}
           >
             {status === 'active' ? 'Deactivate' : 'Activate'}
           </Button>
         )}
         {onDelete && (
-          <Button size="small" variant="danger" onClick={() => onDelete(id)}>
+          <Button size="small" variant="primary" onClick={() => onDelete(id)}>
             Delete
           </Button>
         )}

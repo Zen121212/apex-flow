@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export interface RegisterRequest {
   email: string;
@@ -54,27 +54,27 @@ class AuthAPI {
   }
 
   async register(data: RegisterRequest): Promise<AuthResponse> {
-    return this.request<AuthResponse>('/auth/register', {
+    return this.request<AuthResponse>('/api/auth/register', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async login(data: LoginRequest): Promise<AuthResponse> {
-    return this.request<AuthResponse>('/auth/login', {
+    return this.request<AuthResponse>('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async logout(): Promise<void> {
-    await this.request<void>('/auth/logout', {
+    await this.request<void>('/api/auth/logout', {
       method: 'POST',
     });
   }
 
   async getProfile(): Promise<ProfileResponse> {
-    return this.request<ProfileResponse>('/auth/profile');
+    return this.request<ProfileResponse>('/api/auth/profile');
   }
 }
 

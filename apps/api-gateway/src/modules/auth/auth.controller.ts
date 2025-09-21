@@ -1,11 +1,17 @@
 import { Controller, Post, Body, HttpCode, HttpStatus, ValidationPipe, Get, UseGuards, Request, Response } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { AuthResponseService } from './services/auth-response.service';
 import { RegisterDto, LoginDto } from './dto/auth.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { UserSessionService } from '../../common/services/user-session.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly authResponseService: AuthResponseService,
+    private readonly userSessionService: UserSessionService,
+  ) {}
 
   @Post('register')
   async register(
@@ -13,20 +19,7 @@ export class AuthController {
     @Response() res
   ) {
     const result = await this.authService.register(registerDto);
-    
-    // Set HTTP-only cookie
-    res.setCookie('auth-token', result.token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    });
-    
-    // Return user data without token
-    return res.send({
-      user: result.user,
-      success: true
-    });
+    this.authResponseService.handleRegistrationResponse(res, result);
   }
 
   @Post('login')
@@ -36,44 +29,19 @@ export class AuthController {
     @Response() res
   ) {
     const result = await this.authService.login(loginDto);
-    
-    // Set HTTP-only cookie
-    res.setCookie('auth-token', result.token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    });
-    
-    // Return user data without token
-    return res.send({
-      user: result.user,
-      success: true
-    });
+    this.authResponseService.handleLoginResponse(res, result);
   }
 
   @Get('profile')
   @UseGuards(JwtAuthGuard)
   async getProfile(@Request() req): Promise<any> {
-    return {
-      user: {
-        id: req.user.id,
-        email: req.user.email,
-        name: req.user.name,
-        provider: req.user.provider,
-      },
-    };
+    const userProfile = this.userSessionService.getUserProfile(req);
+    return { user: userProfile };
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   async logout(@Response() res) {
-    // Clear the auth cookie
-    res.clearCookie('auth-token');
-    
-    return res.send({
-      success: true,
-      message: 'Logged out successfully'
-    });
+    this.authResponseService.handleLogoutResponse(res);
   }
 }

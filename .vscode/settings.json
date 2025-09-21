@@ -1,0 +1,6 @@
+{
+  "console-ninja.featureSet": "Community",
+  "console-ninja.showUnsupportedVersionError": false,
+  "console-ninja.toolsToDisable": ["console-ninja"],
+  "extensions.autoCheckUpdates": false
+}

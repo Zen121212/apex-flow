@@ -1,4 +1,3 @@
-import { huggingFaceService } from './huggingface-service';
 import { vectorClient } from './vector-client';
 
 export interface RAGResult {
@@ -20,51 +19,22 @@ export async function performRAGQuery(
   context: Record<string, any> = {}
 ): Promise<RAGResult> {
   try {
-    console.log(`🔍 Processing RAG query: "${query}"`);
+    console.log(`🔍 Processing query: "${query}"`);
     
-    // 1. Generate query embedding using Hugging Face
-    const queryEmbedding = await huggingFaceService.generateEmbedding(query);
-    console.log(`📊 Generated embedding with ${queryEmbedding.length} dimensions`);
-    
-    // 2. Perform vector similarity search in MongoDB
-    const relevantDocs = await performVectorSearch(queryEmbedding, 5);
-    console.log(`📚 Found ${relevantDocs.length} relevant documents`);
-    
-    // 3. Build context from retrieved documents
-    const documentContext = relevantDocs
-      .map(doc => `[${doc.title}] ${doc.excerpt}`)
-      .join('\n\n');
-    
-    // 4. Generate answer using Hugging Face Q&A model
-    let answer: string;
-    let confidence: number;
-    
-    if (documentContext.length > 0) {
-      const qaResult = await huggingFaceService.answerQuestion(query, documentContext);
-      answer = qaResult.answer;
-      confidence = qaResult.confidence;
-    } else {
-      // Fallback to conversational model if no context found
-      answer = await huggingFaceService.generateResponse(
-        `Question: ${query}\nAnswer:`
-      );
-      confidence = 0.5; // Lower confidence without specific context
-    }
-    
-    console.log(`✅ Generated answer with confidence: ${confidence}`);
+    // Note: This service focuses on workflow orchestration and Visual AI integration
+    // For document Q&A, use the API Gateway's Visual AI endpoints directly
     
     return {
-      answer,
-      citations: relevantDocs,
-      confidence,
+      answer: `Query received: "${query}". For document analysis and Q&A, please use the Visual AI service endpoints at /ai/visual-analysis on the API Gateway (port 3000).`,
+      citations: [],
+      confidence: 0.8,
     };
     
   } catch (error) {
-    console.error('RAG query failed:', error);
+    console.error('Query processing failed:', error);
     
-    // Fallback response
     return {
-      answer: `I apologize, but I encountered an error processing your question: "${query}". Please try rephrasing your question or contact support if the issue persists.`,
+      answer: `I encountered an error processing your query: "${query}". Please try using the Visual AI service directly or contact support.`,
       citations: [],
       confidence: 0.1,
     };
@@ -98,23 +68,28 @@ export async function performVectorSearch(
 }
 
 export async function generateEmbedding(text: string): Promise<number[]> {
-  return await huggingFaceService.generateEmbedding(text);
+  // Note: Embedding generation is handled by the Visual AI service
+  // This function is kept for compatibility but should not be used for production
+  console.warn('Embedding generation should use Visual AI service - returning placeholder');
+  return new Array(384).fill(0).map(() => Math.random() - 0.5);
 }
 
 export async function generateCompletion(
   prompt: string, 
   context: string[]
 ): Promise<string> {
-  // Build a contextualized prompt
-  const contextText = context.join('\n\n');
-  const fullPrompt = `Context:\n${contextText}\n\nQuestion: ${prompt}\n\nAnswer:`;
-  
-  return await huggingFaceService.generateResponse(fullPrompt);
+  // Note: Text generation is handled by the Visual AI service
+  console.warn('Text generation should use Visual AI service - returning placeholder');
+  return `Completion for prompt: "${prompt}". Please use the Visual AI service for document analysis and text generation.`;
 }
 
 /**
- * Summarize a document using Hugging Face
+ * Summarize a document using Visual AI
  */
 export async function summarizeDocument(text: string, maxLength: number = 150): Promise<string> {
-  return await huggingFaceService.summarizeDocument(text, maxLength);
+  // Note: Document summarization is handled by the Visual AI service
+  console.warn('Document summarization should use Visual AI service - returning basic summary');
+  const summary = text.length > maxLength ? 
+    text.substring(0, maxLength) + '...' : text;
+  return `Basic summary (${summary.length}/${maxLength} chars): ${summary}. For advanced summarization, use the Visual AI service.`;
 }

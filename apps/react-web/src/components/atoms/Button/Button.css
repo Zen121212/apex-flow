@@ -41,7 +41,7 @@
 
 .btn-secondary:hover {
   background: var(--apex-main);
-  color: var(--color-white);
+  color: var(--text-primary);
   border-color: var(--apex-main);
 }
 

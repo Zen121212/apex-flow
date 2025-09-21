@@ -15,9 +15,18 @@ import type {
 interface BackendDocument {
   id: string;
   filename: string;
+  originalName: string;
   mimeType?: string;
   size?: number;
   uploadedAt: string;
+  uploadedBy: string;
+  workflowExecution?: {
+    workflowId: string;
+    status: string;
+    startedAt: string;
+    completedAt?: string;
+    steps?: any[];
+  };
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -46,12 +55,12 @@ class DocumentAPI {
   }
 
   async getWorkflowOptions(): Promise<WorkflowOptionsResponse> {
-    return this.request<WorkflowOptionsResponse>('/workflows/config/options');
+    return this.request<WorkflowOptionsResponse>('/api/workflows/config/options');
   }
 
   async uploadDocument(data: DocumentUploadRequest): Promise<DocumentUploadResponse> {
-    // Using simple-upload endpoint (authentication temporarily disabled for testing)
-    return this.request<DocumentUploadResponse>('/documents/simple-upload', {
+    // Using simple-upload endpoint with authentication enabled
+    return this.request<DocumentUploadResponse>('/api/documents/simple-upload', {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -72,11 +81,27 @@ class DocumentAPI {
     if (options?.autoDetectWorkflow !== undefined) formData.append('autoDetectWorkflow', options.autoDetectWorkflow.toString());
     if (options?.workflowSelectionMode) formData.append('workflowSelectionMode', options.workflowSelectionMode);
 
-    return this.request<DocumentUploadResponse>('/documents/upload', {
+    return this.request<DocumentUploadResponse>('/api/documents/upload', {
       method: 'POST',
       body: formData,
       headers: {}, // Don't set Content-Type for FormData, let browser set it
     });
+  }
+
+  async getDocumentAnalysis(documentId: string): Promise<any> {
+    return this.request<any>(`/api/documents/${documentId}/analysis`);
+  }
+
+  async downloadDocument(documentId: string): Promise<Blob> {
+    const response = await fetch(`http://localhost:3000/api/documents/${documentId}/file`, {
+      method: 'GET',
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to download document');
+    }
+    
+    return response.blob();
   }
 
   async getDocuments(filters: DocumentListFilters = {}): Promise<DocumentListResponse> {
@@ -97,16 +122,16 @@ class DocumentAPI {
     // The controller now returns all documents for debugging, so we don't need userId filtering
 
     const query = params.toString() ? `?${params.toString()}` : '';
-    const response = await this.request<{ documents: BackendDocument[] }>(`/documents${query}`);
+    const response = await this.request<{ documents: BackendDocument[] }>(`/api/documents${query}`);
 
     // Transform backend response to match our frontend types
     const items = response.documents.map((doc: BackendDocument): DocumentItem => ({
       id: doc.id,
-      originalName: doc.filename, // Backend uses 'filename', frontend expects 'originalName'
+      originalName: doc.originalName, // Use the originalName field from backend
       mimeType: doc.mimeType,
       size: doc.size,
       category: null, // Not in current response
-      workflowId: null, // Not in current response
+      workflowId: doc.workflowExecution?.workflowId || null, // Extract from workflowExecution
       status: 'completed' as const, // Assume uploaded docs are completed for now
       createdAt: doc.uploadedAt,
       updatedAt: doc.uploadedAt,
@@ -119,6 +144,9 @@ class DocumentAPI {
       filteredItems = filteredItems.filter((item: DocumentItem) => 
         item.originalName.toLowerCase().includes(query)
       );
+    }
+    if (filters.workflowId) {
+      filteredItems = filteredItems.filter((item: DocumentItem) => item.workflowId === filters.workflowId);
     }
     if (filters.status && filters.status !== 'completed') {
       filteredItems = filteredItems.filter((item: DocumentItem) => item.status === filters.status);

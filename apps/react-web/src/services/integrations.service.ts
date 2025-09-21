@@ -46,11 +46,11 @@ class IntegrationsApiService {
   }
 
   async getAllIntegrations(): Promise<Integration[]> {
-    return this.request<Integration[]>('/integrations');
+    return this.request<Integration[]>('/api/integrations');
   }
 
   async getIntegration(id: string): Promise<Integration> {
-    return this.request<Integration>(`/integrations/${id}`);
+    return this.request<Integration>(`/api/integrations/${id}`);
   }
 
   async createIntegration(data: {
@@ -59,7 +59,7 @@ class IntegrationsApiService {
     description?: string;
     config: IntegrationConfig;
   }): Promise<Integration> {
-    return this.request<Integration>('/integrations', {
+    return this.request<Integration>('/api/integrations', {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -74,20 +74,20 @@ class IntegrationsApiService {
       enabled?: boolean;
     }
   ): Promise<Integration> {
-    return this.request<Integration>(`/integrations/${id}`, {
+    return this.request<Integration>(`/api/integrations/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     });
   }
 
   async deleteIntegration(id: string): Promise<void> {
-    await this.request<void>(`/integrations/${id}`, {
+    await this.request<void>(`/api/integrations/${id}`, {
       method: 'DELETE',
     });
   }
 
   async testIntegration(id: string): Promise<TestResult> {
-    const url = `${API_BASE_URL}/integrations/${id}/test`;
+    const url = `${API_BASE_URL}/api/integrations/${id}/test`;
     
     const config: RequestInit = {
       method: 'POST',
@@ -115,7 +115,7 @@ class IntegrationsApiService {
   }
 
   async toggleIntegration(id: string): Promise<Integration> {
-    const url = `${API_BASE_URL}/integrations/${id}/toggle`;
+    const url = `${API_BASE_URL}/api/integrations/${id}/toggle`;
     
     const config: RequestInit = {
       method: 'POST',
