@@ -5,6 +5,7 @@ This service manages workflow automation for ApexFlow using n8n, specifically ha
 ## 🚀 Quick Start
 
 1. **Start the service:**
+
    ```bash
    npm start
    # or
@@ -101,30 +102,37 @@ The service uses Docker Compose for easy deployment and management:
 The main workflow (`slack-approval-workflow.json`) includes:
 
 ### 1. Approval Request Webhook
+
 - **Endpoint**: `POST /webhook/approval`
 - **Purpose**: Receives approval requests from ApexFlow API
 
 ### 2. Message Formatting
+
 - **Purpose**: Formats approval data into Slack message blocks
 - **Features**: Interactive buttons, rich formatting, metadata display
 
 ### 3. Slack Message Posting
+
 - **Purpose**: Sends formatted message to Slack channel
 - **Channel**: Configurable (default: #approvals)
 
 ### 4. Button Action Webhook
+
 - **Endpoint**: `POST /webhook/approve`
 - **Purpose**: Handles Slack button clicks (approve/reject)
 
 ### 5. Decision Processing
+
 - **Purpose**: Parses button actions and extracts decision data
 - **Output**: Structured approval decision
 
 ### 6. API Callback
+
 - **Purpose**: Sends decision back to ApexFlow API
 - **Endpoint**: `POST /approvals/:id/decision`
 
 ### 7. Response Page
+
 - **Purpose**: Shows success/error page to user
 - **Format**: HTML page with confirmation
 
@@ -140,7 +148,7 @@ The main workflow (`slack-approval-workflow.json`) includes:
 1. **Message Posting**: Sends interactive approval messages
 2. **Button Handling**: Receives and processes button clicks
 
-## 🧪 Testing
+## Testing
 
 ### Test Approval Request
 

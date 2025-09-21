@@ -1,160 +1,165 @@
-import React, { useState, useEffect } from 'react';
-import { Icon } from '../../../components/atoms/Icon/Icon';
+import React, { useState, useEffect } from "react";
+import { Icon } from "../../../components/atoms/Icon/Icon";
 // import Button from '../../../components/atoms/Button/Button';
-import ChatInterface from '../components/ChatInterface';
-import DocumentAnalysis from '../components/DocumentAnalysis';
-import InsightsSummary from '../components/InsightsSummary';
-import type { 
-  AIAssistantState, 
-  SearchQuery, 
-  DocumentResult, 
-  ChatSession, 
-  ChatMessage, 
-  DocumentAnalysis as Analysis, 
+import ChatInterface from "../components/ChatInterface";
+import DocumentAnalysis from "../components/DocumentAnalysis";
+import InsightsSummary from "../components/InsightsSummary";
+import type {
+  AIAssistantState,
+  SearchQuery,
+  DocumentResult,
+  ChatSession,
+  ChatMessage,
+  DocumentAnalysis as Analysis,
   DocumentReference,
-  InsightCard 
-} from '../types/index';
-import { aiDocumentSearch } from '../../../services/aiDocumentSearch';
+  InsightCard,
+} from "../types/index";
+import { aiDocumentSearch } from "../../../services/aiDocumentSearch";
 
 // Debug: Test if AI search service is available
-console.log('🤖 AI Document Search service loaded:', aiDocumentSearch);
-import styles from './AIAssistant.module.css';
+console.log("🤖 AI Document Search service loaded:", aiDocumentSearch);
+import styles from "./AIAssistant.module.css";
 
 // Mock data moved outside component to avoid useEffect dependency issues
 const mockInsights: InsightCard[] = [
   {
-    id: '1',
-    type: 'trend',
-    title: 'Revenue Growth Acceleration',
-    description: 'Analysis shows a 23% increase in quarterly revenue with consistent month-over-month growth across all product lines.',
+    id: "1",
+    type: "trend",
+    title: "Revenue Growth Acceleration",
+    description:
+      "Analysis shows a 23% increase in quarterly revenue with consistent month-over-month growth across all product lines.",
     confidence: 0.92,
-    sourceDocuments: [{ id: '1', title: 'Q2 2024 Financial Report.pdf' }],
+    sourceDocuments: [{ id: "1", title: "Q2 2024 Financial Report.pdf" }],
     actionable: true,
-    timestamp: new Date()
+    timestamp: new Date(),
   },
   {
-    id: '2',
-    type: 'anomaly',
-    title: 'Unusual Expense Pattern',
-    description: 'Marketing expenses increased by 45% in June, significantly higher than historical patterns.',
+    id: "2",
+    type: "anomaly",
+    title: "Unusual Expense Pattern",
+    description:
+      "Marketing expenses increased by 45% in June, significantly higher than historical patterns.",
     confidence: 0.78,
-    sourceDocuments: [{ id: '1', title: 'Q2 2024 Financial Report.pdf' }],
+    sourceDocuments: [{ id: "1", title: "Q2 2024 Financial Report.pdf" }],
     actionable: true,
-    timestamp: new Date()
+    timestamp: new Date(),
   },
   {
-    id: '3',
-    type: 'recommendation',
-    title: 'Contract Renewal Optimization',
-    description: 'Consider renegotiating vendor contracts expiring in Q4 to leverage improved market position.',
+    id: "3",
+    type: "recommendation",
+    title: "Contract Renewal Optimization",
+    description:
+      "Consider renegotiating vendor contracts expiring in Q4 to leverage improved market position.",
     confidence: 0.85,
     sourceDocuments: [
-      { id: '2', title: 'Vendor Contract - TechCorp.pdf' },
-      { id: '1', title: 'Q2 2024 Financial Report.pdf' }
+      { id: "2", title: "Vendor Contract - TechCorp.pdf" },
+      { id: "1", title: "Q2 2024 Financial Report.pdf" },
     ],
     actionable: true,
-    timestamp: new Date()
-  }
+    timestamp: new Date(),
+  },
 ];
 
 const AIAssistant: React.FC = () => {
   const [state, setState] = useState<AIAssistantState>({
-    activeTab: 'chat',
+    activeTab: "chat",
     searchQueries: [],
     chatSessions: [],
     activeAnalyses: [],
     insights: [],
-    isLoading: false
+    isLoading: false,
   });
 
   // Mock data for demonstration
   const mockDocuments: DocumentReference[] = [
-    { id: '1', title: 'Q2 2024 Financial Report.pdf' },
-    { id: '2', title: 'Employee Handbook 2024.docx' },
-    { id: '3', title: 'Vendor Contract - TechCorp.pdf' },
-    { id: '4', title: 'Marketing Strategy Presentation.pptx' },
-    { id: '5', title: 'Legal Compliance Checklist.pdf' }
+    { id: "1", title: "Q2 2024 Financial Report.pdf" },
+    { id: "2", title: "Employee Handbook 2024.docx" },
+    { id: "3", title: "Vendor Contract - TechCorp.pdf" },
+    { id: "4", title: "Marketing Strategy Presentation.pptx" },
+    { id: "5", title: "Legal Compliance Checklist.pdf" },
   ];
 
   const mockSearchResults: DocumentResult[] = [
     {
-      id: '1',
-      title: 'Q2 2024 Financial Report',
-      excerpt: 'Revenue increased by 23% compared to Q1 2024, with significant growth in subscription services...',
+      id: "1",
+      title: "Q2 2024 Financial Report",
+      excerpt:
+        "Revenue increased by 23% compared to Q1 2024, with significant growth in subscription services...",
       relevanceScore: 0.95,
-      documentType: 'PDF',
-      lastModified: new Date('2024-07-15'),
-      tags: ['financial', 'quarterly', 'revenue']
+      documentType: "PDF",
+      lastModified: new Date("2024-07-15"),
+      tags: ["financial", "quarterly", "revenue"],
     },
     {
-      id: '2',
-      title: 'Vendor Contract - TechCorp',
-      excerpt: 'Service level agreement stipulates 99.9% uptime with penalties for non-compliance...',
+      id: "2",
+      title: "Vendor Contract - TechCorp",
+      excerpt:
+        "Service level agreement stipulates 99.9% uptime with penalties for non-compliance...",
       relevanceScore: 0.87,
-      documentType: 'PDF',
-      lastModified: new Date('2024-06-10'),
-      tags: ['contract', 'vendor', 'sla']
-    }
+      documentType: "PDF",
+      lastModified: new Date("2024-06-10"),
+      tags: ["contract", "vendor", "sla"],
+    },
   ];
 
   useEffect(() => {
     // Initialize with mock data
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      insights: mockInsights
+      insights: mockInsights,
     }));
   }, []);
 
-  const handleTabChange = (tab: AIAssistantState['activeTab']) => {
-    setState(prev => ({ ...prev, activeTab: tab }));
+  const handleTabChange = (tab: AIAssistantState["activeTab"]) => {
+    setState((prev) => ({ ...prev, activeTab: tab }));
   };
 
   const handleSearch = async (query: string) => {
-    setState(prev => ({ ...prev, isLoading: true }));
-    
+    setState((prev) => ({ ...prev, isLoading: true }));
+
     try {
       // Use AI document search service
       const searchResults = await aiDocumentSearch.search(query);
-      
+
       // Convert AI search results to DocumentResult format
-      const documentResults: DocumentResult[] = searchResults.map(result => ({
+      const documentResults: DocumentResult[] = searchResults.map((result) => ({
         id: result.id,
         title: result.title,
         excerpt: result.excerpt,
         relevanceScore: result.relevanceScore,
         documentType: result.documentType,
         lastModified: result.lastModified,
-        tags: result.tags
+        tags: result.tags,
       }));
-      
+
       const newQuery: SearchQuery = {
         id: Date.now().toString(),
         query,
         timestamp: new Date(),
         results: documentResults,
-        status: 'completed'
+        status: "completed",
       };
-      
-      setState(prev => ({
+
+      setState((prev) => ({
         ...prev,
         searchQueries: [newQuery, ...prev.searchQueries],
-        isLoading: false
+        isLoading: false,
       }));
     } catch (error) {
-      console.error('Search failed:', error);
-      
+      console.error("Search failed:", error);
+
       const failedQuery: SearchQuery = {
         id: Date.now().toString(),
         query,
         timestamp: new Date(),
         results: [],
-        status: 'error'
+        status: "error",
       };
-      
-      setState(prev => ({
+
+      setState((prev) => ({
         ...prev,
         searchQueries: [failedQuery, ...prev.searchQueries],
-        isLoading: false
+        isLoading: false,
       }));
     }
   };
@@ -163,62 +168,79 @@ const AIAssistant: React.FC = () => {
     // Create or update current chat session
     const currentSession = state.chatSessions[0] || {
       id: Date.now().toString(),
-      title: 'Document Chat',
+      title: "Document Chat",
       messages: [],
       createdAt: new Date(),
-      lastActivity: new Date()
+      lastActivity: new Date(),
     };
 
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
-      type: 'user',
+      type: "user",
       content: message,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
     const updatedSession = {
       ...currentSession,
       messages: [...currentSession.messages, userMessage],
-      lastActivity: new Date()
+      lastActivity: new Date(),
     };
 
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       chatSessions: [updatedSession, ...prev.chatSessions.slice(1)],
-      isLoading: true
+      isLoading: true,
     }));
 
     try {
-      console.log('🔍 Starting AI document search for:', message);
-      
+      console.log("🔍 Starting AI document search for:", message);
+
       // Use AI document search to find relevant documents
       const searchResults = await aiDocumentSearch.search(message);
-      console.log('📊 Search results:', searchResults);
-      
+      console.log("📊 Search results:", searchResults);
+
       let responseContent: string;
       let sources: DocumentReference[] = [];
-      
+
       if (searchResults.length > 0) {
-        console.log('✅ Found results, processing...');
+        console.log("Found results, processing...");
         const topResult = searchResults[0];
-        
+
         // Generate response based on search results and query analysis
         const queryAnalysis = topResult.queryAnalysis;
-        
-        if (message.toLowerCase().includes('highest') && (message.toLowerCase().includes('price') || message.toLowerCase().includes('amount'))) {
+
+        if (
+          message.toLowerCase().includes("highest") &&
+          (message.toLowerCase().includes("price") ||
+            message.toLowerCase().includes("amount"))
+        ) {
           responseContent = `I found the highest priced document: "${topResult.title}". ${topResult.excerpt}`;
-        } else if (message.toLowerCase().includes('lowest') && (message.toLowerCase().includes('price') || message.toLowerCase().includes('amount'))) {
+        } else if (
+          message.toLowerCase().includes("lowest") &&
+          (message.toLowerCase().includes("price") ||
+            message.toLowerCase().includes("amount"))
+        ) {
           responseContent = `I found the lowest priced document: "${topResult.title}". ${topResult.excerpt}`;
-        } else if (queryAnalysis?.intent === 'count' || message.toLowerCase().includes('what') && (message.toLowerCase().includes('do i have') || message.toLowerCase().includes('are there'))) {
+        } else if (
+          queryAnalysis?.intent === "count" ||
+          (message.toLowerCase().includes("what") &&
+            (message.toLowerCase().includes("do i have") ||
+              message.toLowerCase().includes("are there")))
+        ) {
           // Handle count/list queries like "what invoices do I have"
-          const documentType = queryAnalysis?.entityType || 'document';
-          const pluralType = documentType === 'invoice' ? 'invoices' : `${documentType}s`;
-          
+          const documentType = queryAnalysis?.entityType || "document";
+          const pluralType =
+            documentType === "invoice" ? "invoices" : `${documentType}s`;
+
           responseContent = `You have ${searchResults.length} ${pluralType} downloaded:\n\n`;
-          
+
           searchResults.forEach((result, index) => {
             responseContent += `${index + 1}. **${result.title}**\n`;
-            if (result.excerpt && !result.excerpt.startsWith('Document type:')) {
+            if (
+              result.excerpt &&
+              !result.excerpt.startsWith("Document type:")
+            ) {
               // Show key info like amount if available
               const amountMatch = result.excerpt.match(/Amount: ([^.]+)/i);
               if (amountMatch) {
@@ -227,63 +249,63 @@ const AIAssistant: React.FC = () => {
             }
             responseContent += `   Uploaded: ${result.lastModified.toDateString()}\n\n`;
           });
-          
+
           responseContent += `\nYou can ask me specific questions about these ${pluralType}, like finding the highest amount or searching for specific content.`;
         } else {
-          responseContent = `I found ${searchResults.length} relevant document${searchResults.length > 1 ? 's' : ''}. The most relevant is "${topResult.title}": ${topResult.excerpt}`;
+          responseContent = `I found ${searchResults.length} relevant document${searchResults.length > 1 ? "s" : ""}. The most relevant is "${topResult.title}": ${topResult.excerpt}`;
         }
-        
+
         // Add sources from search results
-        sources = searchResults.slice(0, 3).map(result => ({
+        sources = searchResults.slice(0, 3).map((result) => ({
           id: result.id,
-          title: result.title
+          title: result.title,
         }));
       } else {
-        console.log('❌ No results found');
+        console.log("No results found");
         responseContent = `I couldn't find any documents matching your query "${message}". Try uploading some documents first or rephrasing your question.`;
       }
-      
+
       const aiMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        type: 'assistant',
+        type: "assistant",
         content: responseContent,
         timestamp: new Date(),
-        sources: sources.length > 0 ? sources : undefined
+        sources: sources.length > 0 ? sources : undefined,
       };
 
       const finalSession = {
         ...updatedSession,
         messages: [...updatedSession.messages, aiMessage],
-        lastActivity: new Date()
+        lastActivity: new Date(),
       };
 
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         chatSessions: [finalSession, ...prev.chatSessions.slice(1)],
-        isLoading: false
+        isLoading: false,
       }));
     } catch (error) {
-      console.error('❌ Chat search failed:', error);
-      console.error('Error details:', error.message);
-      console.error('Stack trace:', error.stack);
-      
+      console.error("Chat search failed:", error);
+      console.error("Error details:", error.message);
+      console.error("Stack trace:", error.stack);
+
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        type: 'assistant',
+        type: "assistant",
         content: `I encountered an error while searching your documents: ${error.message}. Please check the browser console for details.`,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
 
       const finalSession = {
         ...updatedSession,
         messages: [...updatedSession.messages, errorMessage],
-        lastActivity: new Date()
+        lastActivity: new Date(),
       };
 
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         chatSessions: [finalSession, ...prev.chatSessions.slice(1)],
-        isLoading: false
+        isLoading: false,
       }));
     }
   };
@@ -291,90 +313,97 @@ const AIAssistant: React.FC = () => {
   const handleNewChatSession = () => {
     const newSession: ChatSession = {
       id: Date.now().toString(),
-      title: 'New Chat',
+      title: "New Chat",
       messages: [],
       createdAt: new Date(),
-      lastActivity: new Date()
+      lastActivity: new Date(),
     };
-    
-    setState(prev => ({
+
+    setState((prev) => ({
       ...prev,
-      chatSessions: [newSession, ...prev.chatSessions]
+      chatSessions: [newSession, ...prev.chatSessions],
     }));
   };
 
-  const handleStartAnalysis = (documentIds: string[], analysisType: Analysis['analysisType']) => {
+  const handleStartAnalysis = (
+    documentIds: string[],
+    analysisType: Analysis["analysisType"],
+  ) => {
     const newAnalysis: Analysis = {
       id: Date.now().toString(),
       documentIds,
       analysisType,
       title: `${analysisType.charAt(0).toUpperCase() + analysisType.slice(1)} Analysis`,
-      status: 'pending',
-      createdAt: new Date()
+      status: "pending",
+      createdAt: new Date(),
     };
 
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      activeAnalyses: [newAnalysis, ...prev.activeAnalyses]
+      activeAnalyses: [newAnalysis, ...prev.activeAnalyses],
     }));
 
     // Simulate analysis completion
     setTimeout(() => {
       const completedAnalysis: Analysis = {
         ...newAnalysis,
-        status: 'completed',
+        status: "completed",
         results: {
           summary: `Analysis of ${documentIds.length} documents completed successfully.`,
           keyFindings: [
-            'Significant cost savings identified across multiple contracts',
-            'Compliance requirements are consistently met',
-            'Revenue projections align with market trends'
-          ]
-        }
+            "Significant cost savings identified across multiple contracts",
+            "Compliance requirements are consistently met",
+            "Revenue projections align with market trends",
+          ],
+        },
       };
 
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        activeAnalyses: prev.activeAnalyses.map(analysis =>
-          analysis.id === completedAnalysis.id ? completedAnalysis : analysis
-        )
+        activeAnalyses: prev.activeAnalyses.map((analysis) =>
+          analysis.id === completedAnalysis.id ? completedAnalysis : analysis,
+        ),
       }));
     }, 3000);
   };
 
   const handleViewAnalysis = (analysisId: string) => {
-    console.log('Viewing analysis:', analysisId);
+    console.log("Viewing analysis:", analysisId);
   };
 
   const handleRefreshInsights = () => {
-    setState(prev => ({ ...prev, isLoading: true }));
-    
+    setState((prev) => ({ ...prev, isLoading: true }));
+
     setTimeout(() => {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         insights: mockInsights,
-        isLoading: false
+        isLoading: false,
       }));
     }, 1000);
   };
 
   const handleViewInsightDetails = (insightId: string) => {
-    console.log('Viewing insight details:', insightId);
+    console.log("Viewing insight details:", insightId);
   };
 
   const handleDismissInsight = (insightId: string) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      insights: prev.insights.filter(insight => insight.id !== insightId)
+      insights: prev.insights.filter((insight) => insight.id !== insightId),
     }));
   };
 
-  const getTabIcon = (tab: AIAssistantState['activeTab']) => {
+  const getTabIcon = (tab: AIAssistantState["activeTab"]) => {
     switch (tab) {
-      case 'chat': return 'message-square';
-      case 'analysis': return 'files';
-      case 'insights': return 'brain';
-      default: return 'help-circle';
+      case "chat":
+        return "message-square";
+      case "analysis":
+        return "files";
+      case "insights":
+        return "brain";
+      default:
+        return "help-circle";
     }
   };
 
@@ -390,11 +419,15 @@ const AIAssistant: React.FC = () => {
         </div>
         <div className={styles.headerStats}>
           <div className={styles.stat}>
-            <span className={styles.statValue}>{state.searchQueries.length}</span>
+            <span className={styles.statValue}>
+              {state.searchQueries.length}
+            </span>
             <span className={styles.statLabel}>Searches</span>
           </div>
           <div className={styles.stat}>
-            <span className={styles.statValue}>{state.chatSessions.length}</span>
+            <span className={styles.statValue}>
+              {state.chatSessions.length}
+            </span>
             <span className={styles.statLabel}>Chats</span>
           </div>
           <div className={styles.stat}>
@@ -405,24 +438,24 @@ const AIAssistant: React.FC = () => {
       </div>
 
       <div className={styles.tabNavigation}>
-        {(['chat', 'analysis', 'insights'] as const).map((tab) => (
+        {(["chat", "analysis", "insights"] as const).map((tab) => (
           <button
             key={tab}
-            className={`${styles.tabButton} ${state.activeTab === tab ? styles.active : ''}`}
+            className={`${styles.tabButton} ${state.activeTab === tab ? styles.active : ""}`}
             onClick={() => handleTabChange(tab)}
           >
             <Icon name={getTabIcon(tab)} />
             <span>
-              {tab === 'chat' && 'Document Chat'}
-              {tab === 'analysis' && 'Cross-Document Analysis'}
-              {tab === 'insights' && 'Insights & Summaries'}
+              {tab === "chat" && "Document Chat"}
+              {tab === "analysis" && "Cross-Document Analysis"}
+              {tab === "insights" && "Insights & Summaries"}
             </span>
           </button>
         ))}
       </div>
 
       <div className={styles.tabContent}>
-        {state.activeTab === 'chat' && (
+        {state.activeTab === "chat" && (
           <ChatInterface
             currentSession={state.chatSessions[0]}
             onSendMessage={handleSendMessage}
@@ -431,7 +464,7 @@ const AIAssistant: React.FC = () => {
           />
         )}
 
-        {state.activeTab === 'analysis' && (
+        {state.activeTab === "analysis" && (
           <DocumentAnalysis
             availableDocuments={mockDocuments}
             activeAnalyses={state.activeAnalyses}
@@ -440,7 +473,7 @@ const AIAssistant: React.FC = () => {
           />
         )}
 
-        {state.activeTab === 'insights' && (
+        {state.activeTab === "insights" && (
           <InsightsSummary
             insights={state.insights}
             onRefreshInsights={handleRefreshInsights}

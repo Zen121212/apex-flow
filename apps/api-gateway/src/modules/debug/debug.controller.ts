@@ -30,9 +30,7 @@ export class DebugController {
   }
 
   @Get("workflow-options")
-  // If you need this, forward to WorkflowSelectorService via DebugAnalysisService
   async getWorkflowOptions() {
-    // optionally expose through service if needed
     return { note: "Expose options via WorkflowSelectorService if desired." };
   }
 

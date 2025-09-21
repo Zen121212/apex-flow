@@ -29,10 +29,10 @@ check_service() {
     print_status $BLUE "🔍 Checking $service on port $port..."
     
     if curl -s "$url" > /dev/null 2>&1; then
-        print_status $GREEN "✅ $service is running"
+        print_status $GREEN "$service is running"
         return 0
     else
-        print_status $RED "❌ $service is not responding"
+        print_status $RED "$service is not responding"
         return 1
     fi
 }
@@ -40,10 +40,10 @@ check_service() {
 # Check if Docker is running
 print_status $BLUE "🐳 Checking Docker..."
 if ! docker info > /dev/null 2>&1; then
-    print_status $RED "❌ Docker is not running. Please start Docker Desktop first."
+    print_status $RED "Docker is not running. Please start Docker Desktop first."
     exit 1
 fi
-print_status $GREEN "✅ Docker is running"
+print_status $GREEN "Docker is running"
 
 # Start n8n Service
 print_status $BLUE "📦 Starting n8n Workflows Service..."
@@ -52,9 +52,9 @@ npm run start:docker > /dev/null 2>&1
 sleep 5
 
 if check_service "n8n" "5678" "http://localhost:5678/healthz"; then
-    print_status $GREEN "✅ n8n is ready!"
+    print_status $GREEN "n8n is ready!"
 else
-    print_status $RED "❌ Failed to start n8n"
+    print_status $RED "Failed to start n8n"
     exit 1
 fi
 
@@ -76,9 +76,9 @@ API_GATEWAY_PID=$!
 sleep 10
 
 if check_service "API Gateway" "3000" "http://localhost:3000/health"; then
-    print_status $GREEN "✅ API Gateway is ready!"
+    print_status $GREEN "API Gateway is ready!"
 else
-    print_status $RED "❌ Failed to start API Gateway"
+    print_status $RED "Failed to start API Gateway"
     kill $API_GATEWAY_PID 2>/dev/null
     exit 1
 fi
@@ -91,16 +91,16 @@ print_status $GREEN "🎉 All services are running successfully!"
 print_status $GREEN "======================================="
 print_status $BLUE ""
 print_status $BLUE "🔗 Service URLs:"
-print_status $BLUE "   • n8n UI: http://localhost:5678"
-print_status $BLUE "     Username: admin"
-print_status $BLUE "     Password: apexflow-n8n-2024"
+print_status $BLUE " • n8n UI: http://localhost:5678"
+print_status $BLUE "   Username: admin"
+print_status $BLUE "   Password: apexflow-n8n-2024"
 print_status $BLUE ""
-print_status $BLUE "   • API Gateway: http://localhost:3000"
-print_status $BLUE "   • API Health: http://localhost:3000/health"
+print_status $BLUE " • API Gateway: http://localhost:3000"
+print_status $BLUE " • API Health: http://localhost:3000/health"
 print_status $BLUE ""
 print_status $BLUE "📋 n8n Webhook URLs:"
-print_status $BLUE "   • Approval: http://localhost:5678/webhook/approval"
-print_status $BLUE "   • Buttons: http://localhost:5678/webhook/approve"
+print_status $BLUE " • Approval: http://localhost:5678/webhook/approval"
+print_status $BLUE " • Buttons: http://localhost:5678/webhook/approve"
 print_status $BLUE ""
 
 # Display next steps
@@ -118,7 +118,7 @@ cat > test-full-approval-flow.js << 'EOF'
 const axios = require('axios');
 
 async function testCompleteFlow() {
-    console.log('🧪 Testing Complete ApexFlow + n8n Flow');
+    console.log('  Testing Complete ApexFlow + n8n Flow');
     console.log('=========================================');
     
     try {
@@ -170,20 +170,20 @@ async function testCompleteFlow() {
             console.log('✅ Approval retrieved:', getApproval.data.id);
             
         } else {
-            console.log('❌ Failed to create approval');
+            console.log('  Failed to create approval');
         }
         
     } catch (error) {
         if (error.code === 'ECONNREFUSED') {
             if (error.config?.url?.includes(':3000')) {
-                console.log('❌ API Gateway not running on port 3000');
+                console.log('  API Gateway not running on port 3000');
                 console.log('   Run: cd apps/api-gateway && npm run start:dev');
             } else if (error.config?.url?.includes(':5678')) {
-                console.log('❌ n8n not running on port 5678');
+                console.log('  n8n not running on port 5678');
                 console.log('   Run: cd apps/n8n-workflows && npm start');
             }
         } else {
-            console.log('❌ Error:', error.message);
+            console.log('  Error:', error.message);
             if (error.response?.data) {
                 console.log('   Response:', error.response.data);
             }
@@ -194,16 +194,16 @@ async function testCompleteFlow() {
 testCompleteFlow();
 EOF
 
-print_status $GREEN "✅ Test script created: test-full-approval-flow.js"
+print_status $GREEN "Test script created: test-full-approval-flow.js"
 print_status $BLUE ""
 
 # Display management commands
 print_status $YELLOW "🛠️ Management Commands:"
-print_status $YELLOW "   • Test system: node test-full-approval-flow.js"
-print_status $YELLOW "   • Stop n8n: cd apps/n8n-workflows && npm run stop"
-print_status $YELLOW "   • View n8n logs: cd apps/n8n-workflows && npm run logs"
-print_status $YELLOW "   • Stop API Gateway: kill $API_GATEWAY_PID"
-print_status $YELLOW "   • View API logs: tail -f apps/api-gateway/api-gateway.log"
+print_status $YELLOW " • Test system: node test-full-approval-flow.js"
+print_status $YELLOW " • Stop n8n: cd apps/n8n-workflows && npm run stop"
+print_status $YELLOW " • View n8n logs: cd apps/n8n-workflows && npm run logs"
+print_status $YELLOW " • Stop API Gateway: kill $API_GATEWAY_PID"
+print_status $YELLOW " • View API logs: tail -f apps/api-gateway/api-gateway.log"
 print_status $YELLOW ""
 
 # Save process ID for cleanup
@@ -216,6 +216,6 @@ print_status $GREEN "🎊 Deployment complete! Your approval system is ready."
 print_status $BLUE "Would you like to run the test now? (y/N)"
 read -r response
 if [[ "$response" =~ ^[Yy]$ ]]; then
-    print_status $BLUE "🧪 Running test..."
+    print_status $BLUE "Running test..."
     node test-full-approval-flow.js
 fi

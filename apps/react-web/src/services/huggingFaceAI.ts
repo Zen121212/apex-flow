@@ -5,7 +5,7 @@ export interface HuggingFaceAnalysisRequest {
   fileContent: string; // Base64 encoded file content
   fileName: string;
   mimeType: string;
-  analysisType: 'invoice' | 'contract' | 'general' | 'receipt' | 'id_document';
+  analysisType: "invoice" | "contract" | "general" | "receipt" | "id_document";
   extractionOptions?: {
     includeConfidenceScores?: boolean;
     validateFields?: boolean;
@@ -91,57 +91,74 @@ class HuggingFaceAIService {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    this.baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
   }
 
-  async analyzeDocument(request: HuggingFaceAnalysisRequest): Promise<HuggingFaceAnalysisResult> {
+  async analyzeDocument(
+    request: HuggingFaceAnalysisRequest,
+  ): Promise<HuggingFaceAnalysisResult> {
     try {
       console.log(`🤖 Sending document to Local AI: ${request.fileName}`);
-      
+
       const response = await fetch(`${this.baseUrl}/api/ai/analysis`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(request),
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+        throw new Error(
+          errorData.message ||
+            `HTTP ${response.status}: ${response.statusText}`,
+        );
       }
 
       const result = await response.json();
       console.log(`✅ Local AI analysis completed for: ${request.fileName}`);
       return result;
     } catch (error) {
-      console.error(`❌ Local AI analysis failed for ${request.fileName}:`, error);
+      console.error(
+        `  Local AI analysis failed for ${request.fileName}:`,
+        error,
+      );
       throw error;
     }
   }
 
-  async analyzeBatch(requests: HuggingFaceAnalysisRequest[]): Promise<HuggingFaceAnalysisResult[]> {
+  async analyzeBatch(
+    requests: HuggingFaceAnalysisRequest[],
+  ): Promise<HuggingFaceAnalysisResult[]> {
     try {
-      console.log(`🤖 Sending batch analysis to Local AI: ${requests.length} documents`);
-      
+      console.log(
+        `🤖 Sending batch analysis to Local AI: ${requests.length} documents`,
+      );
+
       const response = await fetch(`${this.baseUrl}/api/ai/analysis/batch`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ documents: requests }),
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+        throw new Error(
+          errorData.message ||
+            `HTTP ${response.status}: ${response.statusText}`,
+        );
       }
 
       const result = await response.json();
-      console.log(`✅ Local AI batch analysis completed: ${requests.length} documents`);
+      console.log(
+        `✅ Local AI batch analysis completed: ${requests.length} documents`,
+      );
       return result.results;
     } catch (error) {
-      console.error(`❌ Local AI batch analysis failed:`, error);
+      console.error(`  Local AI batch analysis failed:`, error);
       throw error;
     }
   }
@@ -154,7 +171,7 @@ class HuggingFaceAIService {
       }
       return await response.json();
     } catch (error) {
-      console.error('❌ Failed to get Hugging Face AI config:', error);
+      console.error("Failed to get Hugging Face AI config:", error);
       throw error;
     }
   }
@@ -167,7 +184,7 @@ class HuggingFaceAIService {
       }
       return await response.json();
     } catch (error) {
-      console.error('❌ Hugging Face AI health check failed:', error);
+      console.error("Hugging Face AI health check failed:", error);
       throw error;
     }
   }
@@ -179,7 +196,7 @@ class HuggingFaceAIService {
       reader.onload = () => {
         const result = reader.result as string;
         // Remove data URL prefix if present
-        const base64 = result.includes(',') ? result.split(',')[1] : result;
+        const base64 = result.includes(",") ? result.split(",")[1] : result;
         resolve(base64);
       };
       reader.onerror = reject;
@@ -188,46 +205,67 @@ class HuggingFaceAIService {
   }
 
   // Helper method to determine analysis type from file name or content
-  determineAnalysisType(fileName: string, mimeType: string): 'invoice' | 'contract' | 'general' {
+  determineAnalysisType(
+    fileName: string,
+    mimeType: string,
+  ): "invoice" | "contract" | "general" {
     const name = fileName.toLowerCase();
-    
+
     // Check MIME type first for more accurate detection
-    if (mimeType.includes('pdf') && (name.includes('invoice') || name.includes('bill'))) {
-      return 'invoice';
+    if (
+      mimeType.includes("pdf") &&
+      (name.includes("invoice") || name.includes("bill"))
+    ) {
+      return "invoice";
     }
-    
-    if (mimeType.includes('pdf') && (name.includes('contract') || name.includes('agreement') || name.includes('terms'))) {
-      return 'contract';
+
+    if (
+      mimeType.includes("pdf") &&
+      (name.includes("contract") ||
+        name.includes("agreement") ||
+        name.includes("terms"))
+    ) {
+      return "contract";
     }
-    
+
     // Fallback to filename-based detection
-    if (name.includes('invoice') || name.includes('bill')) {
-      return 'invoice';
+    if (name.includes("invoice") || name.includes("bill")) {
+      return "invoice";
     }
-    
-    if (name.includes('contract') || name.includes('agreement') || name.includes('terms')) {
-      return 'contract';
+
+    if (
+      name.includes("contract") ||
+      name.includes("agreement") ||
+      name.includes("terms")
+    ) {
+      return "contract";
     }
-    
-    return 'general';
+
+    return "general";
   }
 
   // Helper method to get confidence level description
   getConfidenceLevel(confidence: number): string {
-    if (confidence >= 0.95) return 'Excellent';
-    if (confidence >= 0.85) return 'Good';
-    if (confidence >= 0.70) return 'Acceptable';
-    if (confidence >= 0.50) return 'Poor';
-    return 'Very Poor';
+    if (confidence >= 0.95) return "Excellent";
+    if (confidence >= 0.85) return "Good";
+    if (confidence >= 0.7) return "Acceptable";
+    if (confidence >= 0.5) return "Poor";
+    return "Very Poor";
   }
 
   // Helper method to format structured data for display
-  formatStructuredData(structuredFields: Record<string, unknown>): Record<string, unknown> {
+  formatStructuredData(
+    structuredFields: Record<string, unknown>,
+  ): Record<string, unknown> {
     const formatted: Record<string, unknown> = {};
-    
+
     // Flatten nested structures for easier display
     Object.entries(structuredFields).forEach(([key, value]) => {
-      if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+      if (
+        typeof value === "object" &&
+        value !== null &&
+        !Array.isArray(value)
+      ) {
         // Handle nested objects like vendor_info, customer_info
         Object.entries(value).forEach(([subKey, subValue]) => {
           formatted[`${key}_${subKey}`] = subValue;
@@ -236,7 +274,7 @@ class HuggingFaceAIService {
         formatted[key] = value;
       }
     });
-    
+
     return formatted;
   }
 }

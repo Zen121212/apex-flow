@@ -23,7 +23,7 @@ check_service() {
         echo -e "${GREEN}✅ $service_name is running${NC}"
         return 0
     else
-        echo -e "${RED}❌ $service_name is not responding${NC}"
+        echo -e "${RED}  $service_name is not responding${NC}"
         return 1
     fi
 }
@@ -48,7 +48,7 @@ wait_for_service() {
         ((attempt++))
     done
     
-    echo -e "${RED}❌ $service_name failed to start within timeout${NC}"
+    echo -e "${RED}  $service_name failed to start within timeout${NC}"
     return 1
 }
 
@@ -89,7 +89,7 @@ if command -v node &> /dev/null; then
     NODE_VERSION=$(node --version)
     echo -e "${GREEN}✅ Node.js $NODE_VERSION found${NC}"
 else
-    echo -e "${RED}❌ Node.js not found. Please install Node.js 18+${NC}"
+    echo -e "${RED}  Node.js not found. Please install Node.js 18+${NC}"
     exit 1
 fi
 
@@ -169,7 +169,7 @@ echo 'curl -X POST http://localhost:8001/extract-from-text \\'
 echo '  -H "Content-Type: application/json" \\'
 echo '  -d \'{"filename":"test.txt","content":"Invoice #12345 Amount: $100.00","mime_type":"text/plain"}\''
 echo ""
-echo "# Upload a test document"  
+echo "# Upload a test document"
 echo 'curl -X POST http://localhost:3000/documents/simple-upload \'
 echo '  -H "Content-Type: application/json" \'
 echo '  -d \'{"originalName":"test.txt","content":"ApexFlow is amazing!"}\''

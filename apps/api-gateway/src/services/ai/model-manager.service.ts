@@ -17,25 +17,25 @@ const CONFIG = {
   OCR_SCALE: parseInt(process.env.OCR_SCALE || "2"),
   NER_CHUNK_SIZE: 1200,
   NER_CHUNK_OVERLAP: 100,
-  
+
   // Model configurations with fallbacks
   MODELS: {
     CLASSIFICATION: {
-      primary: 'Xenova/distilbert-base-uncased-mnli', // Smaller, faster model
-      fallback: 'Xenova/roberta-large-mnli',
-      quantized: true
+      primary: "Xenova/distilbert-base-uncased-mnli", // Smaller, faster model
+      fallback: "Xenova/roberta-large-mnli",
+      quantized: true,
     },
     NER: {
-      primary: 'Xenova/distilbert-base-cased',
-      fallback: 'Xenova/bert-base-cased-finetuned-conll03-english',
-      quantized: true
+      primary: "Xenova/distilbert-base-cased",
+      fallback: "Xenova/bert-base-cased-finetuned-conll03-english",
+      quantized: true,
     },
     OCR: {
-      primary: 'Xenova/trocr-base-printed',
+      primary: "Xenova/trocr-base-printed",
       fallback: null, // No fallback for OCR
-      quantized: true
-    }
-  }
+      quantized: true,
+    },
+  },
 } as const;
 
 type HealthModel = {
@@ -56,7 +56,11 @@ type HealthStatus = {
 };
 
 // Utility function to add timeout to any promise
-function withTimeout<T>(promise: Promise<T>, timeoutMs: number, operation: string): Promise<T> {
+function withTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+  operation: string,
+): Promise<T> {
   const timeoutPromise = new Promise<never>((_, reject) => {
     setTimeout(() => {
       reject(new Error(`${operation} timed out after ${timeoutMs}ms`));
@@ -69,12 +73,12 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number, operation: strin
 @Injectable()
 export class ModelManagerService {
   private readonly logger = new Logger(ModelManagerService.name);
-  
+
   // Pipeline instances with lazy loading
   private ocrPipeline: ImageToTextPipeline | null = null;
   private classificationPipeline: ZeroShotClassificationPipeline | null = null;
   private nerPipeline: TokenClassificationPipeline | null = null;
-  
+
   // Loading promises for lazy initialization
   private ocrLoadingPromise: Promise<ImageToTextPipeline | null> | null = null;
   private classificationLoadingPromise: Promise<ZeroShotClassificationPipeline | null> | null =
@@ -227,7 +231,7 @@ export class ModelManagerService {
         version: "trocr-base-printed",
         quantized: true,
       };
-      this.logger.log("✅ OCR model loaded successfully");
+      this.logger.log("OCR model loaded successfully");
       return ocrPipeline;
     } catch (e) {
       const err = this.toError(e);
@@ -236,7 +240,7 @@ export class ModelManagerService {
       // Fallback attempt (non-quantized / specific revision)
       try {
         this.logger.log("🔄 Attempting fallback OCR model load...");
-        
+
         const fallbackPromise = pipeline(
           "image-to-text",
           "Xenova/trocr-base-printed",
@@ -251,7 +255,7 @@ export class ModelManagerService {
         const fallbackPipeline = await withTimeout<ImageToTextPipeline>(
           fallbackPromise,
           CONFIG.MODEL_TIMEOUT,
-          "Fallback OCR model loading"
+          "Fallback OCR model loading",
         );
 
         this.healthStatus.ocr = {
@@ -259,21 +263,23 @@ export class ModelManagerService {
           version: "trocr-base-printed",
           quantized: false,
         };
-        this.logger.log("✅ Fallback OCR model loaded successfully");
+        this.logger.log("Fallback OCR model loaded successfully");
         return fallbackPipeline;
       } catch (fe) {
         const ferr = this.toError(fe);
-        this.logger.error(`❌ Fallback OCR model also failed: ${ferr.message}`);
-      return null;
+        this.logger.error(`  Fallback OCR model also failed: ${ferr.message}`);
+        return null;
       }
     }
   }
 
   private async loadClassificationPipeline(): Promise<ZeroShotClassificationPipeline | null> {
     const models = CONFIG.MODELS.CLASSIFICATION;
-    
+
     try {
-      this.logger.log(`🔄 Loading primary classification model (${models.primary})...`);
+      this.logger.log(
+        `🔄 Loading primary classification model (${models.primary})...`,
+      );
 
       const modelPromise = pipeline(
         "zero-shot-classification",
@@ -287,7 +293,7 @@ export class ModelManagerService {
       const cls = (await withTimeout(
         modelPromise,
         CONFIG.MODEL_TIMEOUT,
-        `Loading ${models.primary}`
+        `Loading ${models.primary}`,
       )) as unknown as ZeroShotClassificationPipeline;
 
       this.healthStatus.classification = {
@@ -297,7 +303,7 @@ export class ModelManagerService {
         fallback: false,
         model: models.primary,
       };
-      this.logger.log("✅ Primary classification model loaded successfully");
+      this.logger.log("Primary classification model loaded successfully");
       return cls;
     } catch (e) {
       const err = this.toError(e);
@@ -309,7 +315,7 @@ export class ModelManagerService {
         this.logger.log(
           `🔄 Loading fallback classification model (${models.fallback})...`,
         );
-        
+
         const fallbackPromise = pipeline(
           "zero-shot-classification",
           models.fallback,
@@ -322,7 +328,7 @@ export class ModelManagerService {
         const fallback = (await withTimeout(
           fallbackPromise,
           CONFIG.MODEL_TIMEOUT,
-          `Loading ${models.fallback}`
+          `Loading ${models.fallback}`,
         )) as unknown as ZeroShotClassificationPipeline;
 
         this.healthStatus.classification = {
@@ -332,14 +338,14 @@ export class ModelManagerService {
           fallback: true,
           model: models.fallback,
         };
-        this.logger.log("✅ Fallback classification model loaded successfully");
+        this.logger.log("Fallback classification model loaded successfully");
         return fallback;
       } catch (fe) {
         const ferr = this.toError(fe);
         this.logger.error(
-          `❌ Fallback classification model also failed: ${ferr.message}`,
+          `  Fallback classification model also failed: ${ferr.message}`,
         );
-        
+
         this.healthStatus.classification = {
           loaded: false,
           version: null,
@@ -347,7 +353,7 @@ export class ModelManagerService {
           fallback: true,
           error: ferr.message,
         };
-      return null;
+        return null;
       }
     }
   }
@@ -362,20 +368,16 @@ export class ModelManagerService {
 
     try {
       this.logger.log(`🔄 Loading primary NER model (${models.primary})...`);
-      
-      const modelPromise = pipeline(
-        "token-classification",
-        models.primary,
-        {
-          quantized: models.quantized,
-          cache_dir: CONFIG.HF_CACHE_DIR,
-        },
-      );
+
+      const modelPromise = pipeline("token-classification", models.primary, {
+        quantized: models.quantized,
+        cache_dir: CONFIG.HF_CACHE_DIR,
+      });
 
       const ner = (await withTimeout(
         modelPromise,
         CONFIG.MODEL_TIMEOUT,
-        `Loading ${models.primary}`
+        `Loading ${models.primary}`,
       )) as unknown as TokenClassificationPipeline;
 
       this.healthStatus.ner = {
@@ -384,17 +386,19 @@ export class ModelManagerService {
         quantized: models.quantized,
         model: models.primary,
       };
-      this.logger.log("✅ Primary NER model loaded successfully");
+      this.logger.log("Primary NER model loaded successfully");
       return ner;
     } catch (e) {
       const err = this.toError(e);
       this.logger.warn(`⚠️ Primary NER model failed: ${err.message}`);
-      
+
       // Try fallback model
       if (models.fallback) {
         try {
-          this.logger.log(`🔄 Loading fallback NER model (${models.fallback})...`);
-          
+          this.logger.log(
+            `🔄 Loading fallback NER model (${models.fallback})...`,
+          );
+
           const fallbackPromise = pipeline(
             "token-classification",
             models.fallback,
@@ -407,7 +411,7 @@ export class ModelManagerService {
           const fallback = (await withTimeout(
             fallbackPromise,
             CONFIG.MODEL_TIMEOUT,
-            `Loading ${models.fallback}`
+            `Loading ${models.fallback}`,
           )) as unknown as TokenClassificationPipeline;
 
           this.healthStatus.ner = {
@@ -417,14 +421,16 @@ export class ModelManagerService {
             fallback: true,
             model: models.fallback,
           };
-          this.logger.log("✅ Fallback NER model loaded successfully");
+          this.logger.log("Fallback NER model loaded successfully");
           return fallback;
         } catch (fe) {
           const ferr = this.toError(fe);
-          this.logger.error(`❌ Fallback NER model also failed: ${ferr.message}`);
+          this.logger.error(
+            `  Fallback NER model also failed: ${ferr.message}`,
+          );
         }
       }
-      
+
       this.logger.log("🔄 Using pattern-based entity extraction as fallback");
       this.healthStatus.ner = {
         loaded: false,
@@ -477,7 +483,7 @@ export class ModelManagerService {
       const classification = Array.isArray(result) ? result[0] : result;
       const scores = classification?.scores ?? [];
       const labels = classification?.labels ?? [];
-      
+
       if (scores.length > 0 && labels.length > 0) {
         const maxScore = Math.max(...scores);
         const maxIndex = scores.indexOf(maxScore);
@@ -486,7 +492,7 @@ export class ModelManagerService {
           confidence: maxScore,
         };
       }
-      
+
       return this.fallbackClassification(text);
     } catch (e) {
       const err = this.toError(e);
@@ -625,22 +631,22 @@ export class ModelManagerService {
 
   private chunkText(text: string, maxChunkSize: number): string[] {
     if (text.length <= maxChunkSize) return [text];
-    
+
     const chunks: string[] = [];
     let start = 0;
-    
+
     while (start < text.length) {
       let end = start + maxChunkSize;
-      
+
       if (end < text.length) {
         const lastSpace = text.lastIndexOf(" ", end);
         if (lastSpace > start) end = lastSpace;
       }
-      
+
       chunks.push(text.substring(start, end));
       start = end + 1;
     }
-    
+
     return chunks;
   }
 

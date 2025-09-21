@@ -7,7 +7,7 @@ on:
     types: [published]
 
 env:
-  NODE_VERSION: '20.x'
+  NODE_VERSION: "20.x"
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
@@ -21,11 +21,11 @@ jobs:
   # Build and test before deployment
   build:
     runs-on: ubuntu-latest
-    
+
     outputs:
       version: ${{ steps.version.outputs.version }}
       environment: ${{ steps.environment.outputs.environment }}
-      
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,7 +34,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -80,11 +80,11 @@ jobs:
   deploy-frontend:
     needs: build
     runs-on: ubuntu-latest
-    
+
     environment:
       name: ${{ needs.build.outputs.environment }}
       url: ${{ steps.deploy.outputs.url }}
-      
+
     steps:
       - name: Download React Web build
         uses: actions/download-artifact@v4
@@ -141,7 +141,7 @@ jobs:
 
       - name: Deployment Status
         run: |
-          echo "✅ Frontend deployment completed"
+          echo "Frontend deployment completed"
           echo "Environment: ${{ needs.build.outputs.environment }}"
           echo "Branch: ${{ github.ref_name }}"
           echo "Version: ${{ needs.build.outputs.version }}"
@@ -151,20 +151,20 @@ jobs:
   deploy-backend:
     needs: build
     runs-on: ubuntu-latest
-    
+
     # Explicit permissions for this job
     permissions:
       contents: read
       packages: write
       id-token: write
-    
+
     strategy:
       matrix:
         service: [api-gateway, pdf-workflows, agent-orchestrator, slack-bot]
-    
+
     environment:
       name: ${{ needs.build.outputs.environment }}
-      
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -212,7 +212,7 @@ jobs:
 
       - name: Service Deployment Status
         run: |
-          echo "✅ ${{ matrix.service }} container built and pushed"
+          echo "${{ matrix.service }} container built and pushed"
           echo "Environment: ${{ needs.build.outputs.environment }}"
           echo "Image tags: ${{ steps.meta.outputs.tags }}"
 
@@ -220,10 +220,10 @@ jobs:
   deploy-infrastructure:
     needs: [build, deploy-backend]
     runs-on: ubuntu-latest
-    
+
     environment:
       name: ${{ needs.build.outputs.environment }}
-      
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -239,12 +239,12 @@ jobs:
       #   run: |
       #     NAMESPACE="${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}"
       #     IMAGE_TAG="${{ github.ref_name }}-${{ github.sha }}"
-      #     
+      #
       #     kubectl set image deployment/api-gateway api-gateway=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/api-gateway:${IMAGE_TAG} -n ${NAMESPACE}
       #     kubectl set image deployment/pdf-workflows pdf-workflows=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/pdf-workflows:${IMAGE_TAG} -n ${NAMESPACE}
       #     kubectl set image deployment/agent-orchestrator agent-orchestrator=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/agent-orchestrator:${IMAGE_TAG} -n ${NAMESPACE}
       #     kubectl set image deployment/slack-bot slack-bot=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/slack-bot:${IMAGE_TAG} -n ${NAMESPACE}
-      #     
+      #
       #     kubectl rollout status deployment/api-gateway -n ${NAMESPACE}
       #     kubectl rollout status deployment/pdf-workflows -n ${NAMESPACE}
       #     kubectl rollout status deployment/agent-orchestrator -n ${NAMESPACE}
@@ -276,7 +276,7 @@ jobs:
 
       - name: Infrastructure Deployment Status
         run: |
-          echo "✅ Infrastructure deployment completed"
+          echo "Infrastructure deployment completed"
           echo "Environment: ${{ needs.build.outputs.environment }}"
           echo "Branch: ${{ github.ref_name }}"
           echo "Services: api-gateway, pdf-workflows, agent-orchestrator, slack-bot"
@@ -286,7 +286,7 @@ jobs:
     needs: [deploy-frontend, deploy-backend, deploy-infrastructure]
     runs-on: ubuntu-latest
     if: success()
-    
+
     steps:
       - name: Wait for services to be ready
         run: sleep 30
@@ -304,15 +304,22 @@ jobs:
 
       - name: Health Check Status
         run: |
-          echo "✅ Health checks passed"
+          echo "Health checks passed"
           echo "All services are healthy and ready"
 
   # Notify deployment status
   notify:
-    needs: [build, deploy-frontend, deploy-backend, deploy-infrastructure, health-check]
+    needs:
+      [
+        build,
+        deploy-frontend,
+        deploy-backend,
+        deploy-infrastructure,
+        health-check,
+      ]
     runs-on: ubuntu-latest
     if: always()
-    
+
     steps:
       - name: Notify Success
         if: ${{ needs.deploy-frontend.result == 'success' && needs.deploy-backend.result == 'success' && needs.deploy-infrastructure.result == 'success' }}
@@ -333,7 +340,7 @@ jobs:
       - name: Notify Failure
         if: ${{ needs.deploy-frontend.result == 'failure' || needs.deploy-backend.result == 'failure' || needs.deploy-infrastructure.result == 'failure' }}
         run: |
-          echo "❌ Deployment failed!"
+          echo "Deployment failed!"
           echo "Environment: ${{ needs.build.outputs.environment }}"
           echo "Branch: ${{ github.ref_name }}"
           echo "Please check the logs for details"

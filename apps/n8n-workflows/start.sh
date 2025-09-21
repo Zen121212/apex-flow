@@ -7,13 +7,13 @@ echo "========================================"
 
 # Check if Docker is running
 if ! docker info > /dev/null 2>&1; then
-    echo "❌ Docker is not running. Please start Docker Desktop first."
+    echo "Docker is not running. Please start Docker Desktop first."
     exit 1
 fi
 
 # Check if docker-compose is available
 if ! command -v docker-compose &> /dev/null; then
-    echo "❌ docker-compose could not be found. Please install Docker Compose."
+    echo "docker-compose could not be found. Please install Docker Compose."
     exit 1
 fi
 
@@ -29,7 +29,7 @@ sleep 10
 
 # Check if n8n is running
 if docker-compose ps | grep -q "apexflow-n8n.*Up"; then
-    echo "✅ n8n is running successfully!"
+    echo "n8n is running successfully!"
     echo ""
     echo "🎯 Access n8n at: http://localhost:5678"
     echo "👤 Username: admin"
@@ -47,7 +47,7 @@ if docker-compose ps | grep -q "apexflow-n8n.*Up"; then
     echo "🛑 To stop n8n: docker-compose down"
     echo "📝 To view logs: docker-compose logs -f"
 else
-    echo "❌ Failed to start n8n. Check the logs:"
+    echo "Failed to start n8n. Check the logs:"
     docker-compose logs
     exit 1
 fi
