@@ -14,7 +14,8 @@
     "start:prod": "N8N_LOG_LEVEL=warn n8n start",
     "tunnel": "n8n start --tunnel",
     "import": "n8n import:workflow --input=./workflows/",
-    "export": "n8n export:workflow --output=./workflows/ --all"
+    "export": "n8n export:workflow --output=./workflows/ --all",
+    "test": "echo \"n8n workflows - no tests configured\""
   },
   "dependencies": {
     "n8n": "^1.19.4"
