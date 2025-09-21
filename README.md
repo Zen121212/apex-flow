@@ -105,13 +105,13 @@ Bot: "You have 3 contracts from this year: TechCorp Contract ($15K),
 
 ### Admin Screens (Web)
 
-| Dashboard || Dashboard |
-| ---------------------------------------------- || ---------------------------------------------- |
-| ![Landing](./readme/screenshots/dashboard.png) || ![Landing](./readme/gifs/recorder2.gif) |
+| Dashboard                                      | Upload Document                         |
+| ---------------------------------------------- | --------------------------------------- |
+| ![Landing](./readme/screenshots/dashboard.png) | ![Landing](./readme/gifs/recorder2.gif) |
 
-| Workflows || AI assistant |
-| ---------------------------------------------- || ---------------------------------------------- |
-| ![Landing](./readme/gifs/recoder1.gif) || ![Landing](./readme/gifs/recorder3.gif) |
+| Workflows                              | AI assistant                            |
+| -------------------------------------- | --------------------------------------- |
+| ![Landing](./readme/gifs/recoder1.gif) | ![Landing](./readme/gifs/recorder3.gif) |
 
 | Integrations                            |
 | --------------------------------------- |
