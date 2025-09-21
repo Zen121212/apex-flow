@@ -1,4 +1,4 @@
-<img src="./readme/title1.svg"/>
+<img src="./readme/title1-1.svg"/>
 
 <!-- CI/CD Pipeline Status: Testing CD trigger after fixing major lint errors -->
 
