@@ -120,7 +120,7 @@ const Workflows: React.FC = () => {
     
     // Only show real workflows from backend
     return backendWorkflows.map(convertBackendWorkflow);
-  }, [backendWorkflows, isLoading, documentCounts, convertBackendWorkflow]);
+  }, [backendWorkflows, isLoading, convertBackendWorkflow]);
 
   /** Handlers */
   const openCreateModal = useCallback(() => {

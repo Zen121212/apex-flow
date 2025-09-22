@@ -1,7 +1,7 @@
 import React, { type ReactElement } from 'react';
 import { render, type RenderOptions } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from '../../app/providers/AuthProvider';
+import { QueryClient } from '@tanstack/react-query';
+import { TestProviders } from '../components/TestProviders';
 
 // Create a custom render function that includes providers
 const createTestQueryClient = () => new QueryClient({
@@ -21,34 +21,6 @@ interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
   withAuth?: boolean;
 }
 
-const AllTheProviders = ({ 
-  children, 
-  queryClient, 
-  withAuth = true
-}: {
-  children: React.ReactNode;
-  queryClient: QueryClient;
-  withAuth?: boolean;
-}) => {
-  let component = (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  );
-
-  if (withAuth) {
-    component = (
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
-      </QueryClientProvider>
-    );
-  }
-
-  return component;
-};
-
 const customRender = (
   ui: ReactElement,
   options: CustomRenderOptions = {}
@@ -60,12 +32,12 @@ const customRender = (
   } = options;
 
   const Wrapper = ({ children }: { children: React.ReactNode }) => (
-    <AllTheProviders 
+    <TestProviders 
       queryClient={queryClient} 
       withAuth={withAuth}
     >
       {children}
-    </AllTheProviders>
+    </TestProviders>
   );
 
   return render(ui, { wrapper: Wrapper, ...renderOptions });
@@ -95,7 +67,23 @@ export const mockAuthResponses = {
   },
 };
 
-// Re-export everything
-export * from '@testing-library/react';
-export { customRender as render };
-export { createTestQueryClient };
+// Re-export specific testing utilities (avoiding * export to satisfy react-refresh)
+export {
+  screen,
+  fireEvent,
+  waitFor,
+  waitForElementToBeRemoved,
+  within,
+  getByRole,
+  getByText,
+  queryByText,
+  findByText,
+  getByTestId,
+  queryByTestId,
+  findByTestId,
+  act,
+  cleanup,
+  prettyDOM,
+  logRoles,
+} from '@testing-library/react';
+export { customRender as render, createTestQueryClient };
