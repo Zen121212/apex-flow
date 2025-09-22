@@ -14,13 +14,9 @@ const config: Config = {
   transform: {
     '^.+\\.tsx?$': ['ts-jest', {
       tsconfig: './tsconfig.test.json',
+      useESM: false,
     }],
     '^.+\\.svg$': '<rootDir>/src/test/utils/svgTransform.cjs',
-  },
-  globals: {
-    'ts-jest': {
-      useESM: false,
-    },
   },
   moduleNameMapper: {
     '\\.(css|less|scss|sass)$': '<rootDir>/src/test/mocks/styleMock.js',
@@ -62,7 +58,7 @@ const config: Config = {
   ],
   // Clean config without deprecated globals
   maxWorkers: 1,
-  forceExit: true,
+  detectOpenHandles: true,
   verbose: false,
 };
 
