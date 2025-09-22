@@ -14,6 +14,16 @@ import {
   NotFoundException,
   Logger
 } from '@nestjs/common';
+import { 
+  ApiTags, 
+  ApiOperation, 
+  ApiResponse, 
+  ApiConsumes, 
+  ApiBody, 
+  ApiBearerAuth, 
+  ApiParam,
+  ApiQuery
+} from '@nestjs/swagger';
 import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
@@ -24,7 +34,9 @@ import { WorkflowExecutionService } from '../../workflows/services/execution/wor
 import { UserSessionService } from '../../../common/services/user-session.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { HuggingFaceClientService } from '../../../services/ai/huggingface-client.service';
+import { UploadDocumentDto, TestUploadDto, DocumentResponseDto, ProcessDocumentDto } from '../dto/document.dto';
 
+@ApiTags('Documents')
 @Controller('documents')
 export class DocumentsController {
   private readonly logger = new Logger(DocumentsController.name);

@@ -1,6 +1,8 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const express = require('express');
@@ -40,8 +42,90 @@ async function bootstrap() {
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+  // Enable validation pipes globally
+  app.useGlobalPipes(new ValidationPipe({
+    transform: true,
+    whitelist: true,
+    forbidNonWhitelisted: true,
+  }));
+
   // Set global prefix for all routes
   app.setGlobalPrefix('api');
+
+  // Setup Swagger Documentation
+  const config = new DocumentBuilder()
+    .setTitle('ApexFlow API')
+    .setDescription(`
+      # ApexFlow AI Document Processing Platform API
+      
+      This API provides comprehensive document processing, AI analysis, workflow automation, and integration capabilities.
+      
+      ## Features
+      - 🔐 **Authentication**: JWT-based auth with register/login/logout
+      - 📄 **Document Management**: Upload, process, and analyze documents
+      - 🤖 **AI Analysis**: Advanced document analysis using AI models
+      - ⚡ **Workflow Automation**: Create and manage document processing workflows
+      - 🔗 **Integrations**: Slack, Email, Database, and Webhook integrations
+      - 🔍 **Search**: Intelligent document search capabilities
+      - 💬 **AI Chat**: Interactive document Q&A with AI assistant
+      
+      ## Getting Started
+      1. **Register** a new account or **login** with existing credentials
+      2. **Upload** documents for processing
+      3. **Create workflows** to automate document processing
+      4. **Configure integrations** for notifications and data export
+      5. **Analyze documents** with AI-powered insights
+      
+      ## Authentication
+      Most endpoints require JWT authentication. Include the token in the Authorization header:
+      \`\`\`
+      Authorization: Bearer <your-jwt-token>
+      \`\`\`
+    `)
+    .setVersion('1.0.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
+    .addCookieAuth('auth-cookie', {
+      type: 'apiKey',
+      in: 'cookie',
+      name: 'auth-cookie',
+    })
+    .addServer('http://localhost:3000', 'Development server')
+    .addServer('https://api.apexflow.com', 'Production server')
+    .addTag('Authentication', 'User authentication and authorization')
+    .addTag('Documents', 'Document upload, processing, and management')
+    .addTag('AI Analysis', 'AI-powered document analysis and insights')
+    .addTag('Workflows', 'Workflow creation and management')
+    .addTag('Integrations', 'Third-party integrations (Slack, Email, etc.)')
+    .addTag('Search', 'Document search and discovery')
+    .addTag('Chat', 'AI-powered document chat and Q&A')
+    .addTag('Debug', 'Development and debugging endpoints')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document, {
+    customSiteTitle: 'ApexFlow API Documentation',
+    customCss: '.swagger-ui .topbar { display: none }',
+    customfavIcon: '/favicon.ico',
+    swaggerOptions: {
+      persistAuthorization: true,
+      displayRequestDuration: true,
+      filter: true,
+      showExtensions: true,
+      showCommonExtensions: true,
+      defaultModelsExpandDepth: 2,
+      defaultModelExpandDepth: 2,
+    },
+  });
 
   // Health check endpoint
   app.getHttpAdapter().get('/health', (_req, res) => {

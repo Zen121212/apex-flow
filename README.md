@@ -128,7 +128,9 @@ Bot: "You have 3 contracts from this year: TechCorp Contract ($15K),
 <!-- Development & Testing -->
 <img src="./readme/title6.svg"/>
 
-### Services, Validation and Testing
+<!-- ### Services, Validation and Testing -->
+
+### Testing
 
 | CI                          | CD                        |
 | --------------------------- | ------------------------- |
@@ -138,9 +140,9 @@ Bot: "You have 3 contracts from this year: TechCorp Contract ($15K),
 | ---------------------------------------------- | --------------------------------------------- |
 | ![Landing](./readme/screenshots/backend-1.png) | ![fsdaf](./readme/screenshots/frontend-1.png) |
 
-| Services                                | Validation                            |
+<!-- | Services                                | Validation                            |
 | --------------------------------------- | ------------------------------------- |
-| ![Landing](./readme/demo/1440x1024.png) | ![fsdaf](./readme/demo/1440x1024.png) |
+| ![Landing](./readme/demo/1440x1024.png) | ![fsdaf](./readme/demo/1440x1024.png) | -->
 
 <br><br>
 

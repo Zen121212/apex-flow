@@ -21,6 +21,7 @@
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^10.4.20",
+    "@nestjs/swagger": "^7.1.12",
     "@nestjs/typeorm": "^10.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
