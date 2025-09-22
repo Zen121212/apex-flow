@@ -59,4 +59,4 @@ docker-compose-core-services.yml
 
 # Documentation (temporary)
 BRANCH_QUICK_REFERENCE.md
-BRANCHING_STRATEGY.md
+BRANCHING_STRATEGY.md 

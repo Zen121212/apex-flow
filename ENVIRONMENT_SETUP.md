@@ -75,4 +75,4 @@ Services will run on:
 - React Web: http://localhost:5173
 - API Gateway: http://localhost:3000  
 - Slack Bot: http://localhost:3001
-- Agent Orchestrator: http://localhost:3002
+- Agent Orchestrator: http://localhost:3002 
