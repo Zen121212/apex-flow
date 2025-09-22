@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 
 // Mock IntersectionObserver
-(global as any).IntersectionObserver = class IntersectionObserver {
+(global as Record<string, unknown>).IntersectionObserver = class IntersectionObserver {
   root = null;
   rootMargin = '0px';
   thresholds = [0];
@@ -14,7 +14,7 @@ import '@testing-library/jest-dom';
 };
 
 // Mock ResizeObserver
-(global as any).ResizeObserver = class ResizeObserver {
+(global as Record<string, unknown>).ResizeObserver = class ResizeObserver {
   constructor() {}
   observe() {}
   disconnect() {}
@@ -60,6 +60,7 @@ process.env.NODE_ENV = 'test';
 
 // Add TextEncoder/TextDecoder for MSW
 if (typeof TextEncoder === 'undefined') {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const util = require('util');
   global.TextEncoder = util.TextEncoder;
   global.TextDecoder = util.TextDecoder;
@@ -69,20 +70,20 @@ if (typeof TextEncoder === 'undefined') {
 // Simple polyfills for fetch globals that MSW expects
 if (typeof globalThis.Response === 'undefined') {
   // Mock Response constructor
-  (globalThis as any).Response = class Response {
+  (globalThis as Record<string, unknown>).Response = class Response {
     status: number;
     statusText: string;
     headers: Headers;
     ok: boolean;
-    body: any;
+    body: unknown;
     url: string;
     type: string;
     redirected: boolean;
     
-    constructor(body?: any, init: any = {}) {
+    constructor(body?: unknown, init: Record<string, unknown> = {}) {
       this.status = init.status || 200;
       this.statusText = init.statusText || 'OK';
-      this.headers = new (globalThis as any).Headers(init.headers);
+      this.headers = new (globalThis as Record<string, unknown>).Headers(init.headers);
       this.ok = this.status >= 200 && this.status < 300;
       this.body = body;
       this.url = '';
@@ -113,30 +114,30 @@ if (typeof globalThis.Response === 'undefined') {
 }
 
 if (typeof globalThis.Request === 'undefined') {
-  (globalThis as any).Request = class Request {
+  (globalThis as Record<string, unknown>).Request = class Request {
     url: string;
     method: string;
     headers: Headers;
-    body: any;
+    body: unknown;
 
-    constructor(input: string | any, init: any = {}) {
+    constructor(input: string | Record<string, unknown>, init: Record<string, unknown> = {}) {
       this.url = typeof input === 'string' ? input : input.url;
       this.method = init.method || 'GET';
-      this.headers = new (globalThis as any).Headers(init.headers);
+      this.headers = new (globalThis as Record<string, unknown>).Headers(init.headers);
       this.body = init.body;
     }
   };
 }
 
 if (typeof globalThis.Headers === 'undefined') {
-  (globalThis as any).Headers = class Headers {
+  (globalThis as Record<string, unknown>).Headers = class Headers {
     _headers: Map<string, string>;
 
-    constructor(init: any = {}) {
+    constructor(init: Record<string, unknown> = {}) {
       this._headers = new Map();
       if (init) {
         if (init instanceof Headers) {
-          (init as any)._headers.forEach((value: string, key: string) => this._headers.set(key, value));
+          (init as Record<string, unknown> & { _headers: Map<string, string> })._headers.forEach((value: string, key: string) => this._headers.set(key, value));
         } else if (Array.isArray(init)) {
           init.forEach(([key, value]: [string, string]) => this._headers.set(key.toLowerCase(), value));
         } else {
@@ -178,7 +179,7 @@ if (typeof globalThis.fetch === 'undefined') {
 
 // Simple AbortController polyfill
 if (typeof globalThis.AbortController === 'undefined') {
-  (globalThis as any).AbortController = class AbortController {
+  (globalThis as Record<string, unknown>).AbortController = class AbortController {
     signal: {
       aborted: boolean;
       addEventListener: jest.Mock;
@@ -200,19 +201,19 @@ if (typeof globalThis.AbortController === 'undefined') {
     }
   };
   
-  (globalThis as any).AbortSignal = {
+  (globalThis as Record<string, unknown>).AbortSignal = {
     timeout: jest.fn(),
   };
 }
 
 // Mock Blob if needed
 if (typeof globalThis.Blob === 'undefined') {
-  (globalThis as any).Blob = class Blob {
+  (globalThis as Record<string, unknown>).Blob = class Blob {
     size: number;
     type: string;
-    parts: any[];
+    parts: unknown[];
 
-    constructor(parts: any[] = [], options: any = {}) {
+    constructor(parts: unknown[] = [], options: Record<string, unknown> = {}) {
       this.size = 0;
       this.type = options.type || '';
       this.parts = parts;
@@ -222,10 +223,10 @@ if (typeof globalThis.Blob === 'undefined') {
 
 // Mock BroadcastChannel for MSW
 if (typeof globalThis.BroadcastChannel === 'undefined') {
-  (globalThis as any).BroadcastChannel = class BroadcastChannel {
+  (globalThis as Record<string, unknown>).BroadcastChannel = class BroadcastChannel {
     name: string;
-    onmessage: any;
-    onmessageerror: any;
+    onmessage: unknown;
+    onmessageerror: unknown;
 
     constructor(channel: string) {
       this.name = channel;
@@ -233,7 +234,7 @@ if (typeof globalThis.BroadcastChannel === 'undefined') {
       this.onmessageerror = null;
     }
     
-    postMessage(_message: any) {
+    postMessage(_message: unknown) {
       // Mock implementation
     }
     
@@ -241,11 +242,11 @@ if (typeof globalThis.BroadcastChannel === 'undefined') {
       // Mock implementation
     }
     
-    addEventListener(_type: string, _listener: any) {
+    addEventListener(_type: string, _listener: unknown) {
       // Mock implementation
     }
     
-    removeEventListener(_type: string, _listener: any) {
+    removeEventListener(_type: string, _listener: unknown) {
       // Mock implementation
     }
   };
@@ -253,7 +254,7 @@ if (typeof globalThis.BroadcastChannel === 'undefined') {
 
 // Mock URL constructor if needed
 if (typeof globalThis.URL === 'undefined') {
-  (globalThis as any).URL = class URL {
+  (globalThis as Record<string, unknown>).URL = class URL {
     href: string;
     origin: string;
     protocol: string;

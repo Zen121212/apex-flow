@@ -6,7 +6,7 @@ declare namespace jest {
     toBeInTheDocument(): R;
     toHaveClass(...classNames: string[]): R;
     toHaveAttribute(name: string, value?: string | number | null): R;
-    toHaveStyle(style: string | Record<string, any>): R;
+    toHaveStyle(style: string | Record<string, unknown>): R;
     toHaveValue(value: string | number | string[] | null): R;
     toHaveTextContent(text: string | RegExp): R;
     toBeVisible(): R;
@@ -21,7 +21,7 @@ declare namespace jest {
     toHaveDescription(description?: string | RegExp): R;
     toHaveErrorMessage(message?: string | RegExp): R;
     toHaveDisplayValue(value: string | RegExp | (string | RegExp)[]): R;
-    toHaveFormValues(values: Record<string, any>): R;
+    toHaveFormValues(values: Record<string, unknown>): R;
     toBeEmptyDOMElement(): R;
     toContainElement(element: HTMLElement | null): R;
     toContainHTML(htmlText: string): R;
