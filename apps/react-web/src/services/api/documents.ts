@@ -25,7 +25,7 @@ interface BackendDocument {
     status: string;
     startedAt: string;
     completedAt?: string;
-    steps?: any[];
+    steps?: Record<string, unknown>[];
   };
 }
 
@@ -88,8 +88,8 @@ class DocumentAPI {
     });
   }
 
-  async getDocumentAnalysis(documentId: string): Promise<any> {
-    return this.request<any>(`/api/documents/${documentId}/analysis`);
+  async getDocumentAnalysis(documentId: string): Promise<Record<string, unknown>> {
+    return this.request<Record<string, unknown>>(`/api/documents/${documentId}/analysis`);
   }
 
   async downloadDocument(documentId: string): Promise<Blob> {

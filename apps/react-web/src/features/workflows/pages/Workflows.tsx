@@ -70,21 +70,21 @@ const Workflows: React.FC = () => {
   const deleteWorkflowMutation = useDeleteWorkflow();
   
   // Get workflow IDs for document count queries
-  const workflowIds = backendWorkflows.map(w => (w as any)._id || w.id).filter(Boolean);
+  const workflowIds = backendWorkflows.map(w => (w as WorkflowDefinition & { _id?: string })._id || w.id).filter(Boolean);
   const { data: documentCounts = {} } = useWorkflowDocumentCounts(workflowIds);
 
   // Convert backend workflow to frontend workflow format
-  const convertBackendWorkflow = (backendWorkflow: any): Workflow => {
+  const convertBackendWorkflow = useCallback((backendWorkflow: WorkflowDefinition & { _id?: string }): Workflow => {
     // Analyze steps to determine integrations
     const integrations: IntegrationName[] = [];
     let requiresApproval = false;
 
-    backendWorkflow.steps.forEach((step: any) => {
+    backendWorkflow.steps.forEach((step: { type: string; name: string; config: Record<string, unknown> }) => {
       switch (step.type) {
         case 'send_notification':
-          if (step.config.integrationType === 'slack') {
+          if ((step.config as { integrationType?: string }).integrationType === 'slack') {
             integrations.push('Slack');
-          } else if (step.config.integrationType === 'email') {
+          } else if ((step.config as { integrationType?: string }).integrationType === 'email') {
             integrations.push('Email');
           }
           break;
@@ -98,7 +98,7 @@ const Workflows: React.FC = () => {
       }
     });
 
-    const workflowId = (backendWorkflow as any)._id || backendWorkflow.id;
+    const workflowId = backendWorkflow._id || backendWorkflow.id;
     const actualDocumentCount = documentCounts[workflowId] || 0;
 
     return {
@@ -112,7 +112,7 @@ const Workflows: React.FC = () => {
       integrations: [...new Set(integrations)], // Remove duplicates
       requiresApproval,
     };
-  };
+  }, [documentCounts]);
 
   // Convert backend workflows to frontend format - no demo fallbacks
   const workflows = useMemo(() => {
@@ -120,7 +120,7 @@ const Workflows: React.FC = () => {
     
     // Only show real workflows from backend
     return backendWorkflows.map(convertBackendWorkflow);
-  }, [backendWorkflows, isLoading, documentCounts]);
+  }, [backendWorkflows, isLoading, documentCounts, convertBackendWorkflow]);
 
   /** Handlers */
   const openCreateModal = useCallback(() => {
@@ -130,7 +130,7 @@ const Workflows: React.FC = () => {
   }, []);
 
   const openEditModal = useCallback((workflowId: string) => {
-    const workflowToEdit = backendWorkflows.find(w => ((w as any)._id || w.id) === workflowId);
+    const workflowToEdit = backendWorkflows.find(w => ((w as WorkflowDefinition & { _id?: string })._id || w.id) === workflowId);
     if (workflowToEdit) {
       setModalMode('edit');
       setEditingWorkflow(workflowToEdit);
@@ -171,8 +171,8 @@ const Workflows: React.FC = () => {
         name: "Store Data",
         type: "store_data",
         config: {
-          tableName: (draft.integrations.database as any)?.tableName || 'documents',
-          fields: (draft.integrations.database as any)?.fields || 'all'
+          tableName: (draft.integrations.database as Record<string, unknown>)?.tableName as string || 'documents',
+          fields: (draft.integrations.database as Record<string, unknown>)?.fields as string || 'all'
         }
       });
     }
@@ -183,8 +183,8 @@ const Workflows: React.FC = () => {
         type: "send_notification",
         config: {
           integrationType: 'slack',
-          channel: (draft.integrations.slack as any)?.channel || '#general',
-          messageTemplate: (draft.integrations.slack as any)?.messageTemplate || 'Document processed'
+          channel: (draft.integrations.slack as Record<string, unknown>)?.channel as string || '#general',
+          messageTemplate: (draft.integrations.slack as Record<string, unknown>)?.messageTemplate as string || 'Document processed'
         }
       });
     }
@@ -195,8 +195,8 @@ const Workflows: React.FC = () => {
         type: "send_notification",
         config: {
           integrationType: 'email',
-          recipients: (draft.integrations.email as any)?.recipients || '',
-          subjectTemplate: (draft.integrations.email as any)?.subjectTemplate || 'Document Processed'
+          recipients: (draft.integrations.email as Record<string, unknown>)?.recipients as string || '',
+          subjectTemplate: (draft.integrations.email as Record<string, unknown>)?.subjectTemplate as string || 'Document Processed'
         }
       });
     }
@@ -204,7 +204,7 @@ const Workflows: React.FC = () => {
     try {
       // Use TanStack Query mutation to create workflow
       await createWorkflowMutation.mutateAsync(workflowData);
-      console.log('✅ Workflow created successfully!');
+      console.log('Workflow created successfully!');
     } catch (error) {
       console.error('Failed to create workflow:', error);
     }
@@ -230,7 +230,7 @@ const Workflows: React.FC = () => {
           <p>Manage and configure your document processing workflows</p>
           {error && (
             <div className={styles.errorBanner}>
-              <span className={styles.errorIcon}>⚠️</span>
+              <span className={styles.errorIcon}>!</span>
               <span>{error instanceof Error ? error.message : String(error)}</span>
             </div>
           )}
@@ -263,7 +263,7 @@ const Workflows: React.FC = () => {
         </div>
       ) : (
         <div className={styles.emptyState}>
-          <div className={styles.emptyIcon}>⚙️</div>
+          <div className={styles.emptyIcon}></div>
           <h3>No workflows created yet</h3>
           <p>
             Create your first workflow to start automating document processing
@@ -278,7 +278,7 @@ const Workflows: React.FC = () => {
         isOpen={showModal}
         onClose={closeModal}
         onWorkflowCreated={onWorkflowCreated}
-        editingWorkflow={editingWorkflow as any}
+        editingWorkflow={editingWorkflow}
         mode={modalMode}
       />
       

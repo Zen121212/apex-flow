@@ -42,7 +42,7 @@ export interface VisualAIAnalysisResult {
       averageConfidence: number;
     };
   };
-  keyData: Record<string, any>;
+  keyData: Record<string, unknown>;
   metadata: {
     processingTime: number;
     modelVersion: string;
@@ -65,7 +65,7 @@ class VisualAIService {
 
   constructor() {
     this.baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
-    console.log("🤖 VisualAI Service initialized with baseUrl:", this.baseUrl);
+    console.log("VisualAI Service initialized with baseUrl:", this.baseUrl);
   }
 
   /**
@@ -74,7 +74,7 @@ class VisualAIService {
   async analyzeDocument(
     request: VisualAIAnalysisRequest,
   ): Promise<VisualAIAnalysisResult> {
-    console.log("🔍 Starting Visual AI analysis for:", request.fileName);
+    console.log("Starting Visual AI analysis for:", request.fileName);
 
     // Convert base64 to Blob
     const base64Data = request.fileContent.split(",")[1] || request.fileContent;
@@ -103,7 +103,7 @@ class VisualAIService {
 
     const result = await response.json();
     console.log("Visual AI analysis completed for:", request.fileName);
-    console.log("📊 Analysis result:", result);
+    console.log("Analysis result:", result);
 
     return result;
   }
@@ -115,7 +115,7 @@ class VisualAIService {
     requests: VisualAIAnalysisRequest[],
   ): Promise<VisualAIAnalysisResult[]> {
     console.log(
-      `🔍 Starting batch Visual AI analysis for ${requests.length} documents`,
+      `Starting batch Visual AI analysis for ${requests.length} documents`,
     );
 
     const response = await fetch(
@@ -140,7 +140,7 @@ class VisualAIService {
 
     const result = await response.json();
     console.log(
-      `✅ Batch Visual AI analysis completed for ${requests.length} documents`,
+      `Batch Visual AI analysis completed for ${requests.length} documents`,
     );
 
     return result.results || [];

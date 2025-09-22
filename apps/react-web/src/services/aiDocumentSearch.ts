@@ -22,7 +22,7 @@ export interface DocumentSearchResult {
   lastModified: Date;
   tags: string[];
   url?: string;
-  extractedData?: any;
+  extractedData?: Record<string, unknown>;
   matchedFields?: string[];
   queryAnalysis?: QueryAnalysis;
 }
@@ -64,7 +64,7 @@ export interface DocumentIndex {
   uploadDate: Date;
   extractedData: {
     text: string;
-    structuredFields: any;
+    structuredFields: Record<string, unknown>;
     searchableFields: SearchableField[];
   };
 }
@@ -88,11 +88,11 @@ class AIDocumentSearchService {
    */
   async search(query: string): Promise<DocumentSearchResult[]> {
     try {
-      console.log("🔍 Processing search query:", query);
+      console.log("Processing search query:", query);
 
       // 1. Analyze the query to understand intent first
       const queryAnalysis = await this.analyzeQuery(query);
-      console.log("📊 Query analysis:", queryAnalysis);
+      console.log("Query analysis:", queryAnalysis);
 
       // Clear cache only for amount-based queries to get fresh real data
       if (
@@ -100,7 +100,7 @@ class AIDocumentSearchService {
           queryAnalysis.intent === "find_lowest") &&
         this.documentCache.size > 0
       ) {
-        console.log("🗑️ Clearing cache for fresh financial data analysis...");
+        console.log("Clearing cache for fresh financial data analysis...");
         this.clearCache();
       }
 
@@ -110,7 +110,7 @@ class AIDocumentSearchService {
       // 3. Search based on the analyzed intent
       const results = await this.executeSearch(queryAnalysis, query);
 
-      console.log(`✅ Found ${results.length} results for query: ${query}`);
+      console.log(`Found ${results.length} results for query: ${query}`);
       return results;
     } catch (error) {
       console.error("Search failed:", error);
@@ -615,14 +615,14 @@ class AIDocumentSearchService {
                 ],
               },
             });
-            console.log(`🔄 Created fallback index for: ${doc.originalName}`);
+            console.log(`Created fallback index for: ${doc.originalName}`);
           }
         }
       }
 
       // Summary of what got cached
       console.log(
-        `📊 Indexing complete! Cached ${this.documentCache.size} documents:`,
+        `Indexing complete! Cached ${this.documentCache.size} documents:`,
       );
       Array.from(this.documentCache.values()).forEach((doc, index) => {
         console.log(
@@ -678,7 +678,7 @@ class AIDocumentSearchService {
    * Determine field type for searchable fields
    */
   private determineFieldType(
-    value: any,
+    value: unknown,
   ): "text" | "number" | "date" | "currency" {
     if (typeof value === "number") {
       return "currency"; // Assume numbers in financial documents are currency
@@ -694,7 +694,7 @@ class AIDocumentSearchService {
       }
 
       // Check if it's a currency string
-      if (value.match(/[\$£€¥]/) || value.match(/\d+\.\d{2}/)) {
+      if (value.match(/[$£€¥]/) || value.match(/\d+\.\d{2}/)) {
         return "currency";
       }
     }
@@ -736,7 +736,7 @@ class AIDocumentSearchService {
    */
   clearCache(): void {
     this.documentCache.clear();
-    console.log("🗑️ Document search cache cleared");
+    console.log("Document search cache cleared");
   }
 
   /**

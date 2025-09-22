@@ -206,7 +206,7 @@ class WorkflowApiService {
     workflowId: string,
     options: {
       documentId: string;
-      aiData?: any;
+      aiData?: Record<string, unknown>;
     },
   ): Promise<WorkflowExecution> {
     try {

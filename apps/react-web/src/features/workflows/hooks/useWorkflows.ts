@@ -5,7 +5,7 @@ import { workflowApi, WorkflowDefinition } from '../../../services/workflowApi';
 export const workflowsKeys = {
   all: ['workflows'] as const,
   lists: () => [...workflowsKeys.all, 'list'] as const,
-  list: (filters?: any) => [...workflowsKeys.lists(), filters] as const,
+  list: (filters?: Record<string, unknown>) => [...workflowsKeys.lists(), filters] as const,
   details: () => [...workflowsKeys.all, 'detail'] as const,
   detail: (id: string) => [...workflowsKeys.details(), id] as const,
   options: () => [...workflowsKeys.all, 'options'] as const,
@@ -104,7 +104,7 @@ export function useDeleteWorkflow() {
     mutationFn: (id: string) => workflowApi.deleteWorkflow(id),
     onSuccess: (_, deletedId) => {
       // Remove from workflows list cache
-      queryClient.setQueryData(workflowsKeys.list(), (oldData: any[] | undefined) => {
+      queryClient.setQueryData(workflowsKeys.list(), (oldData: WorkflowDefinition[] | undefined) => {
         if (!oldData) return [];
         return oldData.filter(w => (w._id || w.id) !== deletedId);
       });
@@ -129,7 +129,7 @@ export function useExecuteWorkflow() {
   return useMutation({
     mutationFn: ({ workflowId, options }: { 
       workflowId: string; 
-      options: { documentId: string; aiData?: any } 
+      options: { documentId: string; aiData?: Record<string, unknown> }
     }) => workflowApi.executeWorkflow(workflowId, options),
     onSuccess: (execution) => {
       console.log('Workflow execution started:', execution);
