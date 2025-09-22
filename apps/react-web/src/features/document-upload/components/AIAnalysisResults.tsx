@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FileAnalysis } from '../types/AIAnalysisTypes';
-import './AIAnalysisResults.css';
+import './AIAnalysis.css';
 
 interface AIAnalysisResultsProps {
   files: FileAnalysis[];

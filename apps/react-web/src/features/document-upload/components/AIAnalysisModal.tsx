@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Button from "../../../components/atoms/Button/Button";
 import AIAnalysisErrorBoundary from "../../../components/ErrorBoundary/AIAnalysisErrorBoundary";
-import "./AIAnalysisModal.css";
+import "./AIAnalysis.css";
 
 import { UploadModalData, KeyData } from '../types/AIAnalysisTypes';
 

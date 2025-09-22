@@ -56,8 +56,12 @@ apps/api-gateway/*.pid
 docker-compose-services-only.yml
 docker-compose-core-services.yml
 !docker-compose-full.yml  # Main production compose file
+docker-compose-full.yml
 
 # Documentation (temporary)
 BRANCH_QUICK_REFERENCE.md
 BRANCHING_STRATEGY.md 
 test-results/
+
+# n8n
+deploy-with-n8n.sh
