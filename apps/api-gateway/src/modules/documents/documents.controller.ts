@@ -13,7 +13,7 @@ import { DocumentsService } from './documents.service';
 import { WorkflowExecutionService } from '../workflows/workflow-execution.service';
 import { WorkflowSelectorService } from '../workflows/workflow-selector.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { FastifyRequest } from 'fastify';
+import { Request } from 'express';
 
 interface MultipartFile {
   filename: string;
@@ -37,8 +37,8 @@ export class DocumentsController {
   ) {}
 
   @Post('upload')
-  async uploadDocument(@Req() request: FastifyRequest) {
-    // TEMPORARILY DISABLED DUE TO FASTIFY MULTIPART ISSUE
+  async uploadDocument(@Req() request: Request) {
+    // TEMPORARILY DISABLED DUE TO MULTIPART ISSUE
     throw new BadRequestException('Multipart upload temporarily disabled. Use test-upload instead.');
   }
 
