@@ -50,7 +50,7 @@ function generateBasicJUnitXML() {
   const xmlPath = path.join(resultsDir, 'junit.xml');
   fs.writeFileSync(xmlPath, junitXml);
   
-  console.log(`✅ JUnit XML generated: ${xmlPath}`);
+  console.log(`SUCCESS: JUnit XML generated: ${xmlPath}`);
   return xmlPath;
 }
 
@@ -80,7 +80,7 @@ function generateTestSummary() {
   const summaryPath = path.join(resultsDir, 'test-summary.json');
   fs.writeFileSync(summaryPath, JSON.stringify(summary, null, 2));
   
-  console.log(`✅ Test summary generated: ${summaryPath}`);
+  console.log(`SUCCESS: Test summary generated: ${summaryPath}`);
   return summaryPath;
 }
 
@@ -89,26 +89,26 @@ function checkCoverageFiles() {
   const coverageSummaryPath = path.join(coverageDir, 'coverage-summary.json');
   
   if (fs.existsSync(coverageSummaryPath)) {
-    console.log(`✅ Coverage summary found: ${coverageSummaryPath}`);
+    console.log(`SUCCESS: Coverage summary found: ${coverageSummaryPath}`);
     return true;
   } else {
-    console.log(`⚠️  Coverage summary not found at: ${coverageSummaryPath}`);
+    console.log(`WARNING: Coverage summary not found at: ${coverageSummaryPath}`);
     return false;
   }
 }
 
 function main() {
-  console.log('🔧 Generating test reports for CI...');
+  console.log('INFO: Generating test reports for CI...');
   
   try {
     generateBasicJUnitXML();
     generateTestSummary();
     checkCoverageFiles();
     
-    console.log('✅ Test report generation completed successfully');
+    console.log('SUCCESS: Test report generation completed successfully');
     process.exit(0);
   } catch (error) {
-    console.error('❌ Error generating test reports:', error);
+    console.error('ERROR: Error generating test reports:', error);
     process.exit(1);
   }
 }
