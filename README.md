@@ -1,5 +1,12 @@
 <img src="./readme/title1-1.svg"/>
 
+## License
+
+**License:** MIT
+<img src="./readme/license.svg"/>
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 <!-- CI/CD Pipeline Status: Testing CD trigger after fixing major lint errors -->
 
 <br><br>

@@ -11,12 +11,19 @@ temp/
 coverage/
 .nyc_output/
 
-# Environment files
+# Environment files - NEVER commit real secrets!
 .env
 .env.local
+.env.docker
+.env.enhanced
+.env.production
 .env.*.local
 apps/**/.env
 apps/**/.env.local
+
+# Keep only example files
+!.env.example
+!apps/**/.env.example
 
 # Logs
 *.log
@@ -44,6 +51,11 @@ Sample-Pdf-invoices-main/
 # App specific ignores
 apps/api-gateway/uploads/
 apps/api-gateway/*.pid
+
+# Docker - Keep only main production compose file
+docker-compose-services-only.yml
+docker-compose-core-services.yml
+!docker-compose-full.yml  # Main production compose file
 
 # Documentation (temporary)
 BRANCH_QUICK_REFERENCE.md

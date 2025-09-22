@@ -22,6 +22,10 @@
     "test:slack-bot": "npm run -w apps/slack-bot test",
     "test:react-web": "npm run -w apps/react-web test",
     "test:ci": "npm run -ws test -- --ci --coverage --watchAll=false",
+    "setup:env": "./scripts/setup-env.sh",
+    "db:start": "docker run -d -p 27017:27017 --name apexflow-mongo mongo:latest && docker run -d -p 6379:6379 --name apexflow-redis redis:alpine",
+    "db:stop": "docker stop apexflow-mongo apexflow-redis",
+    "db:clean": "docker rm apexflow-mongo apexflow-redis",
     "prepare": "husky install",
     "precommit": "lint-staged"
   },
