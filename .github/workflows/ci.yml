@@ -34,9 +34,82 @@ jobs:
       - name: Build all workspaces
         run: npm run build
 
-      - name: Run tests
-        run: npm run test
-        continue-on-error: true
+      - name: Run tests with coverage
+        run: npm run test:ci
+        continue-on-error: false
+        env:
+          CI: true
+          NODE_ENV: test
+
+      - name: Upload test results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Jest Tests
+          path: '**/test-results.xml'
+          reporter: jest-junit
+          fail-on-error: true
+
+      - name: Upload coverage reports to Codecov
+        if: always()
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
+          flags: unittests
+          name: ApexFlow-Coverage
+          verbose: true
+
+      - name: Comment PR with test results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Read test results summary
+            let testSummary = 'Test results not available';
+            try {
+              const coveragePath = path.join(process.cwd(), 'coverage', 'coverage-summary.json');
+              if (fs.existsSync(coveragePath)) {
+                const coverage = JSON.parse(fs.readFileSync(coveragePath, 'utf8'));
+                const total = coverage.total;
+                testSummary = `
+                📊 **Test Coverage Report**
+                - Lines: ${total.lines.pct}%
+                - Functions: ${total.functions.pct}%
+                - Branches: ${total.branches.pct}%
+                - Statements: ${total.statements.pct}%
+                `;
+              }
+            } catch (error) {
+              console.log('Could not read coverage report:', error.message);
+            }
+            
+            const comment = `
+            ## 🧪 Test Results
+            
+            ✅ **CI Build Status**: ${context.job.status || 'running'}
+            🏗️ **Build**: [View logs](${context.payload.repository.html_url}/actions/runs/${context.runId})
+            
+            ${testSummary}
+            
+            ---
+            📋 **Workspace Test Summary**:
+            - API Gateway: Tests executed
+            - PDF Workflows: Tests executed  
+            - React Web: Tests executed
+            - Agent Orchestrator: No tests (pass with --passWithNoTests)
+            - Slack Bot: No tests (pass with --passWithNoTests)
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
 
   security:
     runs-on: ubuntu-latest
@@ -56,3 +129,231 @@ jobs:
       - name: Run security audit
         run: npm audit --audit-level=high
         continue-on-error: true
+
+  # API Status Reporting Job
+  api-reporting:
+    runs-on: ubuntu-latest
+    needs: [test, security]
+    if: always()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Report CI status to external APIs
+        env:
+          WEBHOOK_URL: ${{ secrets.CI_WEBHOOK_URL }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          STATUS_API_TOKEN: ${{ secrets.STATUS_API_TOKEN }}
+        run: |
+          # Determine overall status
+          TEST_STATUS="${{ needs.test.result }}"
+          SECURITY_STATUS="${{ needs.security.result }}"
+          
+          if [[ "$TEST_STATUS" == "success" && "$SECURITY_STATUS" == "success" ]]; then
+            OVERALL_STATUS="success"
+            STATUS_ICON="✅"
+            COLOR="good"
+          elif [[ "$TEST_STATUS" == "failure" || "$SECURITY_STATUS" == "failure" ]]; then
+            OVERALL_STATUS="failure"
+            STATUS_ICON="❌"
+            COLOR="danger"
+          else
+            OVERALL_STATUS="partial"
+            STATUS_ICON="⚠️"
+            COLOR="warning"
+          fi
+          
+          # Prepare common payload data
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          COMMIT_MSG=$(git log --format=%B -n 1 ${{ github.sha }} | head -n 1)
+          BUILD_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          
+          echo "CI Status: $OVERALL_STATUS"
+          echo "Test Status: $TEST_STATUS"
+          echo "Security Status: $SECURITY_STATUS"
+          echo "Build URL: $BUILD_URL"
+          
+          # Send status to webhook endpoint (if configured)
+          if [[ -n "$WEBHOOK_URL" ]]; then
+            echo "Sending status to webhook..."
+            curl -X POST "$WEBHOOK_URL" \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer $STATUS_API_TOKEN" \
+              -d @- << EOF
+          {
+            "event": "ci_completed",
+            "status": "$OVERALL_STATUS",
+            "repository": "${{ github.repository }}",
+            "branch": "${{ github.ref_name }}",
+            "commit": {
+              "sha": "${{ github.sha }}",
+              "message": "$COMMIT_MSG",
+              "author": "${{ github.actor }}",
+              "url": "${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}"
+            },
+            "build": {
+              "number": "${{ github.run_number }}",
+              "url": "$BUILD_URL",
+              "duration": null,
+              "started_at": "${{ github.event.created_at }}",
+              "finished_at": "$TIMESTAMP"
+            },
+            "tests": {
+              "status": "$TEST_STATUS",
+              "total_workspaces": 7,
+              "workspaces": {
+                "api-gateway": "executed",
+                "pdf-workflows": "executed",
+                "react-web": "executed",
+                "agent-orchestrator": "no-tests",
+                "slack-bot": "no-tests",
+                "shared": "no-tests",
+                "types": "no-tests"
+              }
+            },
+            "security": {
+              "status": "$SECURITY_STATUS",
+              "audit_level": "high"
+            }
+          }
+          EOF
+          fi
+          
+          # Send Slack notification (if configured)
+          if [[ -n "$SLACK_WEBHOOK" ]]; then
+            echo "Sending Slack notification..."
+            curl -X POST "$SLACK_WEBHOOK" \
+              -H "Content-Type: application/json" \
+              -d @- << EOF
+          {
+            "username": "ApexFlow CI",
+            "icon_emoji": ":rocket:",
+            "attachments": [
+              {
+                "color": "$COLOR",
+                "title": "$STATUS_ICON ApexFlow CI - ${{ github.ref_name }}",
+                "title_link": "$BUILD_URL",
+                "fields": [
+                  {
+                    "title": "Status",
+                    "value": "$OVERALL_STATUS",
+                    "short": true
+                  },
+                  {
+                    "title": "Branch",
+                    "value": "${{ github.ref_name }}",
+                    "short": true
+                  },
+                  {
+                    "title": "Tests",
+                    "value": "$TEST_STATUS",
+                    "short": true
+                  },
+                  {
+                    "title": "Security",
+                    "value": "$SECURITY_STATUS",
+                    "short": true
+                  },
+                  {
+                    "title": "Commit",
+                    "value": "<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>",
+                    "short": false
+                  },
+                  {
+                    "title": "Message",
+                    "value": "$COMMIT_MSG",
+                    "short": false
+                  }
+                ],
+                "footer": "ApexFlow CI",
+                "ts": $(date +%s)
+              }
+            ]
+          }
+          EOF
+          fi
+          
+          # Send Discord notification (if configured)
+          if [[ -n "$DISCORD_WEBHOOK" ]]; then
+            echo "Sending Discord notification..."
+            curl -X POST "$DISCORD_WEBHOOK" \
+              -H "Content-Type: application/json" \
+              -d @- << EOF
+          {
+            "username": "ApexFlow CI",
+            "avatar_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+            "embeds": [
+              {
+                "title": "$STATUS_ICON ApexFlow CI Results",
+                "url": "$BUILD_URL",
+                "color": $([ "$COLOR" = "good" ] && echo "3066993" || ([ "$COLOR" = "danger" ] && echo "15158332" || echo "16776960")),
+                "fields": [
+                  {
+                    "name": "Status",
+                    "value": "$OVERALL_STATUS",
+                    "inline": true
+                  },
+                  {
+                    "name": "Branch",
+                    "value": "${{ github.ref_name }}",
+                    "inline": true
+                  },
+                  {
+                    "name": "Tests",
+                    "value": "$TEST_STATUS",
+                    "inline": true
+                  },
+                  {
+                    "name": "Security",
+                    "value": "$SECURITY_STATUS",
+                    "inline": true
+                  },
+                  {
+                    "name": "Commit",
+                    "value": "[${{ github.sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})",
+                    "inline": false
+                  },
+                  {
+                    "name": "Message",
+                    "value": "$COMMIT_MSG",
+                    "inline": false
+                  }
+                ],
+                "footer": {
+                  "text": "ApexFlow CI • ${{ github.actor }}"
+                },
+                "timestamp": "$TIMESTAMP"
+              }
+            ]
+          }
+          EOF
+          fi
+          
+          echo "API reporting completed"
+
+  # Test Results Summary Job  
+  test-summary:
+    runs-on: ubuntu-latest
+    needs: [test, security]
+    if: always()
+    
+    steps:
+      - name: Test Results Summary
+        run: |
+          echo "=== ApexFlow CI Test Summary ==="
+          echo "Test Job Status: ${{ needs.test.result }}"
+          echo "Security Job Status: ${{ needs.security.result }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Event: ${{ github.event_name }}"
+          
+          if [[ "${{ needs.test.result }}" == "success" && "${{ needs.security.result }}" == "success" ]]; then
+            echo "🎉 All CI checks passed successfully!"
+            exit 0
+          else
+            echo "❌ Some CI checks failed. Please review the logs."
+            exit 1
+          fi
