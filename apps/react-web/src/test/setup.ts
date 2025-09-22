@@ -234,7 +234,7 @@ if (typeof globalThis.BroadcastChannel === 'undefined') {
       this.onmessageerror = null;
     }
     
-    postMessage(_message: unknown) {
+    postMessage() {
       // Mock implementation
     }
     
@@ -242,11 +242,11 @@ if (typeof globalThis.BroadcastChannel === 'undefined') {
       // Mock implementation
     }
     
-    addEventListener(_type: string, _listener: unknown) {
+    addEventListener() {
       // Mock implementation
     }
     
-    removeEventListener(_type: string, _listener: unknown) {
+    removeEventListener() {
       // Mock implementation
     }
   };
@@ -263,7 +263,7 @@ if (typeof globalThis.URL === 'undefined') {
     search: string;
     hash: string;
 
-    constructor(url: string, _base?: string) {
+    constructor(url: string) {
       this.href = url;
       this.origin = 'http://localhost';
       this.protocol = 'http:';
