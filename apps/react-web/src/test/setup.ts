@@ -70,10 +70,19 @@ if (typeof TextEncoder === 'undefined') {
 if (typeof globalThis.Response === 'undefined') {
   // Mock Response constructor
   globalThis.Response = class Response {
-    constructor(body, init = {}) {
+    status: number;
+    statusText: string;
+    headers: Headers;
+    ok: boolean;
+    body: any;
+    url: string;
+    type: string;
+    redirected: boolean;
+    
+    constructor(body?: any, init: any = {}) {
       this.status = init.status || 200;
       this.statusText = init.statusText || 'OK';
-      this.headers = new Headers(init.headers);
+      this.headers = new (globalThis as any).Headers(init.headers);
       this.ok = this.status >= 200 && this.status < 300;
       this.body = body;
       this.url = '';
@@ -105,10 +114,15 @@ if (typeof globalThis.Response === 'undefined') {
 
 if (typeof globalThis.Request === 'undefined') {
   globalThis.Request = class Request {
-    constructor(input, init = {}) {
+    url: string;
+    method: string;
+    headers: Headers;
+    body: any;
+
+    constructor(input: string | any, init: any = {}) {
       this.url = typeof input === 'string' ? input : input.url;
       this.method = init.method || 'GET';
-      this.headers = new Headers(init.headers);
+      this.headers = new (globalThis as any).Headers(init.headers);
       this.body = init.body;
     }
   };
@@ -116,38 +130,40 @@ if (typeof globalThis.Request === 'undefined') {
 
 if (typeof globalThis.Headers === 'undefined') {
   globalThis.Headers = class Headers {
-    constructor(init = {}) {
+    _headers: Map<string, string>;
+
+    constructor(init: any = {}) {
       this._headers = new Map();
       if (init) {
         if (init instanceof Headers) {
-          init._headers.forEach((value, key) => this._headers.set(key, value));
+          (init as any)._headers.forEach((value: string, key: string) => this._headers.set(key, value));
         } else if (Array.isArray(init)) {
-          init.forEach(([key, value]) => this._headers.set(key.toLowerCase(), value));
+          init.forEach(([key, value]: [string, string]) => this._headers.set(key.toLowerCase(), value));
         } else {
           Object.entries(init).forEach(([key, value]) => 
-            this._headers.set(key.toLowerCase(), value)
+            this._headers.set(key.toLowerCase(), value as string)
           );
         }
       }
     }
     
-    get(name) {
+    get(name: string) {
       return this._headers.get(name.toLowerCase()) || null;
     }
     
-    set(name, value) {
+    set(name: string, value: string) {
       this._headers.set(name.toLowerCase(), value);
     }
     
-    has(name) {
+    has(name: string) {
       return this._headers.has(name.toLowerCase());
     }
     
-    delete(name) {
+    delete(name: string) {
       return this._headers.delete(name.toLowerCase());
     }
     
-    forEach(callback) {
+    forEach(callback: (value: string, key: string) => void) {
       this._headers.forEach(callback);
     }
   };
@@ -163,6 +179,13 @@ if (typeof globalThis.fetch === 'undefined') {
 // Simple AbortController polyfill
 if (typeof globalThis.AbortController === 'undefined') {
   globalThis.AbortController = class AbortController {
+    signal: {
+      aborted: boolean;
+      addEventListener: jest.Mock;
+      removeEventListener: jest.Mock;
+      dispatchEvent: jest.Mock;
+    };
+
     constructor() {
       this.signal = {
         aborted: false,
@@ -177,7 +200,7 @@ if (typeof globalThis.AbortController === 'undefined') {
     }
   };
   
-  globalThis.AbortSignal = {
+  (globalThis as any).AbortSignal = {
     timeout: jest.fn(),
   };
 }
@@ -185,7 +208,11 @@ if (typeof globalThis.AbortController === 'undefined') {
 // Mock Blob if needed
 if (typeof globalThis.Blob === 'undefined') {
   globalThis.Blob = class Blob {
-    constructor(parts = [], options = {}) {
+    size: number;
+    type: string;
+    parts: any[];
+
+    constructor(parts: any[] = [], options: any = {}) {
       this.size = 0;
       this.type = options.type || '';
       this.parts = parts;
@@ -196,13 +223,17 @@ if (typeof globalThis.Blob === 'undefined') {
 // Mock BroadcastChannel for MSW
 if (typeof globalThis.BroadcastChannel === 'undefined') {
   globalThis.BroadcastChannel = class BroadcastChannel {
-    constructor(channel) {
+    name: string;
+    onmessage: any;
+    onmessageerror: any;
+
+    constructor(channel: string) {
       this.name = channel;
       this.onmessage = null;
       this.onmessageerror = null;
     }
     
-    postMessage(message) {
+    postMessage(_message: any) {
       // Mock implementation
     }
     
@@ -210,11 +241,11 @@ if (typeof globalThis.BroadcastChannel === 'undefined') {
       // Mock implementation
     }
     
-    addEventListener(type, listener) {
+    addEventListener(_type: string, _listener: any) {
       // Mock implementation
     }
     
-    removeEventListener(type, listener) {
+    removeEventListener(_type: string, _listener: any) {
       // Mock implementation
     }
   };
@@ -223,7 +254,15 @@ if (typeof globalThis.BroadcastChannel === 'undefined') {
 // Mock URL constructor if needed
 if (typeof globalThis.URL === 'undefined') {
   globalThis.URL = class URL {
-    constructor(url, base) {
+    href: string;
+    origin: string;
+    protocol: string;
+    host: string;
+    pathname: string;
+    search: string;
+    hash: string;
+
+    constructor(url: string, _base?: string) {
       this.href = url;
       this.origin = 'http://localhost';
       this.protocol = 'http:';

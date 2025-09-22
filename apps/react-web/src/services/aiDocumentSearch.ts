@@ -77,11 +77,10 @@ export interface SearchableField {
 }
 
 class AIDocumentSearchService {
-  private baseUrl: string;
   private documentCache: Map<string, DocumentIndex> = new Map();
 
   constructor() {
-    this.baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+    // baseUrl removed - not used
   }
 
   /**
@@ -274,7 +273,6 @@ class AIDocumentSearchService {
       case "count":
         results = this.listDocuments(
           filteredDocs,
-          originalQuery,
           queryAnalysis,
         );
         break;
@@ -380,7 +378,6 @@ class AIDocumentSearchService {
    */
   private listDocuments(
     documents: DocumentIndex[],
-    query: string,
     queryAnalysis: QueryAnalysis,
   ): DocumentSearchResult[] {
     const results: DocumentSearchResult[] = documents.map((doc, index) => {
@@ -389,8 +386,7 @@ class AIDocumentSearchService {
       // Add financial info if available
       if (doc.extractedData.structuredFields?.financial_info?.total) {
         const amount = doc.extractedData.structuredFields.financial_info.total;
-        const currency =
-          doc.extractedData.structuredFields.financial_info.currency || "USD";
+        // Using USD as default currency display
         excerpt += ` Amount: $${amount}.`;
       }
 

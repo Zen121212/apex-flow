@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
-import * as request from 'supertest';
+import request from 'supertest';
 import { MongoRepository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { AuthModule } from '../src/modules/auth/auth.module';

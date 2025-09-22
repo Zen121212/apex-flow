@@ -236,7 +236,8 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
       onConfirm(editedData); // This will close the modal and trigger parent cleanup
     } catch (error) {
       console.error("Slack approval flow failed:", error);
-      alert(`Failed to process documents for approval: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      alert(`Failed to process documents for approval: ${errorMessage}`);
     }
   };
 
@@ -941,143 +942,7 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
 
   // Removed unused getNestedValue function
 
-  // Helper function to render extraction metadata and confidence
-  const renderExtractionMetadata = (fileData: any) => {
-    // Try multiple paths to find metadata
-    const metadata = fileData.keyData?.metadata || fileData.metadata;
-    const extractedFields =
-      fileData.keyData?.extractedFields || fileData.extractedFields;
-
-    // Also check if metadata is mixed in with the main keyData
-    const keyDataMetadata = fileData.keyData
-      ? {
-          extractionConfidence: fileData.keyData.extractionConfidence,
-          documentType: fileData.keyData.documentType,
-          language: fileData.keyData.language,
-          fieldsFound: fileData.keyData.fieldsFound,
-          totalFields: fileData.keyData.totalFields,
-          aiFieldCount: fileData.keyData.aiFieldCount,
-          patternFieldCount: fileData.keyData.patternFieldCount,
-          extractionMethod: fileData.keyData.extractionMethod,
-          extractionSummary: fileData.keyData.extractionSummary,
-        }
-      : null;
-
-    // Use keyDataMetadata if we found it and it has extraction confidence
-    const finalMetadata =
-      keyDataMetadata && keyDataMetadata.extractionConfidence !== undefined
-        ? keyDataMetadata
-        : metadata;
-
-    if (!finalMetadata && !extractedFields) return null;
-
-    return (
-      <div className="ai-extraction-metadata">
-        {finalMetadata && finalMetadata.extractionConfidence !== undefined && (
-          <div className="ai-metadata-section">
-            <h4>Extraction Analytics</h4>
-            <div className="ai-metadata-grid">
-              <div className="ai-metadata-item">
-                <label>Confidence Score</label>
-                <div className="ai-confidence-bar">
-                  <div
-                    className="ai-confidence-fill"
-                    style={{
-                      width: `${finalMetadata.extractionConfidence * 100}%`,
-                      backgroundColor:
-                        finalMetadata.extractionConfidence > 0.8
-                          ? "#10b981"
-                          : finalMetadata.extractionConfidence > 0.6
-                            ? "#f59e0b"
-                            : "#ef4444",
-                    }}
-                  ></div>
-                  <span className="ai-confidence-text">
-                    {Math.round(finalMetadata.extractionConfidence * 100)}%
-                  </span>
-                </div>
-              </div>
-
-              <div className="ai-metadata-item">
-                <label>Extraction Method</label>
-                <span
-                  className={`ai-method-badge ai-method-${finalMetadata.extractionMethod?.toLowerCase().replace("-", "")}`}
-                >
-                  {finalMetadata.extractionMethod || "Unknown"}
-                </span>
-              </div>
-
-              <div className="ai-metadata-item">
-                <label>Fields Found</label>
-                <span className="ai-field-count">
-                  {finalMetadata.fieldsFound || 0} /{" "}
-                  {finalMetadata.totalFields || 0}
-                </span>
-              </div>
-
-              <div className="ai-metadata-item">
-                <label>AI vs Patterns</label>
-                <div className="ai-method-split">
-                  <span className="ai-ai-count">
-                    AI: {finalMetadata.aiFieldCount || 0}
-                  </span>
-                  <span className="ai-pattern-count">
-                    Pattern: {finalMetadata.patternFieldCount || 0}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {finalMetadata.extractionSummary && (
-              <div className="ai-extraction-summary">
-                <strong>Summary:</strong> {finalMetadata.extractionSummary}
-              </div>
-            )}
-          </div>
-        )}
-
-        {extractedFields && extractedFields.length > 0 && (
-          <div className="ai-fields-breakdown">
-            <h4>Field-by-Field Analysis</h4>
-            <div className="ai-fields-list">
-              {extractedFields.slice(0, 10).map((field: any, index: number) => (
-                <div key={index} className="ai-field-detail">
-                  <div className="ai-field-header">
-                    <span className="ai-field-name">{field.fieldName}</span>
-                    <div className="ai-field-badges">
-                      <span
-                        className={`ai-method-mini ai-method-${field.method?.toLowerCase().includes("ai") ? "ai" : "pattern"}`}
-                      >
-                        {field.method?.includes("AI") ? "AI" : "Pattern"}
-                      </span>
-                      <span className="ai-confidence-mini">
-                        {Math.round((field.confidence || 0) * 100)}%
-                      </span>
-                      <span
-                        className={`ai-position-mini ai-pos-${field.position?.toLowerCase()}`}
-                      >
-                        {field.position}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="ai-field-value">
-                    {typeof field.value === "string" && field.value.length > 50
-                      ? `${field.value.substring(0, 50)}...`
-                      : String(field.value || "N/A")}
-                  </div>
-                </div>
-              ))}
-              {extractedFields.length > 10 && (
-                <div className="ai-more-fields">
-                  ... and {extractedFields.length - 10} more fields
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  };
+  // renderExtractionMetadata function removed - not used
 
   const renderAnalysisContent = () => (
     <div className="ai-analysis-content">

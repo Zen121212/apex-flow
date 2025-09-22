@@ -79,28 +79,7 @@ const AIAssistant: React.FC = () => {
     { id: "5", title: "Legal Compliance Checklist.pdf" },
   ];
 
-  const mockSearchResults: DocumentResult[] = [
-    {
-      id: "1",
-      title: "Q2 2024 Financial Report",
-      excerpt:
-        "Revenue increased by 23% compared to Q1 2024, with significant growth in subscription services...",
-      relevanceScore: 0.95,
-      documentType: "PDF",
-      lastModified: new Date("2024-07-15"),
-      tags: ["financial", "quarterly", "revenue"],
-    },
-    {
-      id: "2",
-      title: "Vendor Contract - TechCorp",
-      excerpt:
-        "Service level agreement stipulates 99.9% uptime with penalties for non-compliance...",
-      relevanceScore: 0.87,
-      documentType: "PDF",
-      lastModified: new Date("2024-06-10"),
-      tags: ["contract", "vendor", "sla"],
-    },
-  ];
+  // Mock search results removed - not used
 
   useEffect(() => {
     // Initialize with mock data
@@ -114,55 +93,7 @@ const AIAssistant: React.FC = () => {
     setState((prev) => ({ ...prev, activeTab: tab }));
   };
 
-  const handleSearch = async (query: string) => {
-    setState((prev) => ({ ...prev, isLoading: true }));
-
-    try {
-      // Use AI document search service
-      const searchResults = await aiDocumentSearch.search(query);
-
-      // Convert AI search results to DocumentResult format
-      const documentResults: DocumentResult[] = searchResults.map((result) => ({
-        id: result.id,
-        title: result.title,
-        excerpt: result.excerpt,
-        relevanceScore: result.relevanceScore,
-        documentType: result.documentType,
-        lastModified: result.lastModified,
-        tags: result.tags,
-      }));
-
-      const newQuery: SearchQuery = {
-        id: Date.now().toString(),
-        query,
-        timestamp: new Date(),
-        results: documentResults,
-        status: "completed",
-      };
-
-      setState((prev) => ({
-        ...prev,
-        searchQueries: [newQuery, ...prev.searchQueries],
-        isLoading: false,
-      }));
-    } catch (error) {
-      console.error("Search failed:", error);
-
-      const failedQuery: SearchQuery = {
-        id: Date.now().toString(),
-        query,
-        timestamp: new Date(),
-        results: [],
-        status: "error",
-      };
-
-      setState((prev) => ({
-        ...prev,
-        searchQueries: [failedQuery, ...prev.searchQueries],
-        isLoading: false,
-      }));
-    }
-  };
+  // handleSearch function removed - not used
 
   const handleSendMessage = async (message: string) => {
     // Create or update current chat session
@@ -286,19 +217,20 @@ const AIAssistant: React.FC = () => {
       }));
     } catch (error) {
       console.error("Chat search failed:", error);
-      console.error("Error details:", error.message);
-      console.error("Stack trace:", error.stack);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      console.error("Error details:", errorMessage);
+      console.error("Stack trace:", error instanceof Error ? error.stack : 'No stack trace');
 
-      const errorMessage: ChatMessage = {
+      const chatErrorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         type: "assistant",
-        content: `I encountered an error while searching your documents: ${error.message}. Please check the browser console for details.`,
+        content: `I encountered an error while searching your documents: ${errorMessage}. Please check the browser console for details.`,
         timestamp: new Date(),
       };
 
       const finalSession = {
         ...updatedSession,
-        messages: [...updatedSession.messages, errorMessage],
+        messages: [...updatedSession.messages, chatErrorMessage],
         lastActivity: new Date(),
       };
 

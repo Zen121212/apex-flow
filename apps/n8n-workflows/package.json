@@ -4,6 +4,7 @@
   "description": "n8n workflow automation for ApexFlow approval system",
   "main": "server.js",
   "scripts": {
+    "build": "echo \"n8n workflows - build not required\"",
     "start": "./start.sh",
     "start:docker": "docker-compose up -d",
     "stop": "docker-compose down",

@@ -58,30 +58,9 @@ interface CreatedWorkflow {
 }
 
 /**
- * Utilities
+ * Utilities - removed unused functions
  */
-const normalizeRecipients = (value: RecipientInput): string[] => {
-  if (!value) return [];
-  if (Array.isArray(value)) return value.map((v) => v.trim()).filter(Boolean);
-  return value
-    .split(/[;,\n]/)
-    .map((v) => v.trim())
-    .filter(Boolean);
-};
-
-// Helper functions moved to molecule components
-
-const getEnabledIntegrations = (
-  integrations?: WorkflowIntegrations | CreatedWorkflow["integrations"],
-): IntegrationName[] => {
-  if (!integrations) return [];
-  const enabled: IntegrationName[] = [];
-  if (integrations.slack?.enabled) enabled.push("Slack");
-  if (integrations.email?.enabled) enabled.push("Email");
-  if (integrations.database?.enabled) enabled.push("Database");
-  if (integrations.webhook?.enabled) enabled.push("Webhook");
-  return enabled;
-};
+// normalizeRecipients and getEnabledIntegrations functions removed - not used
 
 
 /**

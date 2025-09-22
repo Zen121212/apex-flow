@@ -1,4 +1,4 @@
-import { FileAnalysis, UploadModalData } from '../types/AIAnalysisTypes';
+import type { FileAnalysis, UploadModalData } from '../types/AIAnalysisTypes';
 
 /**
  * Transforms raw document analysis data into the format expected by AIAnalysisModal

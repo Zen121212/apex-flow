@@ -272,8 +272,7 @@ const WorkflowModal: React.FC<WorkflowModalProps> = ({
   isOpen,
   onClose,
   onWorkflowCreated,
-  editingWorkflow = null,
-  mode = 'create',
+  // editingWorkflow and mode parameters removed - not used
 }) => {
   const [step, setStep] = useState<number>(1);
   const [workflowName, setWorkflowName] = useState("");

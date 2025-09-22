@@ -31,11 +31,7 @@ interface FileAnalysis {
   workflowName?: string;
 }
 
-interface UploadModalData {
-  files: FileAnalysis[];
-  uploadOptions: UploadOptions;
-  originalFiles: File[];
-}
+// UploadModalData interface removed - not used
 
 
 
@@ -183,7 +179,11 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onFilesUploa
           await new Promise(resolve => setTimeout(resolve, 2000));
           
           // Fetch analysis results for the first processed document
-          const analysisResponse = await documentAPI.getDocumentAnalysis(processedIds[0]);
+          const firstProcessedId = processedIds[0];
+          if (!firstProcessedId || typeof firstProcessedId !== 'string') {
+            throw new Error('No valid processed document ID found');
+          }
+          const analysisResponse = await documentAPI.getDocumentAnalysis(firstProcessedId);
           const analysis = analysisResponse.analysis || {};
           
           // Transform to analysis modal format

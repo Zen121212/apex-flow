@@ -3,7 +3,7 @@ import { Repository } from 'typeorm';
 /**
  * Mock repository factory for TypeORM testing
  */
-export const createMockRepository = <T = any>(): jest.Mocked<Repository<T>> => ({
+export const createMockRepository = <T extends Record<string, any> = any>(): jest.Mocked<Repository<T>> => ({
   find: jest.fn(),
   findOne: jest.fn(),
   findOneBy: jest.fn(),
@@ -47,7 +47,7 @@ export const createMockRepository = <T = any>(): jest.Mocked<Repository<T>> => (
 /**
  * Mock MongoDB repository factory
  */
-export const createMockMongoRepository = <T = any>(): jest.Mocked<Repository<T> & { findOneAndUpdate: jest.Mock }> => ({
+export const createMockMongoRepository = <T extends Record<string, any> = any>(): jest.Mocked<Repository<T> & { findOneAndUpdate: jest.Mock }> => ({
   ...createMockRepository<T>(),
   findOneAndUpdate: jest.fn(),
 });

@@ -142,44 +142,7 @@ const UploadDocuments: React.FC = () => {
     }
   };
 
-  const handleProcessDocument = async (doc: DocumentItem) => {
-    setLoadingAnalysis(doc.id);
-    try {
-      console.log(`🔄 Processing document: ${doc.originalName} (${doc.id})`);
-      
-      // Try the new direct analysis endpoint first
-      const response = await fetch(`http://localhost:3000/documents/${doc.id}/analyze-direct`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (response.ok) {
-        console.log(`✅ Direct AI analysis completed for document: ${doc.id}`);
-        alert('Document processed successfully! You can now view the AI analysis results.');
-        // Refresh the document list to show updated status
-        refetch();
-      } else {
-        // Fallback to regular processing
-        const processResponse = await fetch(`http://localhost:3000/documents/${doc.id}/process`, {
-          method: 'POST',
-        });
-        
-        if (processResponse.ok) {
-          console.log(`✅ Document queued for processing: ${doc.id}`);
-          alert('Document queued for processing. Please wait a moment and then view the analysis results.');
-        } else {
-          throw new Error('Processing failed');
-        }
-      }
-    } catch (error) {
-      console.error('Failed to process document:', error);
-      alert('Failed to process document. Please try again.');
-    } finally {
-      setLoadingAnalysis(null);
-    }
-  };
+  // handleProcessDocument function removed - not used
 
   return (
     <div className={styles.page}>
