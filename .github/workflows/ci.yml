@@ -41,14 +41,18 @@ jobs:
           CI: true
           NODE_ENV: test
 
+      - name: Generate test reports
+        run: node scripts/generate-test-reports.js
+        if: always()
+
       - name: Upload test results
         uses: dorny/test-reporter@v1
         if: always()
         with:
           name: Jest Tests
-          path: '**/test-results.xml'
+          path: 'test-results/junit.xml'
           reporter: jest-junit
-          fail-on-error: true
+          fail-on-error: false
 
       - name: Upload coverage reports to Codecov
         if: always()
@@ -70,7 +74,23 @@ jobs:
             
             // Read test results summary
             let testSummary = 'Test results not available';
+            let testDetails = '';
+            
             try {
+              // Try to read test summary
+              const testSummaryPath = path.join(process.cwd(), 'test-results', 'test-summary.json');
+              if (fs.existsSync(testSummaryPath)) {
+                const testData = JSON.parse(fs.readFileSync(testSummaryPath, 'utf8'));
+                testDetails = `
+                🧪 **Test Results**
+                - Total Tests: ${testData.numTotalTests}
+                - Passed: ${testData.numPassedTests}
+                - Failed: ${testData.numFailedTests}
+                - Test Suites: ${testData.numPassedTestSuites}/${testData.numTotalTestSuites}
+                `;
+              }
+              
+              // Try to read coverage summary
               const coveragePath = path.join(process.cwd(), 'coverage', 'coverage-summary.json');
               if (fs.existsSync(coveragePath)) {
                 const coverage = JSON.parse(fs.readFileSync(coveragePath, 'utf8'));
@@ -82,9 +102,12 @@ jobs:
                 - Branches: ${total.branches.pct}%
                 - Statements: ${total.statements.pct}%
                 `;
+              } else {
+                testSummary = '📊 **Coverage**: Report not available';
               }
             } catch (error) {
-              console.log('Could not read coverage report:', error.message);
+              console.log('Could not read test reports:', error.message);
+              testSummary = '⚠️ **Test Reports**: Error reading results';
             }
             
             const comment = `
@@ -92,6 +115,8 @@ jobs:
             
             ✅ **CI Build Status**: ${context.job.status || 'running'}
             🏗️ **Build**: [View logs](${context.payload.repository.html_url}/actions/runs/${context.runId})
+            
+            ${testDetails}
             
             ${testSummary}
             
