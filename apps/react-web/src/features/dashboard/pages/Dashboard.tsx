@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../../app/providers/AuthProvider";
 import Button from "../../../components/atoms/Button/Button";
@@ -140,39 +140,7 @@ const Dashboard: React.FC = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showWorkflowModal, setShowWorkflowModal] = useState(false);
 
-  useEffect(() => {
-    loadDashboardData();
-  }, []);
-
-  // Helper function to format file size
-  const formatFileSize = (bytes?: number): string => {
-    if (!bytes) return "Unknown";
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`;
-  };
-
-  // Helper function to get file type from mimeType
-  const getFileType = (mimeType?: string): string => {
-    if (!mimeType) return "unknown";
-    if (mimeType.includes('pdf')) return "pdf";
-    if (mimeType.includes('word') || mimeType.includes('document')) return "text";
-    if (mimeType.includes('image')) return "image";
-    if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return "spreadsheet";
-    return "document";
-  };
-
-  // Transform API DocumentItem to RecentDocument
-  const transformToRecentDocument = (item: DocumentItem): RecentDocument => ({
-    id: item.id,
-    name: item.originalName,
-    type: getFileType(item.mimeType),
-    uploadDate: new Date(item.createdAt),
-    status: item.status === "failed" ? "error" : (item.status || "completed") as "processing" | "completed" | "error",
-    size: formatFileSize(item.size),
-  });
-
-  const loadRecentDocuments = async (): Promise<void> => {
+  const loadRecentDocuments = useCallback(async (): Promise<void> => {
     try {
       setLoadingDocuments(true);
       setDocumentsError(null);
@@ -209,9 +177,9 @@ const Dashboard: React.FC = () => {
     } finally {
       setLoadingDocuments(false);
     }
-  };
+  }, [transformToRecentDocument]);
 
-  const loadDashboardData = (): void => {
+  const loadDashboardData = useCallback((): void => {
     // Load initial stats with dummy data (can be replaced with real API calls later)
     setStats({
       totalDocuments: 0, // Will be updated by loadRecentDocuments
@@ -224,7 +192,41 @@ const Dashboard: React.FC = () => {
 
     // Load actual recent documents
     loadRecentDocuments();
+  }, [loadRecentDocuments]);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
+
+  // Helper function to format file size
+  const formatFileSize = (bytes?: number): string => {
+    if (!bytes) return "Unknown";
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`;
   };
+
+  // Helper function to get file type from mimeType
+  const getFileType = (mimeType?: string): string => {
+    if (!mimeType) return "unknown";
+    if (mimeType.includes('pdf')) return "pdf";
+    if (mimeType.includes('word') || mimeType.includes('document')) return "text";
+    if (mimeType.includes('image')) return "image";
+    if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return "spreadsheet";
+    return "document";
+  };
+
+  // Transform API DocumentItem to RecentDocument
+  const transformToRecentDocument = useCallback((item: DocumentItem): RecentDocument => ({
+    id: item.id,
+    name: item.originalName,
+    type: getFileType(item.mimeType),
+    uploadDate: new Date(item.createdAt),
+    status: item.status === "failed" ? "error" : (item.status || "completed") as "processing" | "completed" | "error",
+    size: formatFileSize(item.size),
+  }), []);
+
+
 
   // Helper functions moved to molecule components
 

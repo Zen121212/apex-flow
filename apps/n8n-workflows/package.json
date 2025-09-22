@@ -16,6 +16,7 @@
     "tunnel": "n8n start --tunnel",
     "import": "n8n import:workflow --input=./workflows/",
     "export": "n8n export:workflow --output=./workflows/ --all",
+    "lint": "echo \"Linting not configured for this workspace\"",
     "test": "echo \"n8n workflows - no tests configured\""
   },
   "dependencies": {

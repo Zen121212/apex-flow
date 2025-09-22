@@ -3,25 +3,7 @@ import Button from "../../../components/atoms/Button/Button";
 import AIAnalysisErrorBoundary from "../../../components/ErrorBoundary/AIAnalysisErrorBoundary";
 import "./AIAnalysisModal.css";
 
-interface FileAnalysis {
-  fileName: string;
-  originalFile: File; // Preserve the original File object
-  documentType: string;
-  keyData: any;
-  confidence: number;
-  suggestedWorkflow: any;
-  extractedText: string;
-  metadata: any;
-  workflowId?: string;
-  workflowName?: string;
-}
-
-interface UploadModalData {
-  files: FileAnalysis[];
-  uploadOptions: any;
-  originalFiles: File[];
-  selectedWorkflow?: any; // Add workflow information
-}
+import { FileAnalysis, UploadModalData, KeyData, SelectedWorkflow } from '../types/AIAnalysisTypes';
 
 interface AIAnalysisModalProps {
   isOpen: boolean;
@@ -56,13 +38,13 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
 
   if (!isOpen || !data || !editedData) return null;
 
-  const handleFieldChange = (fileIndex: number, field: string, value: any) => {
+  const handleFieldChange = (fileIndex: number, field: string, value: string | number | boolean) => {
     const newData = { ...editedData };
     newData.files[fileIndex] = { ...newData.files[fileIndex], [field]: value };
     setEditedData(newData);
   };
 
-  const handleKeyDataChange = (fileIndex: number, key: string, value: any) => {
+  const handleKeyDataChange = (fileIndex: number, key: string, value: string | number | boolean | null | undefined) => {
     const newData = { ...editedData };
     newData.files[fileIndex].keyData = {
       ...newData.files[fileIndex].keyData,
@@ -87,7 +69,7 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
     if (isSlackApprovalWorkflow()) {
       // Handle Slack approval workflow
       console.log(
-        "🔔 Detected Slack approval workflow - creating approval request",
+        "Detected Slack approval workflow - creating approval request",
       );
       await handleSlackApprovalFlow();
     } else {
@@ -101,7 +83,7 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
       const currentFile = editedData.files[selectedFileIndex];
       const workflow = editedData?.selectedWorkflow || data?.selectedWorkflow;
 
-      console.log("📋 Preparing approval request for:", {
+      console.log("Preparing approval request for:", {
         fileName: currentFile.fileName,
         workflowName: workflow?.name,
         documentType: currentFile.documentType,
@@ -189,7 +171,7 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
             stepName: "Document Review",
             approvalType: "document_processing",
             requesterId: "user-system", // TODO: Get actual user ID
-            title: `📄 ${currentFile.documentType || "Document"} Review Required`,
+            title: `${currentFile.documentType || "Document"} Review Required`,
             description: `Please review the AI-extracted data from "${currentFile.fileName}" before saving to database.`,
             metadata: {
               documentName: currentFile.fileName,
@@ -203,7 +185,7 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
             expiresInHours: 24,
           };
 
-          console.log("🚀 Creating approval request:", approvalData.title);
+          console.log("Creating approval request:", approvalData.title);
 
           // Create the approval request
           const approvalResponse = await fetch(
@@ -231,7 +213,7 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
 
       // Show success message and close modal
       alert(
-        `🎉 Success! Documents uploaded and sent for Slack approval. Check your Slack channel for approval requests.`,
+        "Success! Documents uploaded and sent for Slack approval. Check your Slack channel for approval requests.",
       );
       onConfirm(editedData); // This will close the modal and trigger parent cleanup
     } catch (error) {
@@ -256,7 +238,7 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
       .replace(/([a-z])([A-Z])/g, "$1 $2"); // Handle camelCase
   };
 
-  const getInputType = (key: string, value: any): string => {
+  const getInputType = (key: string, value: unknown): string => {
     if (typeof value === "number") return "number";
     if (key.toLowerCase().includes("date")) return "date";
     if (key.toLowerCase().includes("email")) return "email";
@@ -270,7 +252,7 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
     return "text";
   };
 
-  const formatDateForInput = (value: any, key: string): string => {
+  const formatDateForInput = (value: unknown, key: string): string => {
     if (!value) return "";
 
     // If it's already a date field, try to format it
@@ -288,7 +270,7 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
           if (date instanceof Date && !isNaN(date.getTime())) {
             return date.toISOString().split("T")[0]; // Convert to YYYY-MM-DD
           }
-        } catch (e) {
+        } catch {
           console.warn("Date parsing failed:", dateStr);
         }
       }
@@ -299,7 +281,7 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
         if (date instanceof Date && !isNaN(date.getTime())) {
           return date.toISOString().split("T")[0]; // Convert to YYYY-MM-DD
         }
-      } catch (e) {
+      } catch {
         // If all date parsing fails, return the original value
       }
     }
@@ -311,7 +293,7 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
     fileIndex: number,
     path: string[],
     itemIndex: number,
-    value: any,
+    value: string | number | boolean,
   ) => {
     const newData = { ...editedData };
     let target = newData.files[fileIndex].keyData;
@@ -336,7 +318,7 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
   const handleNestedKeyDataChange = (
     fileIndex: number,
     path: string[],
-    value: any,
+    value: string | number | boolean | null | undefined,
   ) => {
     const newData = { ...editedData };
     let target = newData.files[fileIndex].keyData;
@@ -352,7 +334,7 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
   };
 
   // Function to render complex invoice data or simple key-value pairs
-  const renderKeyData = (keyData: any, fileIndex: number) => {
+  const renderKeyData = (keyData: KeyData, fileIndex: number) => {
     // List of metadata fields to skip in the main data rendering
     const metadataFields = new Set([
       "metadata",
@@ -369,7 +351,7 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
     ]);
 
     // Dynamically render nested structures based on what was actually extracted
-    const renderDynamicStructure = (obj: any, basePath: string[] = []) => {
+    const renderDynamicStructure = (obj: Record<string, unknown>, basePath: string[] = []) => {
       const elements: React.ReactElement[] = [];
 
       Object.entries(obj).forEach(([key, value]) => {
@@ -393,7 +375,7 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
                 <h5>
                   {formatFieldLabel(key)} ({value.length} items)
                 </h5>
-                {value.map((item: any, index: number) => (
+                {value.map((item: unknown, index: number) => (
                   <div key={`${fieldKey}.${index}`} className="ai-array-item">
                     <h6>
                       {formatFieldLabel(key)} {index + 1}
@@ -585,7 +567,7 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
   };
 
   // Invoice-style layout renderer
-  const renderInvoiceLayout = (keyData: any, fileIndex: number) => {
+  const renderInvoiceLayout = (keyData: KeyData, fileIndex: number) => {
     const financial = keyData.financial_info || {};
     const vendor = keyData.vendor_info || {};
     const customer = keyData.customer_info || {};
@@ -752,7 +734,7 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
           </thead>
           <tbody>
             {lineItems.length > 0 ? (
-              lineItems.map((item: any, index: number) => (
+              lineItems.map((item: Record<string, unknown>, index: number) => (
                 <tr key={index}>
                   <td>
                     <input

@@ -3,6 +3,7 @@ import React, {
   useContext,
   useState,
   useEffect,
+  useCallback,
   ReactNode,
 } from "react";
 import { authAPI } from "../../services/api/auth";
@@ -39,48 +40,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadUserFromStorage();
-  }, []);
-
-  const loadUserFromStorage = async (): Promise<void> => {
+  const loadUserFromStorage = useCallback(async (): Promise<void> => {
     try {
       // Try to get user profile from server (which will use the HTTP-only cookie)
       const response = await authAPI.getProfile();
       setUser(response.user as User);
       console.log("User session restored:", response.user.email);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Auth profile request failed:");
       console.error("Error details:", error);
-      console.error("Error message:", error.message);
-      console.error("Error status:", error.status);
-
-      // Only use mock auth if explicitly enabled (not automatically)
-      const isDev = import.meta.env.DEV;
-      const mockAuth = localStorage.getItem("mock-auth");
-
-      console.log("🔍 Development mode:", isDev);
-      console.log("🔍 Mock auth setting:", mockAuth);
-
-      if (isDev && mockAuth === "true") {
-        const mockUser: User = {
-          id: "mock-user-1",
-          email: "demo@apexflow.com",
-          name: "Demo User",
-          provider: "email",
-          role: "Administrator",
-        };
-        setUser(mockUser);
-        console.log("🔧 Using mock user for development (manually enabled)");
-      } else {
-        console.log("🙅‍♂️ No mock auth - setting user to null");
-        setUser(null);
+      if (error instanceof Error) {
+        console.error("Error message:", error.message);
       }
+      if (typeof error === 'object' && error !== null && 'status' in error) {
+        console.error("Error status:", (error as { status: unknown }).status);
+      }
+
+      // No auth session found - user is not logged in
+      setUser(null);
     } finally {
-      console.log("🏁 Auth loading complete. User:", user?.email || "null");
+      console.log("Auth loading complete. User:", user?.email || "null");
       setLoading(false);
     }
-  };
+  }, [user?.email]);
+
+  useEffect(() => {
+    loadUserFromStorage();
+  }, [loadUserFromStorage]);
+
 
   const signInWithEmail = async (
     email: string,
