@@ -3,19 +3,17 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
+# Copy package/workspace manifests (same pattern as api-gateway)
 COPY package*.json ./
 COPY apps/agent-orchestrator/package*.json ./apps/agent-orchestrator/
-COPY packages/shared/package*.json ./packages/shared/
-COPY packages/types/package*.json ./packages/types/
 
-# Install dependencies
-RUN npm ci
+# Install deps
+RUN npm install
 
-# Copy source code
+# Copy source
 COPY . .
 
-# Build the application
+# Build agent-orchestrator
 RUN npm run build -w @apex-flow/agent-orchestrator
 
 # Production stage
@@ -28,13 +26,11 @@ RUN addgroup -g 1001 -S nodejs && adduser -S agent -u 1001
 
 WORKDIR /app
 
-# Copy package files
+# Copy runtime package.json
 COPY apps/agent-orchestrator/package*.json ./
 
-# Copy node_modules from builder
+# Copy node_modules and built dist from builder (same pattern as api-gateway)
 COPY --from=builder /app/node_modules ./node_modules
-
-# Copy built application
 COPY --from=builder --chown=agent:nodejs /app/apps/agent-orchestrator/dist ./dist
 
 USER agent
