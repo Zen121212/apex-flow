@@ -1,14 +1,7 @@
-<img src="./readme/title1.svg"/>
+<img src="./readme/title1-1.svg"/>
 
 ## License
 
-**License:** MIT
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## License
-
-**License:** MIT
 <img src="./readme/license.svg"/>
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -158,4 +151,4 @@ Bot: "You have 3 contracts from this year: TechCorp Contract ($15K),
 | --------------------------------------- | ------------------------------------- | ------------------------------------- |
 | ![Landing](./readme/demo/1440x1024.png) | ![fsdaf](./readme/demo/1440x1024.png) | ![fsdaf](./readme/demo/1440x1024.png) |
 
-<br><br> --> 
+<br><br> -->
