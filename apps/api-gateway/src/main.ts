@@ -143,38 +143,68 @@ async function bootstrap() {
       message: 'ApexFlow API Gateway',
       version: '1.0.0',
       platform: 'Express + NestJS',
+      documentation: {
+        swagger: '/api/docs',
+        description: 'Interactive API documentation with testing capabilities'
+      },
+      authentication: {
+        description: 'Most endpoints require JWT authentication',
+        bearerToken: 'Include: Authorization: Bearer <token>',
+        cookieAuth: 'Alternative: auth-cookie'
+      },
       endpoints: {
         health: '/health',
+        documentation: 'GET /api/docs (Swagger UI)',
         auth: {
-          register: 'POST /auth/register',
-          login: 'POST /auth/login',
-          logout: 'POST /auth/logout',
-          profile: 'GET /auth/profile'
+          register: 'POST /api/auth/register',
+          login: 'POST /api/auth/login',
+          logout: 'POST /api/auth/logout',
+          profile: 'GET /api/auth/profile (requires auth)'
         },
         documents: {
-          upload: 'POST /documents/upload',
-          process: 'POST /documents/:id/process'
+          upload: 'POST /api/documents/upload (requires auth)',
+          list: 'GET /api/documents',
+          get: 'GET /api/documents/:id',
+          process: 'POST /api/documents/:id/process',
+          analysis: 'GET /api/documents/:id/analysis',
+          file: 'GET /api/documents/:id/file'
         },
-        search: {
-          query: 'POST /search/query'
+        ai: {
+          analysis: 'POST /api/ai/analysis',
+          batch: 'POST /api/ai/analysis/batch',
+          config: 'GET /api/ai/config',
+          health: 'GET /api/ai/health'
+        },
+        workflows: {
+          list: 'GET /api/workflows',
+          create: 'POST /api/workflows',
+          get: 'GET /api/workflows/:id',
+          update: 'PUT /api/workflows/:id',
+          delete: 'DELETE /api/workflows/:id',
+          templates: 'GET /api/workflows/templates',
+          stats: 'GET /api/workflows/stats'
         },
         integrations: {
-          list: 'GET /integrations',
-          create: 'POST /integrations',
-          get: 'GET /integrations/:id',
-          update: 'PUT /integrations/:id',
-          delete: 'DELETE /integrations/:id',
-          test: 'POST /integrations/:id/test',
-          toggle: 'POST /integrations/:id/toggle'
+          list: 'GET /api/integrations',
+          create: 'POST /api/integrations',
+          get: 'GET /api/integrations/:id',
+          update: 'PUT /api/integrations/:id',
+          delete: 'DELETE /api/integrations/:id',
+          test: 'POST /api/integrations/:id/test',
+          toggle: 'POST /api/integrations/:id/toggle'
         },
-        debug: {
-          categorization: 'POST /debug/analyze-categorization',
-          workflow: 'POST /debug/analyze-workflow-selection',
-          pdfText: 'POST /debug/extract-pdf-text',
-          invoiceData: 'POST /debug/extract-invoice-data',
-          options: 'GET /debug/workflow-options'
+        search: {
+          query: 'POST /api/search'
         }
       },
+      features: [
+        'Document Upload & Processing',
+        'AI-Powered Analysis',
+        'Workflow Automation',
+        'Third-party Integrations',
+        'Intelligent Search',
+        'Real-time Processing'
+      ],
       timestamp: new Date().toISOString()
     });
   });
@@ -187,6 +217,9 @@ async function bootstrap() {
 
   await app.listen(port, '0.0.0.0');
   console.log(`🚀 API Gateway listening on port ${port} (Express + NestJS)`);
+  console.log(`📚 API Documentation (Swagger UI): http://localhost:${port}/api/docs`);
+  console.log(`🏠 API Root: http://localhost:${port}/api`);
+  console.log(`💚 Health Check: http://localhost:${port}/health`);
 }
 
 bootstrap().catch(console.error);

@@ -9,10 +9,26 @@ import {
   UploadedFile,
   Req,
 } from "@nestjs/common";
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiConsumes,
+  ApiBody,
+  ApiSecurity
+} from "@nestjs/swagger";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { Request } from "express";
 import { HuggingFaceClientService } from "../../services/ai/huggingface-client.service";
 import { ModelManagerService } from "../../services/ai/model-manager.service";
+import { 
+  AIAnalysisFileUploadDto, 
+  AIAnalysisJsonDto, 
+  AIBatchAnalysisDto, 
+  AIAnalysisResultDto, 
+  AIConfigDto, 
+  AIHealthDto 
+} from "./dto/ai.dto";
 
 interface AnalysisRequest {
   fileContent: string; // Base64 encoded file content
@@ -22,6 +38,7 @@ interface AnalysisRequest {
   extractionOptions?: any;
 }
 
+@ApiTags('AI Analysis')
 @Controller("ai")
 export class AIController {
   private readonly logger = new Logger(AIController.name);
@@ -31,6 +48,116 @@ export class AIController {
     private readonly modelManager: ModelManagerService,
   ) {}
   @Post("analysis")
+  @ApiOperation({
+    summary: 'AI Document Analysis',
+    description: `
+      Analyze documents using advanced AI models for text extraction and structured data extraction.
+      
+      **Supported formats**: PDF, JPG, JPEG, PNG, GIF, BMP, TIFF, TXT
+      **Max file size**: 50MB
+      
+      **Analysis types**:
+      - **Invoice**: Extract invoice data (number, date, amount, vendor, line items)
+      - **Contract**: Extract contract details (parties, dates, terms, clauses)
+      - **General**: General text extraction and analysis
+      - **Receipt**: Extract receipt data (merchant, amount, date, items)
+      - **Form**: Extract form fields and values
+      
+      **Input methods**:
+      1. **File Upload**: Use multipart/form-data with file field
+      2. **JSON**: Send base64-encoded file content with metadata
+    `
+  })
+  @ApiConsumes('multipart/form-data', 'application/json')
+  @ApiBody({
+    description: 'Document for AI analysis - supports both file upload and JSON format',
+    schema: {
+      oneOf: [
+        {
+          type: 'object',
+          properties: {
+            file: {
+              type: 'string',
+              format: 'binary',
+              description: 'Document file to analyze'
+            },
+            analysisType: {
+              type: 'string',
+              enum: ['invoice', 'contract', 'general', 'receipt', 'form'],
+              description: 'Type of analysis to perform'
+            },
+            extractionOptions: {
+              type: 'object',
+              description: 'Additional extraction options'
+            }
+          }
+        },
+        {
+          type: 'object',
+          properties: {
+            fileContent: {
+              type: 'string',
+              description: 'Base64 encoded file content'
+            },
+            fileName: {
+              type: 'string',
+              description: 'Original filename'
+            },
+            mimeType: {
+              type: 'string',
+              description: 'MIME type of the file'
+            },
+            analysisType: {
+              type: 'string',
+              enum: ['invoice', 'contract', 'general', 'receipt', 'form']
+            },
+            extractionOptions: {
+              type: 'object',
+              description: 'Additional extraction options'
+            }
+          },
+          required: ['fileContent', 'fileName', 'mimeType']
+        }
+      ]
+    },
+    examples: {
+      fileUpload: {
+        summary: 'File upload example',
+        description: 'Upload a file using multipart/form-data',
+        value: {
+          file: '(binary file data)',
+          analysisType: 'invoice',
+          extractionOptions: {
+            extractTables: true,
+            language: 'en'
+          }
+        }
+      },
+      jsonUpload: {
+        summary: 'JSON upload example',
+        description: 'Send base64-encoded file content',
+        value: {
+          fileContent: 'JVBERi0xLjQKJcTl8uXrp/Og0MTGCjQgMCBvYmo...',
+          fileName: 'invoice_2024.pdf',
+          mimeType: 'application/pdf',
+          analysisType: 'invoice',
+          extractionOptions: {
+            extractTables: true,
+            language: 'en'
+          }
+        }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'AI analysis completed successfully',
+    type: AIAnalysisResultDto
+  })
+  @ApiResponse({ status: 400, description: 'Bad request - invalid file or parameters' })
+  @ApiResponse({ status: 413, description: 'Payload too large - file exceeds 50MB limit' })
+  @ApiResponse({ status: 422, description: 'Unprocessable entity - unsupported file format' })
+  @ApiResponse({ status: 500, description: 'Internal server error - AI service unavailable' })
   @UseInterceptors(
     FileInterceptor("file", {
       limits: { fileSize: 50 * 1024 * 1024 },
