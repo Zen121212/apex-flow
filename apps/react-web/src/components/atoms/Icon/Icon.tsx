@@ -65,7 +65,7 @@ import {
   Files,
   HelpCircle,
   LifeBuoy,
-  type LucideIcon
+  LucideIcon
 } from 'lucide-react';
 import './Icon.css';
 

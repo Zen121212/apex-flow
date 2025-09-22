@@ -6,8 +6,6 @@ import DocumentAnalysis from "../components/DocumentAnalysis";
 import InsightsSummary from "../components/InsightsSummary";
 import type {
   AIAssistantState,
-  SearchQuery,
-  DocumentResult,
   ChatSession,
   ChatMessage,
   DocumentAnalysis as Analysis,

@@ -14,10 +14,10 @@ interface MockUser {
 interface MockAuthContext {
   user: MockUser | null;
   isAuthenticated: boolean;
-  signInWithEmail: jest.Mock;
-  signUpWithEmail: jest.Mock;
-  signInWithGoogle: jest.Mock;
-  signOut: jest.Mock;
+  signInWithEmail: jest.Mock<Promise<boolean>, [string, string]>;
+  signUpWithEmail: jest.Mock<Promise<boolean>, [string, string, string]>;
+  signInWithGoogle: jest.Mock<Promise<boolean>, []>;
+  signOut: jest.Mock<Promise<void>, []>;
   loading: boolean;
 }
 

@@ -69,7 +69,7 @@ if (typeof TextEncoder === 'undefined') {
 // Simple polyfills for fetch globals that MSW expects
 if (typeof globalThis.Response === 'undefined') {
   // Mock Response constructor
-  globalThis.Response = class Response {
+  (globalThis as any).Response = class Response {
     status: number;
     statusText: string;
     headers: Headers;
@@ -113,7 +113,7 @@ if (typeof globalThis.Response === 'undefined') {
 }
 
 if (typeof globalThis.Request === 'undefined') {
-  globalThis.Request = class Request {
+  (globalThis as any).Request = class Request {
     url: string;
     method: string;
     headers: Headers;
@@ -129,7 +129,7 @@ if (typeof globalThis.Request === 'undefined') {
 }
 
 if (typeof globalThis.Headers === 'undefined') {
-  globalThis.Headers = class Headers {
+  (globalThis as any).Headers = class Headers {
     _headers: Map<string, string>;
 
     constructor(init: any = {}) {
@@ -178,7 +178,7 @@ if (typeof globalThis.fetch === 'undefined') {
 
 // Simple AbortController polyfill
 if (typeof globalThis.AbortController === 'undefined') {
-  globalThis.AbortController = class AbortController {
+  (globalThis as any).AbortController = class AbortController {
     signal: {
       aborted: boolean;
       addEventListener: jest.Mock;
@@ -207,7 +207,7 @@ if (typeof globalThis.AbortController === 'undefined') {
 
 // Mock Blob if needed
 if (typeof globalThis.Blob === 'undefined') {
-  globalThis.Blob = class Blob {
+  (globalThis as any).Blob = class Blob {
     size: number;
     type: string;
     parts: any[];
@@ -222,7 +222,7 @@ if (typeof globalThis.Blob === 'undefined') {
 
 // Mock BroadcastChannel for MSW
 if (typeof globalThis.BroadcastChannel === 'undefined') {
-  globalThis.BroadcastChannel = class BroadcastChannel {
+  (globalThis as any).BroadcastChannel = class BroadcastChannel {
     name: string;
     onmessage: any;
     onmessageerror: any;
@@ -253,7 +253,7 @@ if (typeof globalThis.BroadcastChannel === 'undefined') {
 
 // Mock URL constructor if needed
 if (typeof globalThis.URL === 'undefined') {
-  globalThis.URL = class URL {
+  (globalThis as any).URL = class URL {
     href: string;
     origin: string;
     protocol: string;

@@ -18,18 +18,7 @@ interface WorkflowWithId {
   steps: WorkflowStep[];
 }
 
-interface FileAnalysis {
-  fileName: string;
-  originalFile: File;
-  documentType: string;
-  keyData: Record<string, unknown>;
-  confidence: number;
-  suggestedWorkflow: unknown;
-  extractedText: string;
-  metadata: Record<string, unknown>;
-  workflowId?: string;
-  workflowName?: string;
-}
+// FileAnalysis interface removed - not used
 
 // UploadModalData interface removed - not used
 

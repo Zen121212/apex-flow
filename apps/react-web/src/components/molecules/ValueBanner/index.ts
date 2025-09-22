@@ -1,1 +1,1 @@
-export { ValueBanner as default, type ValueBannerProps, type ValueBannerItem } from './ValueBanner';
+export { ValueBanner as default, ValueBannerProps, ValueBannerItem } from './ValueBanner';

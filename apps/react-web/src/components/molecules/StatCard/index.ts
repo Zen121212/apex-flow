@@ -1,1 +1,1 @@
-export { StatCard as default, type StatCardProps } from './StatCard';
+export { StatCard as default, StatCardProps } from './StatCard';

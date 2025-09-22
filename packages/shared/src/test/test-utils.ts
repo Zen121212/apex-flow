@@ -20,6 +20,7 @@ export const createMockRepository = <T extends Record<string, any> = any>(): jes
   manager: {} as any,
   metadata: {} as any,
   target: {} as any,
+  queryRunner: undefined,
   hasId: jest.fn(),
   getId: jest.fn(),
   merge: jest.fn(),
@@ -42,7 +43,13 @@ export const createMockRepository = <T extends Record<string, any> = any>(): jes
   clear: jest.fn(),
   upsert: jest.fn(),
   insert: jest.fn(),
-});
+  // Add missing properties
+  updateAll: jest.fn(),
+  deleteAll: jest.fn(),
+  exists: jest.fn(),
+  findAndCountBy: jest.fn(),
+  extend: jest.fn() as any,
+} as any);
 
 /**
  * Mock MongoDB repository factory
@@ -50,7 +57,7 @@ export const createMockRepository = <T extends Record<string, any> = any>(): jes
 export const createMockMongoRepository = <T extends Record<string, any> = any>(): jest.Mocked<Repository<T> & { findOneAndUpdate: jest.Mock }> => ({
   ...createMockRepository<T>(),
   findOneAndUpdate: jest.fn(),
-});
+} as any);
 
 /**
  * Mock logger for testing

@@ -15,17 +15,9 @@ interface IntegrationConfig {
   enabled: boolean;
 }
 
-interface ApprovalConfig {
-  recipients?: string[];
-}
+// ApprovalConfig interface removed - not used
 
-interface WorkflowIntegrations {
-  slack?: IntegrationConfig;
-  email?: IntegrationConfig;
-  database?: IntegrationConfig;
-  webhook?: IntegrationConfig;
-  approval?: ApprovalConfig;
-}
+// WorkflowIntegrations interface removed - not used
 
 interface Workflow {
   id: string;
@@ -78,7 +70,7 @@ const Workflows: React.FC = () => {
   const deleteWorkflowMutation = useDeleteWorkflow();
   
   // Get workflow IDs for document count queries
-  const workflowIds = backendWorkflows.map(w => w._id || w.id).filter(Boolean);
+  const workflowIds = backendWorkflows.map(w => (w as any)._id || w.id).filter(Boolean);
   const { data: documentCounts = {} } = useWorkflowDocumentCounts(workflowIds);
 
   // Convert backend workflow to frontend workflow format
@@ -87,7 +79,7 @@ const Workflows: React.FC = () => {
     const integrations: IntegrationName[] = [];
     let requiresApproval = false;
 
-    backendWorkflow.steps.forEach(step => {
+    backendWorkflow.steps.forEach((step: any) => {
       switch (step.type) {
         case 'send_notification':
           if (step.config.integrationType === 'slack') {
@@ -106,7 +98,7 @@ const Workflows: React.FC = () => {
       }
     });
 
-    const workflowId = backendWorkflow._id || backendWorkflow.id;
+    const workflowId = (backendWorkflow as any)._id || backendWorkflow.id;
     const actualDocumentCount = documentCounts[workflowId] || 0;
 
     return {
@@ -138,7 +130,7 @@ const Workflows: React.FC = () => {
   }, []);
 
   const openEditModal = useCallback((workflowId: string) => {
-    const workflowToEdit = backendWorkflows.find(w => (w._id || w.id) === workflowId);
+    const workflowToEdit = backendWorkflows.find(w => ((w as any)._id || w.id) === workflowId);
     if (workflowToEdit) {
       setModalMode('edit');
       setEditingWorkflow(workflowToEdit);
@@ -179,8 +171,8 @@ const Workflows: React.FC = () => {
         name: "Store Data",
         type: "store_data",
         config: {
-          tableName: draft.integrations.database.tableName || 'documents',
-          fields: draft.integrations.database.fields || 'all'
+          tableName: (draft.integrations.database as any)?.tableName || 'documents',
+          fields: (draft.integrations.database as any)?.fields || 'all'
         }
       });
     }
@@ -191,8 +183,8 @@ const Workflows: React.FC = () => {
         type: "send_notification",
         config: {
           integrationType: 'slack',
-          channel: draft.integrations.slack.channel || '#general',
-          messageTemplate: draft.integrations.slack.messageTemplate || 'Document processed'
+          channel: (draft.integrations.slack as any)?.channel || '#general',
+          messageTemplate: (draft.integrations.slack as any)?.messageTemplate || 'Document processed'
         }
       });
     }
@@ -203,8 +195,8 @@ const Workflows: React.FC = () => {
         type: "send_notification",
         config: {
           integrationType: 'email',
-          recipients: draft.integrations.email.recipients || '',
-          subjectTemplate: draft.integrations.email.subjectTemplate || 'Document Processed'
+          recipients: (draft.integrations.email as any)?.recipients || '',
+          subjectTemplate: (draft.integrations.email as any)?.subjectTemplate || 'Document Processed'
         }
       });
     }
@@ -239,7 +231,7 @@ const Workflows: React.FC = () => {
           {error && (
             <div className={styles.errorBanner}>
               <span className={styles.errorIcon}>⚠️</span>
-              <span>{error}</span>
+              <span>{error instanceof Error ? error.message : String(error)}</span>
             </div>
           )}
         </div>
@@ -286,7 +278,7 @@ const Workflows: React.FC = () => {
         isOpen={showModal}
         onClose={closeModal}
         onWorkflowCreated={onWorkflowCreated}
-        editingWorkflow={editingWorkflow}
+        editingWorkflow={editingWorkflow as any}
         mode={modalMode}
       />
       

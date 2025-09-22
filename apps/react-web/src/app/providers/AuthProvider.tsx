@@ -3,7 +3,7 @@ import React, {
   useContext,
   useState,
   useEffect,
-  type ReactNode,
+  ReactNode,
 } from "react";
 import { authAPI } from "../../services/api/auth";
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink as RouterNavLink, type NavLinkProps as RouterNavLinkProps } from 'react-router-dom';
+import { NavLink as RouterNavLink, NavLinkProps as RouterNavLinkProps } from 'react-router-dom';
 import { Badge } from '../../atoms/Badge/Badge';
 import { Icon } from '../../atoms/Icon/Icon';
 import './Navigation.css';

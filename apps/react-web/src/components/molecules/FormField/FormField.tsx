@@ -1,5 +1,5 @@
 import React from 'react';
-import { Input, type InputProps } from '../../atoms/Input/Input';
+import { Input, InputProps } from '../../atoms/Input/Input';
 import { Icon } from '../../atoms/Icon/Icon';
 import './FormField.css';
 
