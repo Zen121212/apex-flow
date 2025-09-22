@@ -1,18 +1,6 @@
 import React, { useState } from 'react';
+import { FileAnalysis } from '../types/AIAnalysisTypes';
 import './AIAnalysisResults.css';
-
-interface FileAnalysis {
-  fileName: string;
-  originalFile: File;
-  documentType: string;
-  keyData: any;
-  confidence: number;
-  suggestedWorkflow: any;
-  extractedText: string;
-  metadata: any;
-  workflowId?: string;
-  workflowName?: string;
-}
 
 interface AIAnalysisResultsProps {
   files: FileAnalysis[];
@@ -29,7 +17,7 @@ const AIAnalysisResults: React.FC<AIAnalysisResultsProps> = ({
     return (
       <div className="ai-results-container">
         <div className="ai-results-header">
-          <h2>🤖 AI Analysis Results</h2>
+          <h2>AI Analysis Results</h2>
           <div className="loading-indicator">
             <div className="spinner"></div>
             <p>Analyzing documents...</p>
@@ -43,7 +31,7 @@ const AIAnalysisResults: React.FC<AIAnalysisResultsProps> = ({
     return (
       <div className="ai-results-container">
         <div className="ai-results-header">
-          <h2>🤖 AI Analysis Results</h2>
+          <h2>AI Analysis Results</h2>
           <div className="no-results">
             <p>No analysis results available</p>
           </div>
@@ -66,13 +54,13 @@ const AIAnalysisResults: React.FC<AIAnalysisResultsProps> = ({
       .replace(/([a-z])([A-Z])/g, '$1 $2');
   };
 
-  const renderValue = (value: any): string => {
+  const renderValue = (value: unknown): string => {
     if (value === null || value === undefined) return 'Not available';
     if (typeof value === 'object') return JSON.stringify(value, null, 2);
     return String(value);
   };
 
-  const renderKeyData = (keyData: any) => {
+  const renderKeyData = (keyData: Record<string, unknown>) => {
     if (!keyData || Object.keys(keyData).length === 0) {
       return (
         <div className="no-data">
@@ -81,7 +69,7 @@ const AIAnalysisResults: React.FC<AIAnalysisResultsProps> = ({
       );
     }
 
-    const renderDynamicStructure = (obj: any, basePath: string[] = []) => {
+    const renderDynamicStructure = (obj: Record<string, unknown>, basePath: string[] = []) => {
       const elements: React.ReactElement[] = [];
       
       Object.entries(obj).forEach(([key, value]) => {
@@ -98,7 +86,7 @@ const AIAnalysisResults: React.FC<AIAnalysisResultsProps> = ({
             elements.push(
               <div key={fieldKey} className="array-section">
                 <h4>{formatFieldLabel(key)} ({value.length} items)</h4>
-                {value.map((item: any, index: number) => (
+                {value.map((item: unknown, index: number) => (
                   <div key={`${fieldKey}.${index}`} className="array-item">
                     <h5>{formatFieldLabel(key)} {index + 1}</h5>
                     <div className="array-item-fields">
@@ -167,7 +155,7 @@ const AIAnalysisResults: React.FC<AIAnalysisResultsProps> = ({
     <div className="ai-results-container">
       {/* Header */}
       <div className="ai-results-header">
-        <h2>🤖 AI Analysis Results</h2>
+        <h2>AI Analysis Results</h2>
         <div className="analysis-summary">
           <span className="file-count">{files.length} file{files.length !== 1 ? 's' : ''} analyzed</span>
         </div>

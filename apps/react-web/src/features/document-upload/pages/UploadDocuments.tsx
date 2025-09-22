@@ -17,7 +17,7 @@ const UploadDocuments: React.FC = () => {
 
   // AI Analysis Modal state
   const [showAnalysisModal, setShowAnalysisModal] = useState(false);
-  const [analysisData, setAnalysisData] = useState<any>(null);
+  const [analysisData, setAnalysisData] = useState<Record<string, unknown> | null>(null);
   const [loadingAnalysis, setLoadingAnalysis] = useState<string | null>(null);
 
   const { data, isLoading, isError, refetch, isFetching } = useDocumentsList(filters);
@@ -39,9 +39,9 @@ const UploadDocuments: React.FC = () => {
   const handleViewAnalysis = async (doc: DocumentItem) => {
     setLoadingAnalysis(doc.id);
     try {
-      console.log(`🔍 Fetching AI analysis for document: ${doc.originalName} (${doc.id})`);
+      console.log(`Fetching AI analysis for document: ${doc.originalName} (${doc.id})`);
       const analysisResponse = await documentAPI.getDocumentAnalysis(doc.id);
-      console.log('📊 Analysis response:', analysisResponse);
+      console.log('Analysis response:', analysisResponse);
       
       // Transform backend analysis data to match AIAnalysisModal format
       // Use the full analysis object as keyData since it contains the extracted fields
@@ -86,8 +86,8 @@ const UploadDocuments: React.FC = () => {
         originalFiles: []
       };
       
-      console.log('🔧 Transformed data for modal:', transformedData);
-      console.log('🔧 KeyData structure:', transformedData.files[0].keyData);
+      console.log('Transformed data for modal:', transformedData);
+      console.log('KeyData structure:', transformedData.files[0].keyData);
       
       setAnalysisData(transformedData);
       setShowAnalysisModal(true);
@@ -105,9 +105,9 @@ const UploadDocuments: React.FC = () => {
     setAnalysisData(null);
   };
 
-  const handleAnalysisModalConfirm = async (editedData: any) => {
+  const handleAnalysisModalConfirm = async (editedData: Record<string, unknown>) => {
     // TODO: Save the edited analysis data back to the backend
-    console.log('🔄 Saving edited analysis data:', editedData);
+    console.log('Saving edited analysis data:', editedData);
     
     // For now, just close the modal
     // In the future, you could call an API to update the document's analysis data
@@ -121,7 +121,7 @@ const UploadDocuments: React.FC = () => {
 
   const handleDownloadDocument = async (doc: DocumentItem) => {
     try {
-      console.log(`📥 Downloading document: ${doc.originalName} (${doc.id})`);
+      console.log(`Downloading document: ${doc.originalName} (${doc.id})`);
       
       const blob = await documentAPI.downloadDocument(doc.id);
       
@@ -135,7 +135,7 @@ const UploadDocuments: React.FC = () => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
       
-      console.log(`✅ Download completed: ${doc.originalName}`);
+      console.log(`Download completed: ${doc.originalName}`);
     } catch (error) {
       console.error('Failed to download document:', error);
       alert('Failed to download document. Please try again.');

@@ -3,7 +3,7 @@ import Button from "../../../components/atoms/Button/Button";
 import AIAnalysisErrorBoundary from "../../../components/ErrorBoundary/AIAnalysisErrorBoundary";
 import "./AIAnalysisModal.css";
 
-import { FileAnalysis, UploadModalData, KeyData, SelectedWorkflow } from '../types/AIAnalysisTypes';
+import { UploadModalData, KeyData } from '../types/AIAnalysisTypes';
 
 interface AIAnalysisModalProps {
   isOpen: boolean;

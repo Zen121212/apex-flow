@@ -5,8 +5,8 @@ import type { FileAnalysis, UploadModalData } from '../types/AIAnalysisTypes';
  */
 export function transformAnalysisData(
   analyzedFiles: File[],
-  analysisResults: any[],
-  uploadOptions: any = {}
+  analysisResults: Record<string, unknown>[],
+  uploadOptions: Record<string, unknown> = {}
 ): UploadModalData {
   const transformedFiles: FileAnalysis[] = analyzedFiles.map((file, index) => {
     const analysis = analysisResults[index] || {};
@@ -46,7 +46,7 @@ export function transformAnalysisData(
 /**
  * Validates if the analysis data has the required fields
  */
-export function validateAnalysisData(data: any): boolean {
+export function validateAnalysisData(data: unknown): boolean {
   if (!data || !Array.isArray(data)) return false;
 
   return data.every(item => {

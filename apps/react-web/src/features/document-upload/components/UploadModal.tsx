@@ -38,7 +38,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onFilesUploa
     workflowId: undefined,
   });
   const [showAnalysisResults, setShowAnalysisResults] = useState(false);
-  const [analysisData, setAnalysisData] = useState<any>(null);
+  const [analysisData, setAnalysisData] = useState<Record<string, unknown> | null>(null);
   const [isProcessingAnalysis, setIsProcessingAnalysis] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -115,7 +115,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onFilesUploa
           workflowId: uploadOptions.workflowId,
         };
         
-        console.log('📤 Direct upload without Visual AI processing:', {
+        console.log('Direct upload without Visual AI processing:', {
           originalName: uploadData.originalName,
           mimeType: uploadData.mimeType,
           size: uploadData.size,
@@ -151,11 +151,11 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onFilesUploa
               });
               
               if (response.ok) {
-                console.log(`✅ AI analysis completed for document: ${result.documentId}`);
+        console.log(`AI analysis completed for document: ${result.documentId}`);
                 return result.documentId;
               }
             } catch (processError) {
-              console.warn(`⚠️ Analysis failed for document ${result.documentId}:`, processError);
+              console.warn(`Analysis failed for document ${result.documentId}:`, processError);
             }
           }
           return null;
@@ -246,7 +246,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onFilesUploa
     }
   };
 
-  const handleAnalysisConfirm = async (editedData: any) => {
+  const handleAnalysisConfirm = async (editedData: Record<string, unknown>) => {
     console.log('Analysis results confirmed:', editedData);
     setShowAnalysisResults(false);
     setAnalysisData(null);
@@ -292,15 +292,15 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onFilesUploa
                 <div className="processing-details">
                   <div className="processing-steps">
                     <div className="step active">
-                      <span className="step-icon" style={{color: 'black'}}>✓</span>
+                      <span className="step-icon">✓</span>
                       <span>Documents uploaded successfully</span>
                     </div>
                     <div className="step active">
-                      <span className="step-icon" style={{color: 'black'}}>🔍</span>
+                      <span className="step-icon">→</span>
                       <span>Running AI analysis</span>
                     </div>
                     <div className="step">
-                      <span className="step-icon" style={{color: 'black'}}>📊</span>
+                      <span className="step-icon">→</span>
                       <span>Preparing results</span>
                     </div>
                   </div>
@@ -317,7 +317,12 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onFilesUploa
                 onDrop={handleDrop}
                 onClick={() => inputRef.current?.click()}
               >
-                <div className="upload-icon" style={{color: 'black'}}>📂</div>
+                <div className="upload-icon">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                    <path d="M12,11L16,15H13.5V19H10.5V15H8L12,11Z"/>
+                  </svg>
+                </div>
                 <h3>Drag and drop your files here</h3>
                 <p>or click to browse</p>
                 <input
