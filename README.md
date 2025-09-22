@@ -32,10 +32,6 @@ Built with a modern microservices architecture, ApexFlow combines advanced AI ca
 
 <img src="./readme/screenshots/system-arch.png"/>
 
-### Add Title Here
-
-- To be decided on later on.
-
 <br><br>
 
 <!-- Project Highlights -->
@@ -146,15 +142,26 @@ Bot: "You have 3 contracts from this year: TechCorp Contract ($15K),
 
 <br><br>
 
-<!-- Deployment
+### Deployment
+
 <img src="./readme/title7.svg"/>
 
-### Add Title Here
+## **API Testing Made Simple - Swagger Ready**
 
-- Description here.
+**🔄 Real-Time Validation**  
+Every endpoint includes live validation with instant feedback on request structure
 
-| Postman API 1                           | Postman API 2                         | Postman API 3                         |
-| --------------------------------------- | ------------------------------------- | ------------------------------------- |
-| ![Landing](./readme/demo/1440x1024.png) | ![fsdaf](./readme/demo/1440x1024.png) | ![fsdaf](./readme/demo/1440x1024.png) |
+**📱 Multi-Format Support**  
+JSON, multipart uploads, and base64 encoding all documented with working examples
 
-<br><br> -->
+**🛡️ Security First**  
+JWT authentication flows clearly mapped with token lifecycle management
+
+**⚡ Zero Setup Testing**  
+Import directly into Postman or test immediately in Swagger without configuration
+
+| Swagger 1                                    | Swagger 2                                    |
+| -------------------------------------------- | -------------------------------------------- |
+| ![Landing](./readme/screenshots/swagger.png) | ![fsdaf](./readme/screenshots/swagger-1.png) |
+
+<br><br>
